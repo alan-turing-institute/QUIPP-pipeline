@@ -1,0 +1,17 @@
+name: Document Conversion
+
+on: push
+
+jobs:
+  pandoc_convert:
+    name: Create pdf with pandoc
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v1
+      - uses: maxheld83/pandoc@v2
+        with:
+          args: "-f markdown -t latex --standalone --output=repord.pdf doc/report.md"
+      - uses: actions/upload-artifact@master
+        with:
+          name: report.pdf
+          path: report.pdf
