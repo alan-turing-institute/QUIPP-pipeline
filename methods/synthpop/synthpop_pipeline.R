@@ -24,13 +24,16 @@
 # The utility is measured by examining descriptive statistics of the synthesised data sets vs the 
 # original and also by fitting a model and comparing the inferences to the ones from the original.
 #
-# At  the moment the pipeline uses the Polish data set embedded in the synthpop package but it can easily
-# be extended to other data sets - TO DO
+# At  the moment the pipeline can use the Polish data set embedded in the synthpop package OR the ONS Census data set
+# available in the repository.
 
 
 
 ### Import libraries ###
-install.packages("simPop")
+list.of.packages <- c("synthpop", "dplyr")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+
 library(synthpop)
 library(dplyr)
 
@@ -44,6 +47,11 @@ read_data <- function(dataset_name){
     data_full <- SD2011
     levels(data_full$edu) <- c("NONE", "VOC", "SEC", "HIGH")
     
+  } else if (dataset_name == "CensusUK2011"){
+    # ONS Census 2011 teaching file
+    data_full <- read.csv("../../datasets/rft-teaching-file/2011 Census Microdata Teaching File.csv",
+                          header=TRUE, skip=1)
+    
   } else stop("Unknown datsaset")
   
   return(data_full)
@@ -54,29 +62,49 @@ read_data <- function(dataset_name){
 
 ### Read the data ###
 
-dataset_name <- "Polish"
+# Datasets available: "Polish", "CensusUK2011"
+dataset_name <- "CensusUK2011"
 data_full <- read_data(dataset_name)
-print(paste("Data set '", dataset_name, "' read sucessfully", sep=""))
 nobs_original <- nrow(data_full)
-
+print(paste("Data set '", dataset_name, "' read sucessfully. Number of rows: ", 
+            nobs_original, sep=""))
 
 
 ### Set parameters ###
 
 # which variables do you want to use? these need to be consistent with the df cols
-vars_selection <- c("smoke", "sex", "age", "edu", "weight", 
-                    "height", "bmi", "sport", "marital", "region")
+if (dataset_name == "Polish"){
+  vars_selection <- c("smoke", "sex", "age", "edu", "weight", 
+                      "height", "bmi", "sport", "marital", "region")
+} else if (dataset_name == "CensusUK2011"){
+  vars_selection <- c("Health", "Sex", "Age", "Marital.Status", "Student")
+}
 
 # which method to fit each variable? see docs for options
-synthesis_methods <- c("sample", "logreg", "ctree", "polyreg", "ctree", 
-                       "ctree", "ctree", "ctree", "cart", "cart")
+if (dataset_name == "Polish"){
+  synthesis_methods <- c("sample", "logreg", "ctree", "polyreg", "ctree", 
+                         "ctree", "ctree", "ctree", "cart", "cart")
+} else if (dataset_name == "CensusUK2011"){
+  synthesis_methods <- c("sample", "ctree", "ctree", "ctree", "cart")
+}
 
 # in what sequence should the variables be synthesised?
-vars_sequence <- c(1,2,3,4,8,9,10,5,6,7)
+if (dataset_name == "Polish"){
+  vars_sequence <- c(1,2,3,4,8,9,10,5,6,7)
+} else if (dataset_name == "CensusUK2011"){
+  vars_sequence <- c(1,2,3,4,5)
+}
+
+
 
 # definition of any rules/restrictions on values of variables
-rules <- list(marital = "age < 18 & sex == 'MALE'")
-rule_values <- list(marital = "SINGLE")
+if (dataset_name == "Polish"){
+  rules <- list(marital = "age < 18 & sex == 'MALE'")
+  rule_values <- list(marital = "SINGLE")
+} else if (dataset_name == "CensusUK2011"){
+  rules <- list(Marital.Status = "Age == 1")
+  rule_values <- list(Marital.Status = 1)
+}
 
 # Proper synthesis? The default is FALSE
 # in which case synthetic data are generated from fitted 
@@ -85,8 +113,12 @@ rule_values <- list(marital = "SINGLE")
 # metrics will improve (this needs to be investigated)
 proper <- FALSE
 
+# Compare utility for synthetic data vs original for population inference at the end? 
+# If FALSE, utility is compared for original data set inference. 
+population_inference = TRUE
+
 # Number of independent synthesised data sets
-m <- 5 
+m <- 3
 
 # Number of observations per synthesised data set
 k <- nobs_original
@@ -110,7 +142,11 @@ seed <- 1234567
 # Options are "" or "density" and the argument needs to be a list - one element
 # for each variable
 tree_minbucket <- 5
-smoothing = list("","","density","","density","density","","","","")
+if (dataset_name == "Polish"){
+  smoothing = list("","","density","","density","density","","","","")
+} else if (dataset_name == "CensusUK2011"){
+  smoothing = list("","","","","")
+}
 names(smoothing) <- vars_selection
 
 # one of the necessary checks for correct input parameters
@@ -119,7 +155,7 @@ if ((length(vars_selection)==length(synthesis_methods)) &
     (length(vars_selection)==length(smoothing))){
   print("Parameters set sucessfully")
 } else {
-  print("Parameter dimensions are inconsistent")
+  stop("Parameter dimensions are inconsistent")
 }
 
 
@@ -172,9 +208,16 @@ cov(dplyr::select_if(data_synth$syn[[1]], is.numeric), use = "complete.obs")
 # and std. errors when inferring population coefficients. Set to  FALSE when  inferring
 # the coefficient  estimates you  would get from the original sample.
 print("Utility metric 4: GLM inference")
-model <- glm.synds(formula = smoke ~ sex + age + edu + weight + sex * edu, 
-                   data = data_synth, family = type)
-summary(model, population.inference = TRUE)
+if (dataset_name == "Polish"){
+  model <- glm.synds(formula = smoke ~ sex + age + edu + weight + sex * edu, 
+                     data = data_synth, family = type)
+} else if (dataset_name == "CensusUK2011"){
+  
+  model <- glm.synds(formula = Student - 1 ~ Sex + Age + Marital.Status + Health, 
+                     data = data_synth, family = type)
+}
+
+summary(model, population.inference = population_inference)
 compare(model, data_original)
 print("Utility metrics ran sucessfully")
 
