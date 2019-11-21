@@ -1,6 +1,9 @@
 name: Document Conversion
 
-on: push
+on:
+  push:
+    paths: 
+      - doc/report.md
 
 jobs:
   pandoc_convert:
@@ -14,3 +17,4 @@ jobs:
       - uses: actions/upload-artifact@master
         with:
           name: report.pdf
+          path: report.pdf
