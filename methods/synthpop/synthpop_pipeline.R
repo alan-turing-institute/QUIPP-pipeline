@@ -30,6 +30,7 @@
 
 
 ### Import libraries ###
+install.packages("simPop")
 library(synthpop)
 library(dplyr)
 
