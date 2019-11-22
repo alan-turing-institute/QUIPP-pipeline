@@ -27,7 +27,7 @@ samples[(1 + Nsample):(Nsample + Nsynth),] = NA
 ## samples_imp = mice(samples, method="norm")
 
 ## Bayesian bootstrap
-samples_imp = mice(samples, method="norm.boot")
+samples_imp = mice(samples, method="norm.boot", maxit=50)
 
 samples_completed = complete(samples_imp)
 
@@ -40,3 +40,10 @@ g <- ggplot(samples_completed, aes(x=X1, y=X2, shape=synth, col=synth)) +
     geom_point(position=position_jitter(width=0.02,height=0.02))
 
 plot(g)
+
+## some more diagnostic plots
+## trace lines
+plot(samples_imp)
+
+## densities (observed and imputed)
+densityplot(samples_imp)
