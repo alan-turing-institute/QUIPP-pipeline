@@ -24,7 +24,10 @@ samples[(1 + Nsample):(Nsample + Nsynth),] = NA
 ## samples_imp = mice(samples, method="pmm")
 
 ## Bayesian linear regression
-samples_imp = mice(samples, method="norm")
+## samples_imp = mice(samples, method="norm")
+
+## Bayesian bootstrap
+samples_imp = mice(samples, method="norm.boot")
 
 samples_completed = complete(samples_imp)
 
