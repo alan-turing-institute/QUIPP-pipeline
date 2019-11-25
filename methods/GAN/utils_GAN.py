@@ -1,3 +1,4 @@
+from __future__ import division
 
 import numpy as np
 import pandas as pd
@@ -39,7 +40,8 @@ def SimpleMetrics(y_pred,y_true):
     
 def SimpleAccuracy(y_pred,y_true):
     TP, TN, FP, FN = BaseMetrics(y_pred,y_true)
-    ACC = ( TP + TN ) / ( TP + TN + FP + FN )
+    #ACC = ( TP + TN ) / ( TP + TN + FP + FN )
+    ACC = ( float(TP) + TN ) / ( TP + TN + FP + FN )
     return ACC
 
 
@@ -316,7 +318,7 @@ def training_steps_WGAN(model_components):
             else:
                 g_z = generator_model.predict(z)
             xgb_loss = CheckAccuracy( x, g_z, data_cols, label_cols, seed=0, with_class=with_class, data_dim=data_dim )
-            xgb_losses = np.append(xgb_losses, xgb_loss)
+            xgb_losses = np.append(xgb_losses, float(xgb_loss))
         
         if not i % log_interval:
             print('Step: {} of {}.'.format(i, starting_step + nb_steps))
