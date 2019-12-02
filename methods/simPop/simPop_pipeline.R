@@ -36,6 +36,8 @@
 #
 # This simple pipeline reads the data and executs the full flow of simPop. The results are used to 
 # calculate various utility metrics. The code section titles refer to the corresponding sections in the simPop paper.
+# At the end of thee main pipeline, there are two small demos of alternative flows which do not use all of the
+# steps but just focus either on IPF or on model-based simulation.
 
 
 
