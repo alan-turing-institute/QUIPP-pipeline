@@ -19,7 +19,7 @@
 # The package allows to skip variables, handle missing data, apply rules to variables, 
 # some ways to tune privacy and utility.
 #
-# This simple pipeline read data from a file, sets parameters for the package (including privacy settings) 
+# This simple pipeline reads data from a file, sets parameters for the package (including privacy settings) 
 # and then runs the synthesis. The results are used to calculate various utility metrics.
 # The utility is measured by examining descriptive statistics of the synthesised data sets vs the 
 # original and also by fitting a model and comparing the inferences to the ones from the original.
