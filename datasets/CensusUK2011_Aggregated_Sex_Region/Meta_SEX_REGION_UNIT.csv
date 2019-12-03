@@ -1,0 +1,7 @@
+CDU_FIELD_NAME,CENSUS_CELLNAME,TOPIC,CATEGORY,TOPIC_DESCRIPTION,
+F2340,QS104EW0001,Sex,Total\ Sex,The classification of a person as either male or female.,
+F2340,QS104EW0001,Unit,Persons,The unit is for a particular count (e.g. people or households),
+F2341,QS104EW0002,Sex,Males,The classification of a person as either male or female.,
+F2341,QS104EW0002,Unit,Persons,The unit is for a particular count (e.g. people or households),
+F2342,QS104EW0003,Sex,Females,The classification of a person as either male or female.,
+F2342,QS104EW0003,Unit,Persons,The unit is for a particular count (e.g. people or households),
