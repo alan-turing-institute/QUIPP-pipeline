@@ -83,7 +83,7 @@ read_data <- function(dataset_name){
 # CAUTION: UK data have not been tested yet with this pipeline
 dataset_name <- "Austrian"
 orig_data <- read_data(dataset_name)
-nobs_original <- nrow(data_full)
+nobs_original <- nrow(orig_data)
 print(paste("Data set '", dataset_name, "' read sucessfully. Number of rows: ", 
             nobs_original, sep=""))
 
