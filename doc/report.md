@@ -42,6 +42,8 @@ $A(D')$ with that of $A(D)$, although this may be impractical.
 #### Example
 
 
+
+
 ## Utility metrics
 
 The general scenario is that we have two data sets and we want to assess whether they are equally useful for our analysis or purposes:
@@ -88,7 +90,7 @@ Visually inspect similarity in graphs:
 This involves training the same model on the original and synthesised data and comparing the results. We expect to see similar outcomes if the data sets are similar. Many models can be trained with different variabels involved (including interactions, etc). To compare, we can check estimated coefficients and their confidence intervals and how they overlap (for GLMs), switches between positive and negative values in the same coefficient (GLMs), switches between significant and non-significant (GLMs), residual distributions (any model), feature imporances (tree based methods), weights (neural networks - unrealistic?). For CI overlap, there are various metrics proposed by the authors of synthpop. We can also do different forms of cross validation a nd compare the results.
 
 #### Holdout based comparison
-We can hold out a chunk of the original data set and then use the redacted original to synthesise. We then train the same model on the redacted original and the synthesised and predict the holdout. We can compare the predictions, residuals, feature importance (for tree-based methods and other metrics to see if they are the same.
+We can hold out a chunk of the original data set and then use the redacted original to synthesise. We then train the same model on the redacted original and the synthesised and predict the holdout. We can compare the predictions, residuals, feature importance (for tree-based methods) and other metrics to see if they are the same. For classification problems, we can check whether the same proportion of observations fall into the same class for original/synthetic.
 
 #### Clustering
 The datasets should behave the same way for a variety of uses/analyses (although there might be users that are only interested in specific analyses). Unsupervised tasks could be used for comparison, e.g. do the two data sets lead to approcimately the same clusters being found when k-means is applied?
