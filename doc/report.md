@@ -50,7 +50,9 @@ The general scenario is that we have two data sets and we want to assess whether
 - The original data set, which we do not want to release due to privacy or other concerns. This could come from a database or a survey. In the case of microsimulation, the original data could also be a sample from a population (e.g. in the case of a census), where we have access only to the sample and not the population.
 - The synthesised data set, which is created using any of a number of synthesis methods and contain "fake" data which we want to be able to release. In the case of microsimulation, the synthesised data set is usually an approximation of the population that we do not have and the aim is to use this to do our analysis because the sample is too small.
 
-There are many utility metrics to compare the usefulness of the two data sets and some of them are application-specific. This is a list of metrics that could be applied to the problem, some of which have been taken from literature.
+Note that in the case of microsimulation (where only a sample from the real population is observed/known), it might be appropriate to apply bootstrapping or other similar methods to the sample in order to grow its size to match the size of the synthetic population. We then use this "scaled up" sample when comparing with the synthetic population using the metrics given below.
+
+There are many utility metrics to compare the usefulness of the two data sets and some of them are application-specific. This is a list of metrics that could be applied to the problem, some of which have been taken from literature. 
 
 #### Descriptive statistics: 
 Various descriptive statistics for each variable in the data can be evaluated on the original/synthesised data sets and then compared by finding relative differences or performing hypothesis tests (e.g. equality of means), etc. Examples: Mean, variance, moments, modes, percentiles, min/max values.
