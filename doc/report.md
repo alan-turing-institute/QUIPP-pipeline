@@ -6,15 +6,40 @@
 
 A function $A$, from a dataset in $\mathcal{D}$, to a random variable taking values in $R$, is said to be
 \emph{$\epsilon$-differentially private} if for any $S \subseteq R$, and where $D'$ is any dataset derived from $D \in
-\mathcal{D}$ by the removal of a single element, the following holds:
+\mathcal{D}$ by the addition or removal of a single element, the following holds:
 
-$$\mathbf{P}(A(D) \in S) \le e^{\epsilon}\mathbf{P}(A(D') \in S)$$
+$$\mathbf{P}(A(D) \in S) \le e^{\epsilon}\mathbf{P}(A(D') \in S)$$ {#eq:diff-priv-eps}
+
+A function is said to be \emph{$(\epsilon,\delta)$-differentially private} if
+
+$$\mathbf{P}(A(D) \in S) \le e^{\epsilon}\mathbf{P}(A(D') \in S) + \delta$$ {#eq:diff-priv-eps-delta}
+
+When probability density functions exist for these distributions, this is equivalent to
+
+$$p(x) \le e^{\epsilon} q(x)\; [+ \delta]$$
+
+for all $x \in S$, where
+$$
+p(x) = f_{A(D)}(x) \\
+q(x) = f_{A(D')}(x).
+$$
+
+An alternative way of writing the condition @eq:diff-priv-eps is
+$$
+\log \left\( \frac{p(x)}{q(x)} \right\) \le \epsilon,
+$$
+and @eq:diff-priv-eps-delta follows from the condition
+$$
+p(x) \le \delta or \log \left\( \frac{p(x)}{q(x)} \right\) \le \epsilon.
+$$
 
 In the context of data synthesis, $A$ takes the (private) data as input and produces a distribution, with synthetic data
 produced by sampling from this distribution.
 
 In principle, for a given dataset, it is possible to check the above property empirically, by comparing the distribution of
 $A(D')$ with that of $A(D)$, although this may be impractical.
+
+#### Example
 
 
 ## Utility metrics
