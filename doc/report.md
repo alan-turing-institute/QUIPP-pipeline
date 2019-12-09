@@ -117,3 +117,11 @@ Many other ML methods can be tested, e.g. sklearn has a bunch of them under the 
 
 #### Weighted average of many metrics
 Almost all of the above metrics are quantifiable and thus can be combined into a weighted "total score" which would give the user a feel about overall utility. The user could choose which metrics they want to include in the score and how important each metric is.
+
+
+
+## Why traditional privacy preservation methods are insufficient
+(taken from https://doi.org/10.1016/j.csda.2011.06.006)
+To protect confidentiality in public use datasets, many statistical agencies release data that have been altered to protect confidentiality. Common strategies include aggregating geography, top-coding variables, swapping data values across records, and adding random noise to values. As the threats to confidentiality grow, these techniques may have to be applied with high intensity to ensure adequate protection. However, applying these methods with high intensity can have serious consequences for secondary statistical analysis. For example, aggregation of geography to high levels disables small area estimation and hides spatial variation; top-coding eliminates learning about tails of distributions—which are often most interesting—and degrades analyses reliant on entire distributions; swapping at high rates destroys correlations among swapped and not swapped  ariables; and, adding random noise introduces measurement error that distorts distributions and attenuates correlations. In fact, Elliott and Purdam (2007) use the public use files from the UK census to show empirically that the quality of statistical analyses can be degraded even when using recoding, swapping, or stochastic perturbation at modest intensity levels. These problems would only get worse with high intensity applications.
+
+Also, a utility and privacy comparison between traditional methods can be found in https://doi.org/10.1198/000313006X124640
