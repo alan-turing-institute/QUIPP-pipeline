@@ -95,7 +95,7 @@ This involves training the same model on the original and synthesised data and c
 We can hold out a chunk of the original data set and then use the redacted original to synthesise. We then train the same model on the redacted original and the synthesised and predict the holdout. We can compare the predictions, residuals, feature importance (for tree-based methods) and other metrics to see if they are the same. For classification problems, we can check whether the same proportion of observations fall into the same class for original/synthetic.
 
 #### Clustering
-The datasets should behave the same way for a variety of uses/analyses (although there might be users that are only interested in specific analyses). Unsupervised tasks could be used for comparison, e.g. do the two data sets lead to approcimately the same clusters being found when k-means is applied?
+The datasets should behave the same way for a variety of uses/analyses (although there might be users that are only interested in specific analyses). Unsupervised tasks could be used for comparison, e.g. do the two data sets lead to approximately the same clusters being found when k-means is applied? One approach to compare datasets using clustering is given in https://doi.org/10.29012/jpc.v1i1.568
 
 #### Dimensionality reduction
 Does PCA (and other more complex methods) give the same principal components, etc?
@@ -108,6 +108,9 @@ Solve simple optimisation problems which use the variables of the data set and s
 
 #### Variable selection behaviour
 Does LASSO drop the same variables when trained on the two data sets?
+
+#### Propensity Score
+As described in https://doi.org/10.29012/jpc.v1i1.568, this is a score that uses logistic regression predicting membership to the original/synthetic sets given all the variables in the datasets. The resulting probabilities are compared based on their percentiles.
 
 #### Other methods
 Many other ML methods can be tested, e.g. sklearn has a bunch of them under the same API. 
