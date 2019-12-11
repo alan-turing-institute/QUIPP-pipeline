@@ -125,3 +125,61 @@ Almost all of the above metrics are quantifiable and thus can be combined into a
 To protect confidentiality in public use datasets, many statistical agencies release data that have been altered to protect confidentiality. Common strategies include aggregating geography, top-coding variables, swapping data values across records, and adding random noise to values. As the threats to confidentiality grow, these techniques may have to be applied with high intensity to ensure adequate protection. However, applying these methods with high intensity can have serious consequences for secondary statistical analysis. For example, aggregation of geography to high levels disables small area estimation and hides spatial variation; top-coding eliminates learning about tails of distributions—which are often most interesting—and degrades analyses reliant on entire distributions; swapping at high rates destroys correlations among swapped and not swapped  ariables; and, adding random noise introduces measurement error that distorts distributions and attenuates correlations. In fact, Elliott and Purdam (2007) use the public use files from the UK census to show empirically that the quality of statistical analyses can be degraded even when using recoding, swapping, or stochastic perturbation at modest intensity levels. These problems would only get worse with high intensity applications.
 
 Also, a utility and privacy comparison between traditional methods can be found in https://doi.org/10.1198/000313006X124640
+
+
+
+## simPop notes
+
+#### Summary
+
+simPop is an R package that combines a number of methods to perform static spatial microsimulation. Following the typical microsimulation scenario, it generates synthetic populations by combining individual-level samples (i.e. microdata or seed) and aggregated census data (i.e. macrodata or target). Its intended use is for cases where spatial microsimulation is desirable, i.e. where the individuals belong to household and regional hierarchical structures. Nevertheless, the functions available can be used for more general synthetic tasks without a need for this hierarchy to be present (although some of the function arguments related to households still need to be filled). In terms of methodology, the package provides implementations of IPF, Simulated Annealing and model-based data  synthesis methods for categorical, semi-continuous and continuous variables (both parametric and non-parametric). It also offers some other methods which are useful for creating household structures and allows the user to tune various parameters (e.g. the sequence of variable synthesis). It comes with its own example data set which consists of a sample from an Austrian census and some aggregated data.
+
+
+#### Methodology
+
+The package performs spatial microsimulation. The purpose of spatial microsimulation is to synthesise individual-level data allocated to geographical regions, based on constraints. The synthesised data need to be as big as the whole population (or the part of the population that we are interested in). Usually, we only have access to the following to sets of data from which we want to synthesise:
+-	Micro-data: These are individual-level data which are a sample from the population, e.g. 1% of all census data. They contain information for each individual, e.g. gender, age, region, income. This data set is also called the ‘seed’ in microsimulation literature. We are trying to synthesise a population-size extension of this data set, allocated to regions based on constraints. These constraints are provided by the macro-data.
+-	Macro-data: These are spatially (or otherwise) aggregated data from the same source (e.g. census) which provide the constraints based on which we are going to synthesise. They are cross-tabulations, e.g. frequencies of individuals who are male/female and live in each of the 9 regions of England. These are called the ‘target’ in literature. The synthesised population needs to adhere to the constraints posed by the target, e.g. the number of males in Greater London in the synthesised population needs to be the same or similar to what we have in the macro-data.
+
+Note that simPop assumes that each individual micro-datum in the imported set has a weight (initial weight). The weights can be interpreted as “an individual with weight w is going to be replicated w times when forming the synthesised population”. It also assumes the micro-data have a household structure and stratum (region).
+
+The main simPop flow to create a synthetic population data set is the following:
+-	Data Import: Import the individual-level micro-data using specifyInput() and the aggregated macro-data as a table.
+-	Sample calibration: Calibrate the micro-data using calibSample(). Calibration consists in editing the weights of the individuals in the micro-data so as to reflect the constraints in the macro-data. This kind of calibration is done using the IPF reweighting algorithm – details can be found in several microsimulation papers in Zotero.
+-	Population extension: Extend the data set to population size by resampling the household structure and some basic variables using simStructure(). These basic variables should be as few as possible to avoid compromising privacy and they should be the ones that are the least sensitive to intruder attacks. simStructure() creates realistic household structures since it resamples the structures it sees in the micro-data.
+*	Variables synthesis: Synthesize the remaining variables in the data set (categorical and continuous) using simCategorical() and simContinuous(). These are allowed to have non-observed relationships to households, as the sample is unlikely to capture all possible (reasonable) relationships in the population. The package provides implementations of parametric and non-parametric models for categorical, semi-continuous and continuous variables (e.g. multinomial, logistic and two-step regression, tree-based methods). The synthesis proceeds as follows for each synthesised variable: 
+    * A model is trained to predict the synthesised variable given all variables that have been synthesised so far. Training is done on the sample data set so all data are “original - real” data at this stage.
+    *	The variable is synthesised by scoring the trained model. The synthetic data are used in this stage as input to the trained model (i.e. the data that have already been synthesised in previous steps).
+    * The process is repeated for all variables.
+The order of variables’ data synthesis can be modified. Users can apply corrections to age variables (Whipple, Sprague indices; corrects for over-reporting of ages ending in 5 or 0). Multiple methods for generating categorical variables are available: multinomial logistic regression, random draws from the conditional distribution or classification trees. Likewise, multiple methods are available for continuous data: 1) Fitting a multinomial model and taking random draws from the intervals of the categories into which predictions fall, 2) Apply a logistic regression to separate close-to-zero values from the rest. Then for non-zeros  apply a linear regression. Random noise is also added - either based on normal assumption or by sampling from the residuals. 
+-	Other synthesis tasks: Simulate variables’ components and/or allocate the population to small areas with simComponents() and simInitSpatial(). 
+    *	The first one is used to simulate components that together add up to one variable, e.g. different sources of income that are combined to make up the total income. The inputs are the sample data containing all the components and the synthetic (population data) where only the combined variable is available. The output are the components in the population data. 
+    *	The second one is used to simulate granular geographical information if needed. Using simInitSpatial we can simulate information on a finer level than the one we already have - e.g. districts instead of regions. This requires a table that contains the known population of smaller areas for each larger area, either as number of persons or number of households.
+-	Population calibration: Calibrate the (now fully synthesised) population data set using calibPop() if required. This uses Simulated Annealing (SA) and requires some form of cross-tabulated census data (constraints) to calibrate against. SA is an iterative optimisation algorithm which swap households between regions in each step to converge to a solution that closely adheres to the constraints. 
+
+The above flow can be altered depending on requirements and some of the functions can be used independently but with some care. For example:
+-	specifyInput + calibSample: Can be used to simply run IPF on any data set, regardless of whether the data set is a sample or a population. Initial weights need to be provided, as well as a household id variable. 
+-	specifyInput + simStructure + simCategorical + simContinuous: Can be used to simply synthesise data with model-based  synthesis, without any calibration (IPF, etc). The size of the synthesised data set depends on the weights the initial data set  has been assigned (simStructure "replicates" individuals a number of times equal to their weights). If weights are all equal to 1.0 the synthesised data set will have the same size as the original. Note that synthesis is done once and not multiple times like in multiple imputation algorithms.
+ 
+The package has a number of settings and features, e.g. allows parallelisation for several functions and various changes to model training parameters.
+
+#### Utility and privacy
+The package offers several utility metrics to compare the original micro-data sample with the synthesised micro-data population. The basis for comparison are the frequencies (counts) for various subsets (groupings) of data, e.g. count of women in Greater London. For the sample data, a weighted mean is computed (using the weights) instead of the simple counts in order to get estimates of the expected population counts.
+
+The utility metrics include Mosaic, CDF and Box plots and a comparison of the results of a regression trained on the original and synthesised data set (checks if estimated coefficient CIs overlap).
+
+#### Pros and cons
+Pros:
+-	simPop handles complex data structures such as individuals within households when doing microsimulation
+-	Has a lot of features and settings and implements many methods (microsimulation techniques, parametric and non-parametric models)
+-	Processing speed is fast due to ability to use parallel CPU processing
+-	Marginal distributions can be well preserved as they are used in the synthesising process
+-	Offers utility metric functions, some of which are visualisations.
+-	Documentation is decent and the code seems well written
+
+Cons:
+-	Flow is tailored for the specific case of simulating households and is a bit inflexible although some components are reusable.
+-	No multiple imputation option when doing model-based synthesis.
+-	Lack of privacy-related features/metrics/tuning
+
+
