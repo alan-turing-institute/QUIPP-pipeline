@@ -1,5 +1,11 @@
 # QUIPP
 
+## De-identification
+
+### Anonymisation
+
+### Pseudonymisation
+
 ## Assessing privacy
 
 ### Differential privacy
