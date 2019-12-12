@@ -57,6 +57,17 @@ between publication to the world at large and the disclosure
 on a more limited basis – for example to a particular research
 establishment with conditions attached. 
 
+
+From the [second Caldicott Review (2013)](https://www.gov.uk/government/publications/the-information-governance-review):
+>**5.2 Anonymisation**
+>
+>Data ceases to be personal and confidential when it has been anonymised, as explained in 
+chapter 6. In those circumstances, publication is lawful. Data, which has been anonymised
+but still carries a significant risk of re-identification or de-anonymisation, may be treated
+either as personal and confidential or as anonymised depending on how effectively the risk
+of re-identification has been mitigated and what safeguards have been put in place. This is
+fully explained in the ICO Anonymisation: Code of Practice and in chapter 6 of this report.
+
 ### Anonymisation / Pseudonimisation methods
 From appendix 2 of the [ICO Anonymisation Code of Practice](https://ico.org.uk/media/1061/anonymisation-code.pdf)
 
