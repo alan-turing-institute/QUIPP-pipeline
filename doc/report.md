@@ -2,9 +2,168 @@
 
 ## De-identification
 
-### Anonymisation
+### Re-identification
 
-### Pseudonymisation
+From page 6 of the [ICO Anonymisation Code of Practice](https://ico.org.uk/media/1061/anonymisation-code.pdf):
+
+>We use the term ‘re-identification’ to describe the process of
+turning anonymised data back into personal data through the use
+of data matching or similar techniques.
+
+### Personal data
+
+From page 16 of the [ICO Anonymisation Code of Practice](https://ico.org.uk/media/1061/anonymisation-code.pdf): 
+>The definition of ‘personal data’ can be difficult to apply in practice
+for two main reasons:
+>
+>•	 the concept of ‘identify’ – and therefore of ‘anonymise’ - is not
+straightforward because individuals can be identified in a number
+of different ways. This can include direct identification, where
+someone is explicitly identifiable from a single data source, such
+as a list including full names, and indirect identification, where
+two or more data sources need to be combined for identification
+to take place; and
+>
+>•	 you may be satisfied that the data your organisation intends
+to release does not, in itself, identify anyone. However, in
+some cases you may not know whether other data is available
+that means that re-identification by a third party is likely to
+take place.
+>
+>In reality it can be difficult to determine whether data has been
+anonymised or is still personal data. This can call for sensible
+judgement based on the circumstances of the case in hand. This
+code describes ways of assessing and mitigating the risks that
+may arise, particularly in terms of assessing whether other data
+is available that is likely to make re-identification likely. In some
+cases, it will be relatively easy to determine whether it is likely
+that a release of anonymised data will allow the identification
+of an individual. In other cases it will be much harder, but the
+decision still has to be made. 
+
+### Anonymisation / Pseudonymisation
+
+The boundary between these anonymisation and pseudonymisation is both fuzzy and drwn in different places by different organisations / references.
+
+From page 7 of the [ICO Anonymisation Code of Practice](https://ico.org.uk/media/1061/anonymisation-code.pdf)
+>We use the broad term ‘anonymisation’ to cover various techniques
+that can be used to convert personal data into anonymised data.
+We draw a distinction between anonymisation techniques used to
+produce aggregated information, for example, and those – such
+as pseudonymisation – that produce anonymised data but on an
+individual-level basis. The latter can present a greater privacy risk,
+but not necessarily an insurmountable one. We also draw a distinction
+between publication to the world at large and the disclosure
+on a more limited basis – for example to a particular research
+establishment with conditions attached. 
+
+### Anonymisation / Pseudonimisation methods
+From appendix 2 of the [ICO Anonymisation Code of Practice](https://ico.org.uk/media/1061/anonymisation-code.pdf)
+
+>**Data masking**
+>
+>This involves stripping out obvious personal identifiers such
+as names from a piece of information, to create a data set in
+which no person identifiers are present. 
+
+Note: Considered relatively high-risk by ICO because the
+anonymised data still exists in an individual-level form. 
+
+>**Pseudonymisation**
+>
+>De-identifying data so that a coded reference or pseudonym is
+attached to a record to allow the data to be associated with a
+
+Note: Considered relatively high-risk by ICO because the
+anonymised data still exists in an individual-level form. 
+
+>**Aggregation**
+>
+>Data is displayed as totals, so no data relating to or identifying
+any individual is shown. Small numbers in totals are often
+suppressed through ‘blurring’ or by being omitted altogether. 
+
+Note: ICO includes Synthetic Data as a variant of Aggregation, but not of Pseudonymisation.
+
+Note: Considered  low risk by ICO because it will
+generally be difficult to find anything out about a particular
+individual by using aggregated data. 
+
+>**Derived data items and banding**
+>
+>Derived data is a set of values that reflect the character of the
+source data, but which hide the exact original values. This is
+usually done by using banding techniques to produce
+coarser-grained descriptions of values than in the source
+dataset eg replacing dates of birth by ages or years, addresses
+by areas of residence or wards, using partial postcodes or
+rounding exact figures so they appear in a normalised form.
+
+Note: Considered  low risk by ICO because the
+banding techniques make data-matching more difficult or
+impossible.
+
+### The 'motivated intruder' test
+
+From pages 22-23 of the [ICO Anonymisation Code of Practice](https://ico.org.uk/media/1061/anonymisation-code.pdf)
+>However a useful test – and one used by the Information Commissioner and the Tribunal that hears DPA and FOIA appeals –
+involves considering whether an ‘intruder’ would be able to achieve
+re-identification if motivated to attempt this.
+>
+>The ‘motivated intruder’ is taken to be a person who starts without any
+prior knowledge but who wishes to identify the individual from whose
+personal data the anonymised data has been derived. This test is
+meant to assess whether the motivated intruder would be successful.
+>
+>The approach assumes that the ‘motivated intruder’ is reasonably
+competent, has access to resources such as the internet, libraries,
+and all public documents, and would employ investigative
+techniques such as making enquiries of people who may have
+additional knowledge of the identity of the data subject or advertising
+for anyone with information to come forward. The ‘motivated
+intruder’ is not assumed to have any specialist knowledge such as
+computer hacking skills, or to have access to specialist equipment or
+to resort to criminality such as burglary, to gain access to data that is
+kept securely.
+
+## Open publication vs limited access sharing
+
+From page 37 of the [ICO Anonymisation Code of Practice](https://ico.org.uk/media/1061/anonymisation-code.pdf)
+>It is important to draw a distinction between the publication of
+anonymised data to the world at large and limited access. Clearly
+the open data agenda relies on the public availability of data, and
+information released in response to a freedom of information request
+cannot be restricted to a particular person or group. However, much
+research, systems testing and planning, for example, takes place by
+releasing data within a closed community, ie where a finite number
+of researchers or institutions have access to the data and where its
+further disclosure is prohibited, eg by a contract. The advantage of
+this is that re-identification and other risks are more controllable, and
+potentially more data can be disclosed without having to deal with
+the problems that publication can cause. It is therefore important to
+draw a clear distinction between:
+>
+>•	 publication to the world at large, eg under the Freedom of
+Information Act 2000 or open data. Here – in reality - there is
+no restriction on the further disclosure or use of the data and no
+guarantee that it will be kept secure; and
+>
+>•	 limited access, eg within a closed community of researchers. Here
+it is possible to restrict the further disclosure or use of the data
+and its security can be guaranteed.
+>
+>Limited access is particularly appropriate for the handling of
+anonymised data derived from sensitive source material or where
+there is a significant risk of re-identification.
+>
+>There can still be risks associated with limited access disclosure -
+but these can be mitigated where data is disclosed within a closed
+community working to established rules. Data minimisation rules will
+also remain relevant.
+>
+>It could be appropriate that data anonymised from a collection of
+personal data is published, whilst a record-level version of the data is
+released in a limited way under an end-user agreement. 
 
 ## Assessing privacy
 
