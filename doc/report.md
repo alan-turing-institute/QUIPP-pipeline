@@ -359,3 +359,49 @@ Cons:
 -	Lack of privacy-related features/metrics/tuning
 
 
+
+## synthpop notes
+
+#### Summary
+synthpop is an R package that implements a version of multiple imputation (MI), although the authors do not characterise it as such in the documentation and papers. The aim of the package is to create synthetic data sets in situations where the original data set cannot be released for privacy or other reasons – in contrast to other MI libraries which are built with missing data imputation in mind. The approach followed to synthesise data is model-based synthesis using parametric and non-parametric methods. synthpop visits variables in a sequence, approximates their conditional distributions (i.e. conditional on other variables) using a model and then samples from the model. Multiple synthetic data sets are generated and they are all used to perform the inference task of interest and their results are combined. An option is offered to synthesise based on the MLE estimate of the parameters or based on the whole posterior. The package offers many tuning options for the models, the sequence of variables and privacy. It also offers functions for comparing utility between the original and synthetic data sets by training a GLM.
+
+#### Methodology
+synthpop generates the synthetic data sets and performs inference as follows:
+-	Generate the first variable in the sequence (the user can select which one this is) using resampling.
+-	For each subsequent variable, using the original data set, train a model that predicts the variable from all the variables that have been synthesised already, e.g. for the second variable use the first variable as a feature, for the third variable use the first and second variables as features, etc. Then, using the data set synthesised so far, generate predictions with the model, given the features. Add some noise by randomly sampling around this prediction (the exact way this is done depends on the model used). The outcomes are the synthesised values. If posterior (“proper”) synthesis is chosen, the synthesis happens by sampling from the whole posterior of the unknown parameters of the model instead of just using the MLE. The order of synthesis can be tuned by the user and it should “make sense” in some way.
+-	After this is finished for all variables, the previous two steps are repeated m times (with different random seeds) to create the m synthetic data sets. 
+-	To infer the quantities of interest from the data set (e.g. parameters of a model of interest – careful, this model is unrelated to the synthesis model), the package runs the inference on all m synthetic data sets and combines the estimates into one estimate. It also used formulas described in the paper for evaluating the error and confidence intervals of the combined estimate. These capture the uncertainty of the random nature of synthesising data and thus are more reliable than errors coming from only one synthetic data set (this is why MI is better than single imputation).
+
+The package offers many options for tuning the synthesis process:
+-	Allows to select the order of synthesis of variables and skip variables if needed
+-	Handles missing data. For categorical variables it treats missing data as an extra category. For continuous variables two steps are. In the first step, we synthesise an auxiliary binary variable specifying whether a value is missing or not. Depending on the method specified by a user for the original variable a logit or CART model is used for synthesis. If there are different types of missing values an auxiliary categorical variable is created to reflect this and an appropriate model is used for synthesis (a polytomous or CART model). In the second step, a synthesising model is fitted to the non-missing values in the original variable and then used to generate synthetic values for the non-missing category records in our auxiliary variable. The auxiliary variable and a variable with non-missing values and zeros for remaining records are used instead of the original variable for prediction of other variables.
+-	Handles restriction in variable values/combinations: In such cases the rules and the corresponding values should be specified using rules and rvalues parameters. They are supplied in the form of named. The variables used in rules have to be synthesised prior to the variable they refer to. In the synthesis process the restricted values are assigned first and then only the records with unrestricted values are synthesised.
+-	Option to use simple or proper synthesis as described above (effectively MLE vs full posterior inference while synthesising).
+-	Type of models: Several models can be used. They comprise parametric and non-parametric ones and they can also be grouped into categorical, continuous or general. Examples include CART, linear regression, logistic regression, pmm, etc (see paper for more details). The user can choose which one to apply to each variable. User-written models can also be used.
+-	Population or sample inference can be chosen. The former assumes we are trying to infer the population parameters while the latter assumes we infer the original data (sample parameters). The variances are evaluated in different ways.
+- The size of the synthesised data sets (number of rows) is easy to tune.
+
+#### Privacy and Utility 
+
+The package allows for some limited tuning of privacy in of the synthetic data set: 
+-	The user can tune the minimum number of observations that can be grouped into each leaf of a CART or ctree model. The larger the number, the better the privacy as it is less likely that original rows will be replicated. Utility is inversely affected as the model becomes less accurate.
+-	Kernel smoothing can be applied to reduce the risk of replicating unusual continuous variable values. 
+
+Utility is quantified using the following methods:
+-	Metric 1: Compare frequency distributions of original vs. synthesised for each variable. Produces tables and graphs.
+-	Metric 2: Train GLM on synthetic data set. Compare results with the same GLM trained on the original data set. Provides several utility metrics and graphs, see paper
+
+#### Pros and cons
+Pros
+- Well written and easy to use
+- Offers a variety of synthesis models
+- Offers privacy options
+- Utility evaluation is implemented
+- Many features and tuning options
+- Allows adding user-written models
+
+Cons
+- Classification trees are prone to over fitting, maintaining all relationships is unlikely to be possible in cases of more than say 10 variables, depending on number of categories, complexity of relationships and so on.
+- The package cannot deal with complex data structures, such as hierarchical, or cluster structures (e.g., individuals within households), so in this case packages like simPop are more suitable.
+
+
