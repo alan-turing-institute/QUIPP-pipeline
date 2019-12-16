@@ -108,8 +108,9 @@ if (dataset_name == "Polish"){
 
 # Proper synthesis? The default is FALSE
 # in which case synthetic data are generated from fitted 
-# conditional distributions. If TRUE they are generated from
-# the joint posterior. When TRUE it is expected the utility
+# conditional distributions using the MLE estimate of 
+# parameters. If TRUE they are generated using the whole
+# posterior. When TRUE it is expected the utility
 # metrics will improve (this needs to be investigated)
 proper <- FALSE
 
