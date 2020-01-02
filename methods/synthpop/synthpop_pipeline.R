@@ -29,12 +29,12 @@
 
 
 ### Import libraries ###
-list.of.packages <- c("synthpop", "dplyr")
+list.of.packages <- c("synthpop") # dplyr for covariance
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages, repos = "http://cran.us.r-project.org")
 
 library(synthpop)
-library(dplyr)
+#library(dplyr)
 
 
 
@@ -197,8 +197,8 @@ summary(data_synth$syn[[1]])
 # Metric 3: Compare covariance matrices - again only m=1 is used for synthetic
 # Uses only rows with no missing data
 print("Utility metric 3: Covariance matrices")
-cov(dplyr::select_if(data_original, is.numeric), use = "complete.obs")
-cov(dplyr::select_if(data_synth$syn[[1]], is.numeric), use = "complete.obs")
+#cov(dplyr::select_if(data_original, is.numeric), use = "complete.obs")
+#cov(dplyr::select_if(data_synth$syn[[1]], is.numeric), use = "complete.obs")
 
 # Metric 4: Train binomial GLM with interactions on synthetic data set, show results.
 # Also, compare results with the same GLM trained on the original data set using the 
