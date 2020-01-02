@@ -1,0 +1,22 @@
+name: SDV CI
+
+on: 
+  push:
+    paths:
+      - 'methods/SDV/**'
+
+jobs:
+  run_script:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Install dependencies
+      run: pip install sdv runipy
+    - name: Run notebook
+      run: runipy methods/SDV/SDV_pipeline.ipynb
