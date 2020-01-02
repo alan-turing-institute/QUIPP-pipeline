@@ -202,11 +202,11 @@ $$
 
 An alternative way of writing the condition @eq:diff-priv-eps is
 $$
-\log \left\( \frac{p(x)}{q(x)} \right\) \le \epsilon,
+\log \left( \frac{p(x)}{q(x)} \right) \le \epsilon,
 $$
 and @eq:diff-priv-eps-delta follows from the condition
 $$
-p(x) \le \delta or \log \left\( \frac{p(x)}{q(x)} \right\) \le \epsilon.
+p(x) \le \delta or \log \left( \frac{p(x)}{q(x)} \right) \le \epsilon.
 $$
 
 In the context of data synthesis, $A$ takes the (private) data as input and produces a distribution, with synthetic data
