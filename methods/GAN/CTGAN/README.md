@@ -8,9 +8,11 @@ python cli.py --data data/adult.dat --meta data/adult.meta --max_epoch 1 --outpu
 ```
 
 Reference:
+```tex
 @inproceedings{xu2019modeling,
   title={Modeling Tabular data using Conditional GAN},
   author={Xu, Lei and Skoularidou, Maria and Cuesta-Infante, Alfredo and Veeramachaneni, Kalyan},
   booktitle={Advances in Neural Information Processing Systems},
   year={2019}
 }
+```
