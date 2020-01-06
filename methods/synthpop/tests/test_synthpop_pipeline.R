@@ -1,13 +1,13 @@
 ### Unit tests for synthpop pipeline ###
 
 # source the utility functions file
-setwd("../")
+#setwd("../")
 source("util.R")
 
 # install packages
-list.of.packages <- c("testthat") # dplyr for covariance
-new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
-if(length(new.packages)) install.packages(new.packages, repos = "http://cran.us.r-project.org")
+#list.of.packages <- c("testthat") # dplyr for covariance
+#new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+#if(length(new.packages)) install.packages(new.packages, repos = "http://cran.us.r-project.org")
 
 # load testthat
 library("testthat")
