@@ -2,11 +2,6 @@
 
 **This repo extensively uses the CTGAN codes in https://github.com/DAI-Lab/CTGAN.**
 
-Run the code:
-```bash
-python cli.py --data data/adult.dat --meta data/adult.meta --max_epoch 1 --output test
-```
-
 Reference:
 ```tex
 @inproceedings{xu2019modeling,
