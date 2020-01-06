@@ -1,7 +1,7 @@
 ### Unit tests for synthpop pipeline ###
 
 # source the utility functions file
-#setwd("../")
+setwd("../")
 source("util.R")
 
 # install packages

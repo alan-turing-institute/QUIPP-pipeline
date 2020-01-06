@@ -1,0 +1,24 @@
+# Run synthpop R script (including installing dependencies)
+name: synthpop CI
+
+on:
+  push:
+    paths:
+      - 'methods/synthpop/**'
+      - '.github/workflows/synthpop_ci.yml'
+
+jobs:
+  run_script:
+
+    runs-on: ubuntu-18.04
+    container:
+      image: rocker/tidyverse:3.6.1
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install dependencies
+      run: Rscript -e "install.packages(c('testthat', 'synthpop'))"
+    - name: Run tests
+      run: |-
+        cd methods/synthpop/
+        Rscript -e 'testthat::test_dir("tests", reporter="tap")'
