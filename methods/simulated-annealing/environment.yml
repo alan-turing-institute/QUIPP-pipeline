@@ -5,8 +5,6 @@ channels:
 dependencies:
 - numpy
 - pandas
-- nb_conda_kernels
-- ipykernel
 - pip
 - simanneal
 - pip:

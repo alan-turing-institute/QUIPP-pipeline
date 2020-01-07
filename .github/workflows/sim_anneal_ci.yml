@@ -16,11 +16,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Set up Python 3.7
-      uses: actions/setup-python@v1
-      with:
+    - name: Setup conda
+        uses: s-weigand/setup-conda@v1
+          with:
+            update-conda: true
         python-version: 3.7
-        activate-conda: true
+        conda-channels: anaconda, conda-forge
+    - run: conda --version
     - name: Install dependencies
       run: |
         conda env create -f methods/simulated-annealing/environment.yml
