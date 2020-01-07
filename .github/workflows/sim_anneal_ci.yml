@@ -18,7 +18,7 @@ jobs:
         with:
            activate-environment: sim_anneal
            environment-file: methods/simulated-annealing/environment.yml
-           python-version: 3.5
+           python-version: 3.6
            auto-activate-base: false
       - shell: bash -l {0}
         run: |
