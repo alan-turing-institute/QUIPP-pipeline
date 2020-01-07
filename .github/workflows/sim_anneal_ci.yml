@@ -15,8 +15,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
-    - name: Setup conda
+      - uses: actions/checkout@v1
+      - name: Setup conda
         uses: s-weigand/setup-conda@v1
         with:
           update-conda: true
