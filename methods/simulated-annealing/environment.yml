@@ -1,0 +1,13 @@
+name: sim_anneal
+channels:
+- defaults
+- conda-forge
+dependencies:
+- numpy
+- pandas
+- nb_conda_kernels
+- ipykernel
+- pip
+- simanneal
+- pip:
+- pytest
