@@ -22,13 +22,13 @@ jobs:
           update-conda: true
           python-version: 3.7
           conda-channels: anaconda, conda-forge
-    - run: conda --version
-    - name: Install dependencies
-      run: |
-        conda env create -f methods/simulated-annealing/environment.yml
-        conda activate sim_anneal
+      - run: conda --version
+      - name: Install dependencies
+        run: |
+          conda env create -f methods/simulated-annealing/environment.yml
+          conda activate sim_anneal
     #- name: Run notebook
       # just run the notebook for now (testing will be added later)
       #run: runipy methods/simulated-annealing/microsim-simulated-annealing.ipynb
-    - name: Run tests
-      run: pytest
+      - name: Run tests
+        run: pytest
