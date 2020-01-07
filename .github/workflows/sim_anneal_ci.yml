@@ -11,25 +11,17 @@ on:
 
 jobs:
   run_script:
-
-    runs-on: ubuntu-latest
-
+    runs-on: 'ubuntu-latest'
     steps:
-      - uses: actions/checkout@v1
-      - name: Setup conda
-        uses: s-weigand/setup-conda@v1
+      - uses: actions/checkout@v2
+      - uses: goanpeca/setup-miniconda@v1
         with:
-          update-conda: true
-          python-version: 3.7
-          conda-channels: anaconda, conda-forge
-      - run: conda --version
-      - name: Install dependencies
+           activate-environment: sim_anneal
+           environment-file: methods/simulated-annealing/environment.yml
+           python-version: 3.5
+           auto-activate-base: false
+      - shell: bash -l {0}
         run: |
-          conda env create -f methods/simulated-annealing/environment.yml
-          conda init bash
-          conda activate sim_anneal
-    #- name: Run notebook
-      # just run the notebook for now (testing will be added later)
-      #run: runipy methods/simulated-annealing/microsim-simulated-annealing.ipynb
-      - name: Run tests
-        run: pytest
+          conda info
+          conda list
+          pytest
