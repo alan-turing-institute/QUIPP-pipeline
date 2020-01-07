@@ -17,3 +17,8 @@ test_that("Dimensions of inputted dfs are as expected", {
   expect_equal(dim(read_data("Polish")), c(5000, 35))
   expect_equal(dim(read_data("CensusUK2011")), c(569741, 18))
 })
+
+# failing test
+test_that("fails", {
+  expect_equal(1, 0)
+})

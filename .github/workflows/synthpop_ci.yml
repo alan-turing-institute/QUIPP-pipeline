@@ -21,4 +21,4 @@ jobs:
     - name: Run tests
       run: |-
         cd methods/synthpop/
-        Rscript -e 'testthat::test_dir("tests", reporter="tap")'
+        Rscript -e 'testthat::test_dir("tests", reporter=c("tap", "fail"))'
