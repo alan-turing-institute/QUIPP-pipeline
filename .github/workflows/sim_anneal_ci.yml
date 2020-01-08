@@ -1,4 +1,4 @@
-# Run the SDV python jupyter notebook (including installation of dependencies)
+# Run tests for the simulated annealing example
 
 name: SimAnneal CI
 
@@ -10,7 +10,8 @@ on:
       - '.github/workflows/sim_anneal_ci.yml'
 
 jobs:
-  run_script:
+  run_tests:
+    name: 'Set up conda environment and run tests'
     runs-on: 'ubuntu-latest'
     steps:
       - uses: actions/checkout@v2
@@ -21,7 +22,9 @@ jobs:
            python-version: 3.6
            auto-activate-base: false
       - shell: bash -l {0}
+      - name: 'List details of conda environment'
         run: |
           conda info
           conda list
-          pytest -v
+      - name: 'Run tests'
+        run: pytest -v
