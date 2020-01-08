@@ -24,4 +24,4 @@ jobs:
         run: |
           conda info
           conda list
-          pytest
+          pytest -v
