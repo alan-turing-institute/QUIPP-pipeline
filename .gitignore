@@ -1,2 +1,11 @@
+# Mac
 .DS_Store
+
+# Python
+__pycache__
+
+# Editors
+.idea
+
+# Jupyter
 .ipynb_checkpoints
