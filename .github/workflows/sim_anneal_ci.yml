@@ -22,9 +22,7 @@ jobs:
            python-version: 3.6
            auto-activate-base: false
       - shell: bash -l {0}
-      - name: 'List details of conda environment'
-        run: |
+      - run: |
+          pytest -v
           conda info
           conda list
-      - name: 'Run tests'
-        run: pytest -v
