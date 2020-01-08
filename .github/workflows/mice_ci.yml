@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Install dependencies
-      run: Rscript -e "install.packages(c('testthat', 'mice'))"
+      run: Rscript -e "install.packages(c('testthat', 'mice', 'mvtnorm', 'ggplot2'))"
     - name: Run tests
       run: |-
         cd methods/mice/
