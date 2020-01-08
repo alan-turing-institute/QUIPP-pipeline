@@ -16,7 +16,9 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Install dependencies
-      run: pip install ctgan
+      run: |-
+        pip install ctgan
+        pip install pytest
     - name: Run tests
       run: |-
         cd methods/GAN/CTGAN
