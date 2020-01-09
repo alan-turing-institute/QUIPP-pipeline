@@ -6,6 +6,6 @@ dependencies:
 - numpy
 - pandas
 - pip
-- sdv
 - pip:
 - pytest
+- sdv
