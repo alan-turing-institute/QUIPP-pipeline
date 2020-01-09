@@ -20,7 +20,7 @@ jobs:
            python-version: 3.6
            auto-activate-base: false
       - shell: bash -l {0}
-        run: |
+        run: |-
 	  pip install sdv
           pytest -v
 
