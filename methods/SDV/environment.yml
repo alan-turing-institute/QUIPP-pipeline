@@ -1,0 +1,11 @@
+name: sdv
+channels:
+- defaults
+- conda-forge
+dependencies:
+- numpy
+- pandas
+- pip
+- sdv
+- pip:
+- pytest

@@ -1,22 +1,25 @@
-name: SDV CI
+name: sdv_ci
 
-on: 
+on:
   push:
     paths:
+      # only run when simulated-annealing folder contents are edited
       - 'methods/SDV/**'
+      - '.github/workflows/sdv_ci.yml'
 
 jobs:
-  run_script:
-
-    runs-on: ubuntu-latest
-
+  run_tests:
+    name: 'Set up conda environmen'
+    runs-on: 'ubuntu-latest'
     steps:
-    - uses: actions/checkout@v1
-    - name: Set up Python 3.7
-      uses: actions/setup-python@v1
-      with:
-        python-version: 3.7
-    - name: Install dependencies
-      run: pip install sdv runipy
-    - name: Run notebook
-      run: runipy methods/SDV/SDV_pipeline.ipynb
+      - uses: actions/checkout@v2
+      - uses: goanpeca/setup-miniconda@v1
+        with:
+           activate-environment: sdv
+           environment-file: methods/SDV/environment.yml
+           python-version: 3.6
+           auto-activate-base: false
+      - shell: bash -l {0}
+        run: |
+          pytest -v
+
