@@ -19,8 +19,9 @@ jobs:
            environment-file: methods/SDV/environment.yml
            python-version: 3.6
            auto-activate-base: false
-      - shell: bash -l {0}
-        run: |-
-	  pip install sdv
+      - shell: bash
+        run: |
           pytest -v
+          conda info
+          conda list
 
