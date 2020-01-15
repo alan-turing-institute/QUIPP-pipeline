@@ -46,8 +46,3 @@ samples_completed[(1 + Nsample):(Nsample + Nsynth), "synth"] = TRUE
 test_that("Dimension of output is as expected", {
   expect_equal(dim(samples_completed), c(Nsample + Nsynth, 3))
 })
-
-# failing test
-test_that("fails", {
-  expect_equal(1, 0)
-})
