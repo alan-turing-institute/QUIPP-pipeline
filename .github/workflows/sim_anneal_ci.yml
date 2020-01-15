@@ -1,0 +1,28 @@
+# Run tests for the simulated annealing example
+
+name: SimAnneal CI
+
+on:
+  push:
+    paths:
+      # only run when simulated-annealing folder contents are edited
+      - 'methods/simulated-annealing/**'
+      - '.github/workflows/sim_anneal_ci.yml'
+
+jobs:
+  run_tests:
+    name: 'Set up conda environment and run tests'
+    runs-on: 'ubuntu-latest'
+    steps:
+      - uses: actions/checkout@v2
+      - uses: goanpeca/setup-miniconda@v1
+        with:
+           activate-environment: sim_anneal
+           environment-file: methods/simulated-annealing/environment.yml
+           python-version: 3.6
+           auto-activate-base: false
+      - shell: bash -l {0}
+        run: |
+          pytest -v
+          conda info
+          conda list
