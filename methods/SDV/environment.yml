@@ -1,4 +1,4 @@
-name: sim_anneal
+name: sdv
 channels:
 - defaults
 - conda-forge
@@ -6,6 +6,5 @@ dependencies:
 - numpy
 - pandas
 - pip
-- simanneal
 - pip:
 - pytest
