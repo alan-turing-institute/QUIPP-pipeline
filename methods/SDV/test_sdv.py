@@ -2,6 +2,7 @@ import sys
 import pytest
 import pandas as pd
 from util import get_shape, read_data
+from sdv import SDV
 
 @pytest.fixture
 def df():
