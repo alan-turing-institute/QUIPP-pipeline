@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set up environment
-	uses: goanpeca/setup-miniconda@v1
+        uses: goanpeca/setup-miniconda@v1
         with:
            activate-environment: sdv
            environment-file: methods/SDV/environment.yml
