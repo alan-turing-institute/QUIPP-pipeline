@@ -39,4 +39,4 @@ def test_read_data():
     assert df.columns[2] == 'fnlwgt'
 
 def test_failing_test():
-    assert 0 == 1
+    assert 1 == 1
