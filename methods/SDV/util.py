@@ -23,6 +23,8 @@ def read_data(dataset_name):
         ]
 
         return pd.read_csv(url, names=columns)
+    elif dataset_namee == 'ons':
+        return pd.read_csv("../QUIPP-pipeline/datasets/rft-teaching-file/2011 Census Microdata Teaching File.csv", header=1)
     else:
         return 0
 

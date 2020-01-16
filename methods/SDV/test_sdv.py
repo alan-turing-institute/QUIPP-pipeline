@@ -27,7 +27,7 @@ def df():
     df = pd.read_csv(url, names=columns)
     return df
 
-def test_dimension(df):
+def test_get_shape(df):
     assert get_shape(df) == (32561, 15)
 
 def test_read_data():
@@ -38,5 +38,46 @@ def test_read_data():
     assert len(df['sex'].unique()) == 2
     assert df.columns[2] == 'fnlwgt'
 
-def test_failing_test():
-    assert 1 == 1
+def test_pipeline():
+    df = read_data('ons')
+
+    metadata = {
+        "tables": [
+            {
+                "fields": [
+                    {
+                        "name": "Marital Status",
+                        "type": "categorical"
+                    },
+                    {
+                        "name": "Sex",
+                        "type": "categorical"                    
+                    },
+                    {
+                        "name": "Hours worked per week",
+                        "type": "numerical",
+                        "subtype": "integer",
+                    },
+                    {
+                        "name": "Region",
+                        "type": "categorical"
+                    },
+                ],
+                "name": "census"
+            }
+        ]
+    }
+
+    tables = {
+        'census': df
+    }
+
+    sdv = SDV()
+    sdv.fit(metadata, tables)
+    samples = sdv.sample_all(len(df))
+    synth = samples['census']
+
+    assert synth.shape == (569741, 4)
+    assert set(synth['Marital Status']) == set(df['Marital Status'])
+    assert set(synth['Sex']) == set(df['Sex'])
+    assert set(synth['Region']) == set(df['Region'])
