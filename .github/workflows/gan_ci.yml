@@ -1,0 +1,25 @@
+name: GAN CI
+
+on:
+  push:
+    paths:
+      - 'methods/GAN/**'
+      - '.github/workflows/gan_ci.yml'
+
+jobs:
+  run_script:
+
+    runs-on: ubuntu-18.04
+    container:
+      image: pytorch/pytorch
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install dependencies
+      run: |-
+        pip install ctgan
+        pip install pytest
+    - name: Run tests
+      run: |-
+        cd methods/GAN/CTGAN
+        pytest -s .
