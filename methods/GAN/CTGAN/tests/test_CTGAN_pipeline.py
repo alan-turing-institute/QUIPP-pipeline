@@ -44,5 +44,3 @@ def test_CTGAN_pipeline():
     samples = ctgan.sample(num_syn_samples_to_generate)
 
     print(samples.head())
-
-    assert(False)
