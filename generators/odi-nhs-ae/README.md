@@ -1,82 +1,39 @@
 # Anonymisation with Synthetic Data Tutorial
 
-## Some questions
-
-**What is this?**
-
-A hands-on tutorial showing how to use Python to create synthetic data.
-
-**Wait, what is this "synthetic data" you speak of?**
-
-It's data that is created by an automated process which contains many of the statistical patterns of an original dataset. It is also sometimes used as a way to release data that has no personal information in it, even if the original did contain lots of data that could identify people. This means programmers and data scientists can crack on with building software and algorithms that they know will work similarly on the real data.
-
-**Who is this tutorial for?**
-
-For any person who programs who wants to learn about data anonymisation in general or more specifically about synthetic data.
-
-**What is it not for?**
-
-Non-programmers. Although we think this tutorial is still worth a browse to get some of the main ideas in what goes in to anonymising a dataset. However, if you're looking for info on how to create synthetic data using the latest and greatest deep learning techniques, this is not the tutorial for you.
-
-**Who are you?**
-
-We're the Open Data Institute. We work with companies and governments to build an open, trustworthy data ecosystem. Anonymisation and synthetic data are some of the many, many ways we can responsibly increase access to data. If you want to learn more, [check out our site](http://theodi.org).
-
-**Why did you make this?**
-
-We have an [R&D program](https://theodi.org/project/data-innovation-for-uk-research-and-development/) that has a number of projects looking in to how to support innovation, improve data infrastructure and encourage ethical data sharing. One of our projects is about [managing the risks of re-identification](https://theodi.org/project/rd-broaden-access-to-personal-data-while-protecting-privacy-and-creating-a-fair-market/) in shared and open data. As you can see in the *Key outputs* section, we have other material from the project, but we thought it'd be good to have something specifically aimed at programmers who are interested in learning by doing.
-
-**Speaking of which, can I just get to the tutorial now?**
-
-Sure! Let's go.
-
-## Overview
-
-In this tutorial you are aiming to create a safe version of accident and emergency (A&E) admissions data, collected from multiple hospitals. This data contains some sensitive personal information about people's health and can't be openly shared. By removing and altering certain identifying information in the data we can greatly reduce the risk that patients can be re-identified and therefore hope to release the data.
-
-Just to be clear, we're not using actual A&E data but are creating our own simple, mock, version of it.
-
-The practical steps involve:
-
-1. Create an A&E admissions dataset which will contain (pretend) personal information.
-2. Run some anonymisation steps over this dataset to generate a new dataset with much less re-identification risk.
-3. Take this de-identified dataset and generate multiple synthetic datasets from it to reduce the re-identification risk even further.
-4. Analyse the synthetic datasets to see how similar they are to the original data.
-
-You may be wondering, why can't we just do synthetic data step? If it's synthetic surely it won't contain any personal information?
-
-Not exactly. Patterns picked up in the original data can be transferred to the synthetic data. This is especially true for outliers. For instance if there is only one person from an certain area over 85 and this shows up in the synthetic data, we would be able to re-identify them.
-
 ## Credit to others
 
-This tutorial is inspired by the [NHS England and ODI Leeds' research](https://odileeds.org/events/synae/) in creating a synthetic dataset from NHS England's accident and emergency admissions. Please do read about their project, as it's really interesting and great for learning about the benefits and risks in creating synthetic data.
 
-Also, the synthetic data generating library we use is [DataSynthetizer](https://homes.cs.washington.edu/~billhowe//projects/2017/07/20/Data-Synthesizer.html) and comes as part of this codebase. Coming from researchers in Drexel University and University of Washington, it's an excellent piece of software and their research and papers are well worth checking out. It's available as a [repo on Github](https://github.com/DataResponsibly/DataSynthesizer) which includes some short tutorials on how to use the toolkit and an accompanying research paper describing the theory behind it.
+*From the QUIPP-pipeline team:*
+This tutorial is based on the work of the Open Data Institute.
+The original version of the tutorial can be found [here](https://github.com/theodi/synthetic-data-tutorial).
+
+*From the ODI:*
+This tutorial is inspired by the [NHS England and ODI Leeds' research](https://odileeds.org/events/synae/) in creating a synthetic dataset from NHS England's accident and emergency admissions. Please do read about their project, as it's really interesting and great for learning about the benefits and risks in creating synthetic data.
 
 ---
 
 ## Setup
 
-First, make sure you have [Python3 installed](https://www.python.org/downloads/). Minimum Python 3.6.
-
-Download this repository either as a zip or clone using Git.
-
-Install required dependent libraries. You can do that, for example, with a _virtualenv_.
+Install required dependent libraries.
+We'll use conda for this example.
 
 ```bash
-cd /path/to/repo/synthetic_data_tutorial/
-pip install -r requirements.txt
+cd /path/to/repo/generators/odi-nhs-ae
+conda env create -f environment.yml
 ```
 
-Next we'll go through how to create, de-identify and synthesise the code. We'll show this using code snippets but the full code is contained within the `/tutorial` directory.
+Next we'll go through how to create and de-identify the dataset.
 
 There's small differences between the code presented here and what's in the Python scripts but it's mostly down to variable naming. I'd encourage you to run, edit and play with the code locally.
 
 ## Generate mock NHS A&E dataset
 
-The data already exists in `data/nhs_ae_mock.csv` so feel free to browse that. But you should generate your own fresh dataset using the `tutorial/generate.py` script.
+The data already exists in `datasets/generated/nhs_ae_mock.csv` so feel free to browse that.
+You can generate your own fresh dataset using the `generate.py` script.
 
-To do this, you'll need to download one dataset first. It's a list of all postcodes in London. You can find it at this page on [doogal.co.uk](https://www.doogal.co.uk/PostcodeDownloads.php), at the _London_ link under the _By English region_ section. Or just download it directly at [this link](https://www.doogal.co.uk/UKPostcodesCSV.ashx?region=E12000007) (just take note, it's 133MB in size), then place the `London postcodes.csv` file in to the `data/` directory.
+To do this, you'll need to download one dataset first.
+It's a list of all postcodes in London.
+You can find it at this page on [doogal.co.uk](https://www.doogal.co.uk/PostcodeDownloads.php), at the _London_ link under the _By English region_ section. Or just download it directly at [this link](https://www.doogal.co.uk/UKPostcodesCSV.ashx?region=E12000007) (just take note, it's 133MB in size), then place the `London postcodes.csv` file in to the `data/` directory.
 
 Or you can just do it using `curl`.
 
