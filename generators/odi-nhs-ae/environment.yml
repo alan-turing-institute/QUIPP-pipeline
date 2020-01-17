@@ -1,0 +1,9 @@
+name: generator_odi_nhd_ae
+channels:
+- defaults
+dependencies:
+- matplotlib
+- numpy
+- pandas
+- scipy
+- seaborn
