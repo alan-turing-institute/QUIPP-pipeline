@@ -44,7 +44,7 @@ curl -o "./data/London postcodes.csv" https://www.doogal.co.uk/UKPostcodesCSV.as
 Then, to generate the data, from the project root directory run the `generate.py` script.
 
 ```bash
-python tutorial/generate.py
+python generate.py
 ```
 
 Voila! You'll now see a new `hospital_ae_data.csv` file in the `/data` directory. Open it up and have a browse. It's contains the following columns:
