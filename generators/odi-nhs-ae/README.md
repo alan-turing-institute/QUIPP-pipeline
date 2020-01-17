@@ -2,15 +2,13 @@
 
 ## Credit to others
 
-
 *From the QUIPP-pipeline team:*
 This tutorial is based on the work of the Open Data Institute.
 The original version of the tutorial can be found [here](https://github.com/theodi/synthetic-data-tutorial).
+We have shortened the tutorial to focus on the data generation process, as we'll use the resulting dataset to illustrate the different methods of data synthesis found in the `methods` directory of this repository.
 
 *From the ODI:*
 This tutorial is inspired by the [NHS England and ODI Leeds' research](https://odileeds.org/events/synae/) in creating a synthetic dataset from NHS England's accident and emergency admissions. Please do read about their project, as it's really interesting and great for learning about the benefits and risks in creating synthetic data.
-
----
 
 ## Setup
 
@@ -24,7 +22,8 @@ conda env create -f environment.yml
 
 Next we'll go through how to create and de-identify the dataset.
 
-There's small differences between the code presented here and what's in the Python scripts but it's mostly down to variable naming. I'd encourage you to run, edit and play with the code locally.
+There are small differences between the code presented here and what's in the Python scripts but it's mostly down to variable naming.
+I'd encourage you to run, edit and play with the code locally.
 
 ## Generate mock NHS A&E dataset
 
@@ -33,13 +32,12 @@ You can generate your own fresh dataset using the `generate.py` script.
 
 To do this, you'll need to download one dataset first.
 It's a list of all postcodes in London.
-You can find it at this page on [doogal.co.uk](https://www.doogal.co.uk/PostcodeDownloads.php), at the _London_ link under the _By English region_ section. Or just download it directly at [this link](https://www.doogal.co.uk/UKPostcodesCSV.ashx?region=E12000007) (just take note, it's 133MB in size), then place the `London postcodes.csv` file in to the `data/` directory.
-
-Or you can just do it using `curl`.
-
+You can find it at this page on [doogal.co.uk](https://www.doogal.co.uk/PostcodeDownloads.php), at the _London_ link under the _By English region_ section.
+Download the file (133MB) and place it in the `data` directory using the following command:
 ```bash
 curl -o "./data/London postcodes.csv" https://www.doogal.co.uk/UKPostcodesCSV.ashx?region=E12000007
 ```
+The `.gitignore` file in the current folder will prevent the postcodes file being accidentally added to the version control system.
 
 Then, to generate the data, from the project root directory run the `generate.py` script.
 
@@ -62,21 +60,20 @@ We can see this dataset obviously contains some personal information. For instan
 
 Because of this, we'll need to take some de-identification steps.
 
----
-
 ## De-identification
 
 For this stage, we're going to be loosely following the de-identification techniques used by Jonathan Pearson of NHS England, and described in a blog post about [creating its own synthetic data](https://odileeds.org/blog/2019-01-24-exploring-methods-for-creating-synthetic-a-e-data).
 
-If you look in `tutorial/deidentify.py` you'll see the full code of all de-identification steps. You can run this code easily.
+If you look in `deidentify.py` you'll see the full code of all de-identification steps. You can run this code easily.
 
 ```bash
-python tutorial/deidentify.py
+python deidentify.py
 ```
 
-It takes the `data/hospital_ae_data.csv` file, run the steps, and saves the new dataset to `data/hospital_ae_data_deidentify.csv`.
+It takes the `QUIPP-pipeline/datasets/generated/odi_nhs_ae/hospital_ae_data.csv` file, runs the steps, and saves the new dataset to `hospital_ae_data_deidentify.csv`.
 
-Breaking down each of these steps. It first loads the `data/nhs_ae_data.csv` file in to the Pandas DataFrame as `hospital_ae_df`.
+Breaking down each of these steps.
+It first loads the `QUIPP-pipeline/datasets/generated/odi_nhs_ae/nhs_ae_data.csv` file in to the Pandas DataFrame as `hospital_ae_df`.
 
 ```python
 # _df is a common way to refer to a Pandas DataFrame object
@@ -223,319 +220,41 @@ hospital_ae_df['Age bracket'] = pd.cut(
 hospital_ae_df = hospital_ae_df.drop('Age', 1)
 ```
 
-That's all the steps we'll take. We'll finally save our new de-identified dataset.
+That's all the steps we'll take. We'll finally save our new de-identified dataset to `hospital_ae_data_deidentify.csv`.
 
 ```python
 hospital_ae_df.to_csv(filepaths.hospital_ae_data_deidentify, index=False)
 ```
 
----
+## Data Description
 
-## Synthesise
-
-Synthetic data exists on a spectrum from merely the same columns and datatypes as the original data all the way to carrying nearly all of the statistical patterns of the original dataset.
-
-The UK's Office of National Statistics has a great report on synthetic data and the [_Synthetic Data Spectrum_](https://www.ons.gov.uk/methodology/methodologicalpublications/generalmethodology/onsworkingpaperseries/onsmethodologyworkingpaperseriesnumber16syntheticdatapilot?utm_campaign=201903_UK_DataPolicyNetwork&utm_source=hs_email&utm_medium=email&utm_content=70377606&_hsenc=p2ANqtz-9W6ByBext_HsgkTPG1lw2JJ_utRoJSTIeVC5Z2lz3QkzwFQpZ0dp2ns9SZLPqxLJrgWzsjC_zt7FQcBvtIGoeSjZtwNg&_hsmi=70377606#synthetic-dataset-spectrum) section is very good in explaining the nuances in more detail.
-
-In this tutorial we'll create not one, not two, but *three* synthetic datasets, that are on a range across the synthetic data spectrum: *Random*, *Independent* and *Correlated*.
-
-> In **correlated attribute mode**, we learn a differentially private Bayesian network capturing the correlation structure between attributes, then draw samples from this model to construct the result dataset.
->
-> In cases where the correlated attribute mode is too computationally expensive or when there is insufficient data to derive a reasonable model, one can use **independent attribute mode**. In this mode, a histogram is derived for each attribute, noise is added to the histogram to achieve differential privacy, and then samples are drawn for each attribute.
->
-> Finally, for cases of extremely sensitive data, one can use **random mode** that simply generates type-consistent random values for each attribute.
-
-We'll go through each of these now, moving along the synthetic data spectrum, in the order of random to independent to correlated.
-
-The toolkit we will be using to generate the three synthetic datasets is DataSynthetizer.
-
-### DataSynthesizer
-
-As described in the introduction, this is an open-source toolkit for generating synthetic data. And I'd like to lavish much praise on the researchers who made it as it's excellent.
-
-Instead of explaining it myself, I'll use the researchers' own words from their paper:
-
-> DataSynthesizer infers the domain of each attribute and derives a description of the distribution of attribute values in the private dataset. This information is saved in a dataset description file, to which we refer as data summary. Then DataSynthesizer is able to generate synthetic datasets of arbitrary size by sampling from the probabilistic model in the dataset description file.
-
-We'll create and inspect our synthetic datasets using three modules within it.
-
-> DataSynthesizer consists of three high-level modules:
->
-> 1. **DataDescriber**: investigates the data types, correlations and distributions of the attributes in the private dataset, and produces a data summary.
-> 2. **DataGenerator**: samples from the summary computed by DataDescriber and outputs synthetic data
-> 3. **ModelInspector**: shows an intuitive description of the data summary that was computed by DataDescriber, allowing the data owner to evaluate the accuracy of the summarization process and adjust any parameters, if desired.
-
-If you want to browse the code for each of these modules, you can find the Python classes for in the `DataSynthetizer` directory (all code in here from the [original repo](https://github.com/DataResponsibly/DataSynthesizer)).
-
-
-### An aside about differential privacy and Bayesian networks
-
-You might have seen the phrase "differentially private Bayesian network" in the *correlated mode* description earlier, and got slightly panicked. But fear not! You don't need to worry *too* much about these to get DataSynthesizer working.
-
-First off, while DataSynthesizer has the option of using differential privacy for anonymisation, we are turning it off and won't be using it in this tutorial. So you can ignore that part. However, if you care about anonymisation you really should read up on differential privacy. I've read a lot of explainers on it and the best I found was [this article from Access Now](https://www.accessnow.org/understanding-differential-privacy-matters-digital-rights/).
-
-Now the next term, Bayesian networks. These are graphs with directions which model the statistical relationship between a dataset's variables. It does this by saying certain variables are "parents" of others, that is, their value influences their "children" variables. Parent variables can influence children but children can't influence parents. In our case, if patient age is a parent of waiting time, it means the age of patient influences how long they wait, but how long they doesn't influence their age. So by using Bayesian Networks, DataSynthesizer can model these influences and use this model in generating the synthetic data.
-
-It can be a slightly tricky topic to grasp but a nice, introductory tutorial on them is at the [Probabilistic World site](https://www.probabilisticworld.com/bayesian-belief-networks-part-1/). Give it a read.
-
-### Random mode
-
-If we were just to generate A&E data for testing our software, we wouldn't care too much about the statistical patterns within the data. Just that it was roughly a similar size and that the datatypes and columns aligned.
-
-In this case, we can just generate the data at random using the `generate_dataset_in_random_mode` function within the `DataGenerator` class.
-
-#### Data Description: Random
-
-The first step is to create a description of the data, defining the datatypes and which are the categorical variables.
-
-```python
-attribute_to_datatype = {
-    'Time in A&E (mins)': 'Integer',
-    'Treatment': 'String',
-    'Gender': 'String',
-    'Index of Multiple Deprivation Decile': 'Integer',
-    'Hospital ID': 'String',
-    'Arrival Date': 'String',
-    'Arrival hour range': 'String',  
-    'Age bracket': 'String'
-}
-
-attribute_is_categorical = {
-    'Hospital ID': True,
-    'Time in A&E (mins)': False,
-    'Treatment': True,
-    'Gender': True,
-    'Index of Multiple Deprivation Decile': False,
-    'Arrival Date': True,
-    'Arrival hour range': True,  
-    'Age bracket': True
-}
+Finally, we create a description of our generated data, defining the datatypes and which are the categorical variables.
+We show below the desription of the deidentified dataset, which we save alongside the data file as `hospital_ae_data_deidentify.json`.
+We also save a similar file for the data before we performed the deidentification process.
+```json
+[ {"name": "Time in A&E (mins)",
+   "type": "Integer",
+   "categorical": "False"},
+  {"name": "Treatment",
+   "type": "String",
+   "categorical": "True"},
+  {"name": "Gender",
+   "type": "String",
+   "categorical": "True"},
+  {"name": "Index of Multiple Deprivation Decile",
+   "type": "Integer",
+   "categorical": "False"},
+  {"name": "Hospital ID",
+   "type": "String",
+   "categorical": "True"},
+  {"name": "Arrival Date",
+   "type": "String",
+   "categorical": "True"},
+  {"name": "Arrival hour range",
+   "type": "String",
+   "categorical": "True"},
+  {"name": "Age bracket",
+   "type": "String",
+   "categorical": "True"} ]
 ```
 
-We'll be feeding these in to a `DataDescriber` instance.
-
-```python
-describer = DataDescriber()
-```
-
-Using this `describer` instance, feeding in the attribute descriptions, we create a description file.
-
-```python
-describer.describe_dataset_in_random_mode(
-    filepaths.hospital_ae_data_deidentify,
-    attribute_to_datatype=attribute_to_datatype,
-    attribute_to_is_categorical=attribute_is_categorical)
-describer.save_dataset_description_to_file(
-    filepaths.hospital_ae_description_random)
-```
-
-You can see an example description file in `data/hospital_ae_description_random.json`.
-
-#### Data Generation: Random
-
-Next, generate the random data. We'll just generate the same amount of rows as was in the original data but, importantly, we could generate much more or less if we wanted to.
-
-```python
-num_rows = len(hospital_ae_df)
-```
-
-Now generate the random data.
-
-```python
-generator = DataGenerator()
-generator.generate_dataset_in_random_mode(
-    num_rows, filepaths.hospital_ae_description_random)
-generator.save_synthetic_data(filepaths.hospital_ae_data_synthetic_random)
-```
-
-You can view this random synthetic data in the file `data/hospital_ae_data_synthetic_random.csv`.
-
-#### Attribute Comparison: Random
-
-We'll compare each attribute in the original data to the synthetic data by generating plots of histograms using the `ModelInspector` class.
-
-`figure_filepath` is just a variable holding where we'll write the plot out to.
-
-```python
-synthetic_df = pd.read_csv(filepaths.hospital_ae_data_synthetic_random)
-
-# Read attribute description from the dataset description file.
-attribute_description = read_json_file(
-    filepaths.hospital_ae_description_random)['attribute_description']
-
-inspector = ModelInspector(hospital_ae_df, synthetic_df, attribute_description)
-
-for attribute in synthetic_df.columns:
-    inspector.compare_histograms(attribute, figure_filepath)
-```
-
-Let's look at the histogram plots now for a few of the attributes. We can see that the generated data is completely random and doesn't contain any information about averages or distributions.
-
-*Comparison of ages in original data (left) and random synthetic data (right)*
-![Random mode age bracket histograms](plots/random_Age_bracket.png)
-
-*Comparison of hospital attendance in original data (left) and random synthetic data (right)*
-![Random mode age bracket histograms](plots/random_Hospital_ID.png)
-
-*Comparison of arrival date in original data (left) and random synthetic data (right)*
-![Random mode age bracket histograms](plots/random_Arrival_Date.png)
-
-You can see more comparison examples in the `/plots` directory.
-
-#### Compare pairwise mutual information: Random
-
-DataSynthesizer has a function to compare the _mutual information_ between each of the variables in the dataset and plot them. We'll avoid the mathematical definition of mutual information but [Scholarpedia notes](http://www.scholarpedia.org/article/Mutual_information) it:
-
-> can be thought of as the reduction in uncertainty about one random variable given knowledge of another.
-
-To create this plot we run.
-
-```python
-synthetic_df = pd.read_csv(filepaths.hospital_ae_data_synthetic_random)
-
-inspector = ModelInspector(hospital_ae_df, synthetic_df, attribute_description)
-inspector.mutual_information_heatmap(figure_filepath)
-```
-
-We can see the original, private data has a correlation between `Age bracket` and `Time in A&E (mins)`. Not surprisingly, this correlation is lost when we generate our random data.
-
-*Mutual Information Heatmap in original data (left) and random synthetic data (right)*
-![Random mode age mutual information](plots/mutual_information_heatmap_random.png)
-
-### Independent attribute mode
-
-What if we had the use case where we wanted to build models to analyse the medians of ages, or hospital usage in the synthetic data? In this case we'd use independent attribute mode.
-
-#### Data Description: Independent
-
-```python
-describer.describe_dataset_in_independent_attribute_mode(
-    attribute_to_datatype=attribute_to_datatype,
-    attribute_to_is_categorical=attribute_is_categorical)
-describer.save_dataset_description_to_file(
-    filepaths.hospital_ae_description_independent)
-```
-
-#### Data Generation: Independent
-
-Next generate the data which keep the distributions of each column but not the data correlations.
-
-```python
-generator = DataGenerator()
-generator.generate_dataset_in_independent_mode(
-    num_rows, filepaths.hospital_ae_description_independent)
-generator.save_synthetic_data(
-    filepaths.hospital_ae_data_synthetic_independent)
-```
-
-#### Attribute Comparison: Independent
-
-Comparing the attribute histograms we see the independent mode captures the distributions pretty accurately. You can see the synthetic data is _mostly_ similar but not exactly.
-
-```python
-synthetic_df = pd.read_csv(filepaths.hospital_ae_data_synthetic_independent)
-attribute_description = read_json_file(
-    filepaths.hospital_ae_description_random)['attribute_description']
-inspector = ModelInspector(hospital_ae_df, synthetic_df, attribute_description)
-
-for attribute in synthetic_df.columns:
-    inspector.compare_histograms(attribute, figure_filepath)
-```
-
-*Comparison of ages in original data (left) and independent synthetic data (right)*
-![Random mode age bracket histograms](plots/independent_Age_bracket.png)
-
-*Comparison of hospital attendance in original data (left) and independent synthetic data (right)*
-![Random mode age bracket histograms](plots/independent_Hospital_ID.png)
-
-*Comparison of arrival date in original data (left) and independent synthetic data (right)*
-![Random mode age bracket histograms](plots/independent_Arrival_Date.png)
-
-#### Compare pairwise mutual information: Independent
-
-```python
-synthetic_df = pd.read_csv(filepaths.hospital_ae_data_synthetic_independent)
-
-inspector = ModelInspector(hospital_ae_df, synthetic_df, attribute_description)
-inspector.mutual_information_heatmap(figure_filepath)
-```
-
-We can see the independent data also does not contain any of the attribute correlations from the original data.
-
-*Mutual Information Heatmap in original data (left) and independent synthetic data (right)*
-![Independent mode mutual information](plots/mutual_information_heatmap_independent.png)
-
-### Correlated attribute mode - include correlations between columns in the data
-
-If we want to capture correlated variables, for instance if patient is related to waiting times, we'll need correlated data. To do this we use *correlated mode*.
-
-#### Data Description: Correlated
-
-There's a couple of parameters that are different here so we'll explain them.
-
-`epsilon` is a value for DataSynthesizer's differential privacy which says the amount of noise to add to the data - the higher the value, the more noise and therefore more privacy. We're not using differential privacy so we can set it to zero.
-
-`k` is the maximum number of parents in a Bayesian network, i.e., the maximum number of incoming edges. For simplicity's sake, we're going to set this to 1, saying that for a variable only one other variable can influence it.
-
-```python
-describer.describe_dataset_in_correlated_attribute_mode(
-    dataset_file=filepaths.hospital_ae_data_deidentify,
-    epsilon=0,
-    k=1,
-    attribute_to_datatype=attribute_to_datatype,
-    attribute_to_is_categorical=attribute_is_categorical)
-
-describer.save_dataset_description_to_file(filepaths.hospital_ae_description_correlated)
-```
-
-#### Data Generation: Correlated
-
-```python
-generator.generate_dataset_in_correlated_attribute_mode(
-    num_rows, filepaths.hospital_ae_description_correlated)
-generator.save_synthetic_data(filepaths.hospital_ae_data_synthetic_correlated)
-```
-
-#### Attribute Comparison: Correlated
-
-We can see correlated mode keeps similar distributions also. It looks the exact same but if you look closely there are also small differences in the distributions.
-
-*Comparison of ages in original data (left) and correlated synthetic data (right)*
-![Random mode age bracket histograms](plots/correlated_Age_bracket.png)
-
-*Comparison of hospital attendance in original data (left) and independent synthetic data (right)*
-![Random mode age bracket histograms](plots/correlated_Hospital_ID.png)
-
-*Comparison of arrival date in original data (left) and independent synthetic data (right)*
-![Random mode age bracket histograms](plots/correlated_Arrival_Date.png)
-
-#### Compare pairwise mutual information: Correlated
-
-Finally, we see in correlated mode, we manage to capture the correlation between `Age bracket` and `Time in A&E (mins)`.
-
-```python
-synthetic_df = pd.read_csv(filepaths.hospital_ae_data_synthetic_correlated)
-
-inspector = ModelInspector(hospital_ae_df, synthetic_df, attribute_description)
-inspector.mutual_information_heatmap(figure_filepath)
-```
-
-*Mutual Information Heatmap in original data (left) and correlated synthetic data (right)*
-![Independent mode mutual information](plots/mutual_information_heatmap_correlated.png)
-
----
-
-### Wrap-up
-
-This is where our tutorial ends. But there is much, much more to the world of anonymisation and synthetic data. Please check out more in the references below.
-
-If you have any queries, comments or improvements about this tutorial please do get in touch. You can send me a message through Github or leave an Issue.
-
-### References
-
-- [Exploring methods for synthetic A&E data](https://odileeds.org/blog/2019-01-24-exploring-methods-for-creating-synthetic-a-e-data) - Jonathan Pearson, NHS England with Open Data Institute Leeds.
-- [DataSynthesizer Github Repository](https://github.com/DataResponsibly/DataSynthesizer)
-- [DataSynthesizer: Privacy-Preserving Synthetic Datasets](https://faculty.washington.edu/billhowe/publications/pdfs/ping17datasynthesizer.pdf) Haoyue Ping, Julia Stoyanovich, and Bill Howe. 2017
-- [ONS methodology working paper series number 16 - Synthetic data pilot](https://www.ons.gov.uk/methodology/methodologicalpublications/generalmethodology/onsworkingpaperseries/onsmethodologyworkingpaperseriesnumber16syntheticdatapilot) - Office of National Statistics, 2019.
-- [Wrap-up blog post](http://theodi.org) (not yet published) from our anonymisation project which talks about what we learned and other outputs we created.
-- We referred to the [UK Anonymisation Network's Decision Making Framework](https://ukanon.net/ukan-resources/ukan-decision-making-framework/) a lot during our work. It's pretty involved but it's excellent as a deep-dive resource on anonymisation.
