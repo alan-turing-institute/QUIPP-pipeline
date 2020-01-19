@@ -75,7 +75,3 @@ test_that("End-to-end pipeline for Polish ds returns reasonable output",
           }
           )
 
-# failing test
-test_that("fails", {
-  expect_equal(1, 0)
-})
