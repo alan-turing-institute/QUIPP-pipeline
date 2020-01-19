@@ -24,6 +24,7 @@ jobs:
       - shell: bash -l {0}
         run: |
           pip install sdv
+          cd methods/SDV
           pytest -v
           conda info
           conda list
