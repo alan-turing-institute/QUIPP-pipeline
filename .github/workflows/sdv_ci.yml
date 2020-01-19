@@ -1,0 +1,31 @@
+# Run tests for the SDV example
+
+name: sdv ci
+
+on:
+  push:
+    paths:
+      - 'methods/SDV/**'
+      - '.github/workflows/sdv_ci.yml'
+
+jobs:
+  run_tests:
+    name: 'Set up conda environment and run tests'
+    runs-on: 'ubuntu-latest'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up environment
+        uses: goanpeca/setup-miniconda@v1
+        with:
+           activate-environment: sdv
+           environment-file: methods/SDV/environment.yml
+           python-version: 3.6
+           auto-activate-base: false
+      - shell: bash -l {0}
+        run: |
+          pip install sdv
+          cd methods/SDV
+          pytest -v
+          conda info
+          conda list
+
