@@ -140,7 +140,7 @@ samples['census']['relationship'].hist()
 
 
 # ### Synthesis on the ONS census data
-df2 = pd.read_csv("../QUIPP-pipeline/datasets/rft-teaching-file/2011 Census Microdata Teaching File.csv", header=1)
+df2 = pd.read_csv("../../datasets/rft-teaching-file/2011 Census Microdata Teaching File.csv", header=1)
 df2.head()
 
 metadata2 = {
