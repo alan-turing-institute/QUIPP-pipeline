@@ -125,7 +125,7 @@ test_that("End-to-end pipeline for Austrian ds returns reasonable output",
             tab_afterSA <- ftable(popadj[, c("rb090", "db040", "pl030")])
             diff <- mean(abs(tab.census - tab_afterSA) /tab.census, na.rm = TRUE)
             
-            expect_lt(diff, 0.005)
+            expect_lt(diff, 0.01)
             
           }
 )
