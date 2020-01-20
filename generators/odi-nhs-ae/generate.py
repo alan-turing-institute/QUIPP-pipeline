@@ -23,35 +23,33 @@ import filepaths
 
 # TODO: give hospitals different average waiting times
 
-num_of_rows = 10000
 
-
-def main():
+def main(num_rows):
     print('generating data...')
     start = time.time()
 
     hospital_ae_dataset = {}
 
     print('generating Health Service ID numbers...')
-    hospital_ae_dataset['Health Service ID'] = generate_health_service_id_numbers()
+    hospital_ae_dataset['Health Service ID'] = generate_health_service_id_numbers(num_rows)
 
     print('generating patient ages and times in A&E...')
-    (hospital_ae_dataset['Age'], hospital_ae_dataset['Time in A&E (mins)']) = generate_ages_times_in_age()
+    (hospital_ae_dataset['Age'], hospital_ae_dataset['Time in A&E (mins)']) = generate_ages_times_in_age(num_rows)
 
     print('generating hospital instances...')
-    hospital_ae_dataset['Hospital'] = generate_hospitals()
+    hospital_ae_dataset['Hospital'] = generate_hospitals(num_rows)
 
     print('generating arrival times...')
-    hospital_ae_dataset['Arrival Time'] = generate_arrival_times()
+    hospital_ae_dataset['Arrival Time'] = generate_arrival_times(num_rows)
 
     print('generating A&E treaments...')
-    hospital_ae_dataset['Treatment'] = generate_treatments()
+    hospital_ae_dataset['Treatment'] = generate_treatments(num_rows)
 
     print('generating patient gender instances...')
-    hospital_ae_dataset['Gender'] = generate_genders()
+    hospital_ae_dataset['Gender'] = generate_genders(num_rows)
 
     print('generating patient postcodes...')
-    hospital_ae_dataset['Postcode'] = generate_postcodes()
+    hospital_ae_dataset['Postcode'] = generate_postcodes(num_rows)
 
     write_out_dataset(hospital_ae_dataset, filepaths.hospital_ae_data)
     print('dataset written out to: ', filepaths.hospital_ae_data)
@@ -60,7 +58,7 @@ def main():
     print('done in ' + str(elapsed) + ' seconds.')
 
 
-def generate_ages_times_in_age() -> (list, list):
+def generate_ages_times_in_age(num_of_rows) -> (list, list):
     """
     Generates correlated ages and waiting times and returns them as lists
 
@@ -99,7 +97,7 @@ def corr2cov(correlations: np.ndarray, stdev: np.ndarray) -> np.ndarray:
     return covariance
 
 
-def generate_admission_ids() -> list:
+def generate_admission_ids(num_of_rows) -> list:
     """ Generate a unique 10-digit ID for every admission record """
     
     uids = []
@@ -108,7 +106,7 @@ def generate_admission_ids() -> list:
         uids.append(x)
     return uids
 
-def generate_health_service_id_numbers() -> list:
+def generate_health_service_id_numbers(num_of_rows) -> list:
     """ Generate dummy Health Service ID numbers similar to NHS 10 digit format
     See: https://www.nhs.uk/using-the-nhs/about-the-nhs/what-is-an-nhs-number/
     """
@@ -121,7 +119,7 @@ def generate_health_service_id_numbers() -> list:
     return health_service_id_numbers
 
 
-def generate_postcodes() -> list:
+def generate_postcodes(num_of_rows) -> list:
     """ Reads a .csv containing info on every London postcode. Reads the 
     postcodes in use and returns a sample of them.
 
@@ -133,7 +131,7 @@ def generate_postcodes() -> list:
     return postcodes
 
 
-def generate_hospitals() -> list:
+def generate_hospitals(num_of_rows) -> list:
     """ Reads the data/hospitals_london.txt file, and generates a
     sample of them to add to the dataset.
 
@@ -150,7 +148,7 @@ def generate_hospitals() -> list:
     return hospitals
 
 
-def generate_arrival_times() -> list:
+def generate_arrival_times(num_of_rows) -> list:
     """ Generate and return arrival times.
         Hardcoding times to first week of April 2019
     """
@@ -175,7 +173,7 @@ def generate_arrival_times() -> list:
     return arrival_times
 
 
-def generate_genders() -> list:
+def generate_genders(num_of_rows) -> list:
     """ Generate and return list of genders for every row. 
 
     # National codes for gender in NHS data
@@ -189,7 +187,7 @@ def generate_genders() -> list:
     return gender_codes
 
 
-def generate_treatments() -> list:
+def generate_treatments(num_of_rows) -> list:
     """ Generate and return sample of treatments patients received. 
 
     Reads data/treatment_codes_nhs_ae.csv file 
@@ -221,4 +219,4 @@ def write_out_dataset(dataset: dict, filepath: str):
 
 
 if __name__ == "__main__":
-    main()
+    main(10000)
