@@ -6,6 +6,7 @@ https://odileeds.org/blog/2019-01-24-exploring-methods-for-creating-synthetic-a-
 
 """
 
+import argparse
 import os
 import random
 from datetime import datetime, timedelta
@@ -219,4 +220,9 @@ def write_out_dataset(dataset: dict, filepath: str):
 
 
 if __name__ == "__main__":
-    main(10000)
+
+    parser = argparse.ArgumentParser(description="Generate synthetic NHS A&E admissions data")
+    parser.add_argument("--rows", type=int, default=10000, help="Number of rows to generate")
+    args = parser.parse_args()
+
+    main(args.rows)
