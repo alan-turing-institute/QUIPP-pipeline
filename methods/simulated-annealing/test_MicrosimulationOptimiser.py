@@ -27,7 +27,7 @@ region_constraints = [(0, 8, 4, 6, 6),
 
 
 @pytest.mark.parametrize("region,young,old,male,female", region_constraints)
-def test_MicrosimulationOptimiser(region, young, old, male, female, simpleworld_example):
+def test_end_to_end(region, young, old, male, female, simpleworld_example):
     """Run the simulated annealing algorithm on Region 0 in the SimpleWorld example and check that we get the correct
     number of people in each of the categories."""
 
@@ -54,3 +54,27 @@ def test_MicrosimulationOptimiser(region, young, old, male, female, simpleworld_
     assert len(synthetic_population[synthetic_population["age"] >= 50]) == old
     assert len(synthetic_population[synthetic_population["sex"] == "m"]) == male
     assert len(synthetic_population[synthetic_population["sex"] == "f"]) == female
+
+
+def test_move(simpleworld_example):
+    """Check that the move action only changes one entry in the synthetic population"""
+
+    np.random.seed(1)
+    region = 0
+    ind, age, sex, age_conditions, sex_conditions = simpleworld_example
+
+    # Give properties of below/above 50 and male/female to each individual to match constraints
+    ind_array = np.array([np.select(age_conditions, range(len(age_conditions)), default=None),
+                          np.select(sex_conditions, range(len(sex_conditions)), default=None)]).transpose()
+
+    # Initialise the optimisation class with the array of individuals and arrays of age and sex constraints (counts)
+    opt = MicrosimulationOptimiser(ind_array, age.to_numpy()[region], sex.to_numpy()[region])
+
+    expected_state = np.array([3, 4, 0, 1, 3, 0, 0, 1, 4, 4, 1, 2])
+
+    # Check that our initial state is as expected (a random selection of individuals, but have seeded generator here)
+    assert np.array_equal(opt.state, expected_state)
+
+    # Move one step and check that only one entry has changed
+    opt.move()
+    assert sum(expected_state != opt.state) == 1
