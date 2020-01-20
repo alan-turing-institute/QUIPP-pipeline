@@ -1,0 +1,24 @@
+{
+    "columns": [
+        {
+            "name": "id",
+            "type": "ordinal"
+        },
+        {
+            "name": "age",
+            "type": "integer"
+        },
+        {
+            "name": "height",
+            "type": "continuous"
+        },
+        {
+            "name": "origin",
+            "type": "categorical"
+        },
+        {
+            "name": "favourite_food",
+            "type": "categorical"
+        }
+    ]
+}
