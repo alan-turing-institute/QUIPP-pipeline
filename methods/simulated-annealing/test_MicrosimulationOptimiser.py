@@ -9,9 +9,11 @@ from MicrosimulationOptimiser import MicrosimulationOptimiser
 def simpleworld_example():
     """Load the data from the SimpleWorld example"""
 
-    ind = pd.read_csv(os.path.join(os.getcwd(), "datasets", "SimpleWorld", "ind-full.csv"))
-    age = pd.read_csv(os.path.join(os.getcwd(), "datasets", "SimpleWorld", "age.csv"))
-    sex = pd.read_csv(os.path.join(os.getcwd(), "datasets", "SimpleWorld", "sex.csv"))
+    this_directory = os.path.dirname(os.path.abspath(__file__))
+
+    ind = pd.read_csv(os.path.join(this_directory, "..", "..", "datasets", "SimpleWorld", "ind-full.csv"))
+    age = pd.read_csv(os.path.join(this_directory, "..", "..", "datasets", "SimpleWorld", "age.csv"))
+    sex = pd.read_csv(os.path.join(this_directory, "..", "..", "datasets", "SimpleWorld", "sex.csv"))
 
     age_conditions = [ind["age"] < 50, ind["age"] >= 50]
     sex_conditions = [ind["sex"] == "m", ind["sex"] == "f"]
