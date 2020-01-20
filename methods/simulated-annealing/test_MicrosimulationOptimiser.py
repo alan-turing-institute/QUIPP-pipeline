@@ -61,11 +61,11 @@ def test_end_to_end(region, young, old, male, female, simpleworld_example):
     assert len(synthetic_population[synthetic_population["sex"] == "f"]) == female
 
 
-def test_move(simpleworld_example):
+@pytest.mark.parametrize("region,seed,expected_state,_", region_states)
+def test_move(region, seed, expected_state, _, simpleworld_example):
     """Check that the move action only changes one entry in the synthetic population"""
 
-    np.random.seed(1)
-    region = 0
+    np.random.seed(seed)
     ind, age, sex, age_conditions, sex_conditions = simpleworld_example
 
     # Give properties of below/above 50 and male/female to each individual to match constraints
@@ -74,8 +74,6 @@ def test_move(simpleworld_example):
 
     # Initialise the optimisation class with the array of individuals and arrays of age and sex constraints (counts)
     opt = MicrosimulationOptimiser(ind_array, age.to_numpy()[region], sex.to_numpy()[region])
-
-    expected_state = np.array([3, 4, 0, 1, 3, 0, 0, 1, 4, 4, 1, 2])
 
     # Check that our initial state is as expected (a random selection of individuals, but have seeded generator here)
     assert np.array_equal(opt.state, expected_state)
