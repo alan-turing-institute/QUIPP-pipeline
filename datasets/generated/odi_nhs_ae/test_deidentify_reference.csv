@@ -1,0 +1,21 @@
+Time in A&E (mins),Treatment,Gender,Index of Multiple Deprivation Decile,Hospital ID,Arrival Date,Arrival hour range,Age bracket
+49,None (consider guidance/advice option),Male,8,566396,2019-04-07,16-19,18-24
+44,Burns review,Male,8,849553,2019-04-07,20-23,18-24
+33,Urinary catheter/suprapubic,Male,8,585196,2019-04-04,20-23,0-17
+61,Removal foreign body,Female,8,965837,2019-04-07,12-15,25-44
+101,Guidance/advice only,Male,8,164074,2019-04-06,00-03,85-
+45,Guidance/advice only,Male,8,965837,2019-04-05,08-11,0-17
+50,Prescription/medicines prepared to take away,Male,8,489720,2019-04-07,04-07,25-44
+38,Other (consider alternatives),Male,8,236058,2019-04-06,16-19,0-17
+45,Joint aspiration,Female,8,585196,2019-04-07,12-15,25-44
+57,Sling/collar cuff/broad arm sling,Female,8,585196,2019-04-06,04-07,25-44
+92,Nasal airway,Male,8,585196,2019-04-06,00-03,65-84
+47,Splint,Male,8,585196,2019-04-07,20-23,25-44
+65,Burns review,Female,10,164074,2019-04-02,00-03,45-64
+91,Blood product transfusion,Male,10,489720,2019-04-03,04-07,65-84
+48,Nasal airway,Female,10,489937,2019-04-07,08-11,25-44
+61,Urinary catheter/suprapubic,Male,10,320768,2019-04-02,08-11,45-64
+78,Chest drain,Female,4,857877,2019-04-06,08-11,45-64
+61,Anaesthesia,Male,4,485758,2019-04-06,04-07,25-44
+8,Wound cleaning,Male,10,659664,2019-04-05,12-15,0-17
+42,Burns review,Male,10,721777,2019-04-02,16-19,25-44
