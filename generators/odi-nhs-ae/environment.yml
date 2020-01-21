@@ -1,4 +1,4 @@
-name: generator_odi_nhd_ae
+name: generator_odi_nhs_ae
 channels:
 - defaults
 dependencies:
