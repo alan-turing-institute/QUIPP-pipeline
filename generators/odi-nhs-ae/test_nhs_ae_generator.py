@@ -5,6 +5,8 @@ import os
 
 def test_generator():
 
+    # Test postcode data was generated with command:
+    # $ awk 'NR % 50000 == 1' data/London\ postcodes.csv > data/London\ postcodes\ test.csv
     main(20, 'test_generated.csv', 23414, "London postcodes test.csv")
 
     with open(os.path.join(os.getcwd(), "..", "..", "datasets", "generated", "odi_nhs_ae", "test_reference.csv")) as r,\
