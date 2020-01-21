@@ -20,7 +20,7 @@ def test_generator():
 
 
 def test_deidentify():
-    deidentify_main("test_reference.csv", "test_deidentify.csv")
+    deidentify_main("test_reference.csv", "test_deidentify.csv", postcode_file="London postcodes test.csv")
 
     data_path = os.path.join(os.getcwd(), "..", "..", "datasets", "generated", "odi_nhs_ae")
     with open(os.path.join(data_path, "test_deidentify_reference.csv")) as r, \

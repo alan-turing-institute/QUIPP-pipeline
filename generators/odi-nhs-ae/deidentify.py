@@ -7,11 +7,12 @@ import time
 import string
 import argparse
 import pandas as pd
+import os
 
 import filepaths
 
 
-def main(input_filename, output_filename):
+def main(input_filename, output_filename, postcode_file="London postcodes.csv"):
 
     filepath = filepaths.output_dir + '/'
 
@@ -25,10 +26,10 @@ def main(input_filename, output_filename):
     hospital_ae_df = remove_health_service_numbers(hospital_ae_df)
 
     print('converting postcodes to LSOA...')
-    hospital_ae_df = convert_postcodes_to_lsoa(hospital_ae_df)
+    hospital_ae_df = convert_postcodes_to_lsoa(hospital_ae_df, os.path.join(filepaths.data_dir, postcode_file))
 
     print('converting LSOA to IMD decile...')
-    hospital_ae_df = convert_lsoa_to_imd_decile(hospital_ae_df)
+    hospital_ae_df = convert_lsoa_to_imd_decile(hospital_ae_df, os.path.join(filepaths.data_dir, postcode_file))
 
     print('replacing Hospital with random number...')
     hospital_ae_df = replace_hospital_with_random_number(hospital_ae_df)
@@ -58,7 +59,7 @@ def remove_health_service_numbers(hospital_ae_df: pd.DataFrame) -> pd.DataFrame:
     return hospital_ae_df
 
 
-def convert_postcodes_to_lsoa(hospital_ae_df: pd.DataFrame) -> pd.DataFrame:
+def convert_postcodes_to_lsoa(hospital_ae_df: pd.DataFrame, postcode_file_path: string) -> pd.DataFrame:
     """Adds corresponding Lower layer super output area for each row
     depending on their postcode. Uses London postcodes dataset from
     https://www.doogal.co.uk/PostcodeDownloads.php 
@@ -66,7 +67,7 @@ def convert_postcodes_to_lsoa(hospital_ae_df: pd.DataFrame) -> pd.DataFrame:
     Keyword arguments:
     hospital_ae_df -- Hopsitals A&E records dataframe
     """
-    postcodes_df = pd.read_csv(filepaths.postcodes_london)
+    postcodes_df = pd.read_csv(postcode_file_path)
     hospital_ae_df = pd.merge(
         hospital_ae_df, 
         postcodes_df[['Postcode', 'Lower layer super output area']], 
@@ -76,7 +77,7 @@ def convert_postcodes_to_lsoa(hospital_ae_df: pd.DataFrame) -> pd.DataFrame:
     return hospital_ae_df
 
 
-def convert_lsoa_to_imd_decile(hospital_ae_df: pd.DataFrame) -> pd.DataFrame:
+def convert_lsoa_to_imd_decile(hospital_ae_df: pd.DataFrame, postcode_file_path: string) -> pd.DataFrame:
     """Maps each row's Lower layer super output area to which 
     Index of Multiple Deprivation decile it's in. It calculates the decile 
     rates based on the IMD's over all of London. 
@@ -87,7 +88,7 @@ def convert_lsoa_to_imd_decile(hospital_ae_df: pd.DataFrame) -> pd.DataFrame:
     hospital_ae_df -- Hospitals A&E records dataframe
     """
 
-    postcodes_df = pd.read_csv(filepaths.postcodes_london)
+    postcodes_df = pd.read_csv(postcode_file_path)
 
     hospital_ae_df = pd.merge(
         hospital_ae_df, 
