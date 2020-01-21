@@ -13,4 +13,3 @@ nhs_ae_gender_codes = os.path.join(data_dir, 'nhs_ae_gender_codes.csv')
 nhs_ae_treatment_codes = os.path.join(data_dir, 'nhs_ae_treatment_codes.csv')
 age_population_london = os.path.join(data_dir, 'age_population_london.csv')
 
-hospital_ae_data_deidentify = os.path.join(output_dir, 'hospital_ae_data_deidentify.csv')
