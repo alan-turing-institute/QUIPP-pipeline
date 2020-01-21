@@ -25,7 +25,7 @@ import filepaths
 # TODO: give hospitals different average waiting times
 
 
-def main(num_rows, filename, seed):
+def main(num_rows, filename, seed, postcode_file="London postcodes.csv"):
     print('generating data...')
     start = time.time()
 
@@ -53,7 +53,7 @@ def main(num_rows, filename, seed):
     hospital_ae_dataset['Gender'] = generate_genders(num_rows)
 
     print('generating patient postcodes...')
-    hospital_ae_dataset['Postcode'] = generate_postcodes(num_rows)
+    hospital_ae_dataset['Postcode'] = generate_postcodes(num_rows, os.path.join(filepaths.data_dir, postcode_file))
 
     filepath = filepaths.output_dir + '/' + filename
     write_out_dataset(hospital_ae_dataset, filepath)
@@ -124,13 +124,13 @@ def generate_health_service_id_numbers(num_of_rows) -> list:
     return health_service_id_numbers
 
 
-def generate_postcodes(num_of_rows) -> list:
+def generate_postcodes(num_of_rows, postcode_file_path) -> list:
     """ Reads a .csv containing info on every London postcode. Reads the 
     postcodes in use and returns a sample of them.
 
     # List of London postcodes from https://www.doogal.co.uk/PostcodeDownloads.php
     """
-    postcodes_df = pd.read_csv(filepaths.postcodes_london)
+    postcodes_df = pd.read_csv(postcode_file_path)
     postcodes_in_use = list(postcodes_df[postcodes_df['In Use?'] == "No"]['Postcode'])
     postcodes = random.choices(postcodes_in_use, k=num_of_rows)
     return postcodes
