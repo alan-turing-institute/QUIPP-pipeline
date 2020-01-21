@@ -25,9 +25,12 @@ import filepaths
 # TODO: give hospitals different average waiting times
 
 
-def main(num_rows):
+def main(num_rows, filename, seed):
     print('generating data...')
     start = time.time()
+
+    np.random.seed(seed)
+    random.seed(seed)
 
     hospital_ae_dataset = {}
 
@@ -52,8 +55,9 @@ def main(num_rows):
     print('generating patient postcodes...')
     hospital_ae_dataset['Postcode'] = generate_postcodes(num_rows)
 
-    write_out_dataset(hospital_ae_dataset, filepaths.hospital_ae_data)
-    print('dataset written out to: ', filepaths.hospital_ae_data)
+    filepath = filepaths.output_dir + '/' + filename
+    write_out_dataset(hospital_ae_dataset, filepath)
+    print('dataset written out to: ' + filepath)
 
     elapsed = round(time.time() - start, 2)
     print('done in ' + str(elapsed) + ' seconds.')
@@ -223,6 +227,9 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Generate synthetic NHS A&E admissions data")
     parser.add_argument("--rows", type=int, default=10000, help="Number of rows to generate")
+    parser.add_argument("--filename", type=str, default='hospital_ae_data.csv', help="Output data filename")
+    parser.add_argument("--seed", type=int, default=1234, help="Random seed")
     args = parser.parse_args()
 
-    main(args.rows)
+
+    main(args.rows, args.filename, args.seed)
