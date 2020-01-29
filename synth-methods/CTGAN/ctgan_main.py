@@ -136,3 +136,8 @@ class SynthesizerCTGAN(SynthesizerBase):
 
         return synthetic_data
 
+# Test if it works
+syn = SynthesizerCTGAN()
+syn.fit_synthesizer("tests/data/test_CTGAN_io.csv", "tests/data/test_CTGAN_io_data.json",
+                  "Synthesis00", "tests/parameters/ctgan_parameters.json", True, False, True)
+output = syn.synthesize(150, True, "test.csv", True)
