@@ -141,3 +141,6 @@ syn = SynthesizerCTGAN()
 syn.fit_synthesizer("tests/data/test_CTGAN_io.csv", "tests/data/test_CTGAN_io_data.json",
                   "Synthesis00", "tests/parameters/ctgan_parameters.json", True, False, True)
 output = syn.synthesize(150, True, "test.csv", True)
+print("Output df head:\n", output.head())
+#print(syn.model)
+#print(syn.parameters)
