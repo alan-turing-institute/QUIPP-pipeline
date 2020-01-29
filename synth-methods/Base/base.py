@@ -21,7 +21,7 @@ class SynthesizerBase:
         self.model = None
         self.synthetic_data = None
 
-    def _read_data(self, csv_path, json_path, synthesis_name, store_internally=False, verbose=True):
+    def read_data(self, csv_path, json_path, synthesis_name, store_internally=False, verbose=True):
         """Reads input data from .csv file and metadata from .json file.
         Stores the data and metadata within the class object if
         store_internally=True (default False). User has to define a synthesis name (synth_name)

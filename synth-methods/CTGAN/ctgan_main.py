@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import sys
 from ctgan.synthesizer import CTGANSynthesizer
+
 sys.path.append("../Base")
 from base import SynthesizerBase
 
@@ -17,12 +18,12 @@ class SynthesizerCTGAN(SynthesizerBase):
         self.column_names = None
         super().__init__()
 
-    def _read_data(self, csv_path, json_path, synthesis_name, store_internally=False, verbose=True):
-        """This is intended as a place to to call the parent _read_data(...) and also add method-specific
+    def read_data(self, csv_path, json_path, synthesis_name, store_internally=False, verbose=True):
+        """This is intended as a place to to call the parent read_data(...) and also add method-specific
         data pre-processing after reading from disk. If no pre-processing is required then it can just
-        call the parent _read_data(...)"""
-        return super()._read_data(csv_path, json_path, synthesis_name,
-                                  store_internally=False, verbose=True)
+        call the parent read_data(...)"""
+        return super().read_data(csv_path, json_path, synthesis_name,
+                                 store_internally, verbose)
 
     def fit_synthesizer(self, csv_path, metadata_json_path, synthesis_name, parameters_json_path,
                         store_internally=False, use_stored_inputs=False, verbose=True):
@@ -45,7 +46,7 @@ class SynthesizerCTGAN(SynthesizerBase):
         else:
             if verbose:
                 print("\n[INFO] Reading input data and metadata from disk")
-            input_data, metadata = self._read_data(csv_path, metadata_json_path,
+            input_data, metadata = self.read_data(csv_path, metadata_json_path,
                                                    synthesis_name, store_internally, verbose)
 
         if verbose:
@@ -136,11 +137,12 @@ class SynthesizerCTGAN(SynthesizerBase):
 
         return synthetic_data
 
+
 # Test if it works
 syn = SynthesizerCTGAN()
 syn.fit_synthesizer("tests/data/test_CTGAN_io.csv", "tests/data/test_CTGAN_io_data.json",
-                  "Synthesis00", "tests/parameters/ctgan_parameters.json", True, False, True)
+                    "Synthesis00", "tests/parameters/ctgan_parameters.json", True, False, True)
 output = syn.synthesize(150, True, "test.csv", True)
 print("Output df head:\n", output.head())
-#print(syn.model)
-#print(syn.parameters)
+# print(syn.model)
+# print(syn.parameters)
