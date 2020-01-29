@@ -40,11 +40,12 @@ class SynthesizerBase:
             if not (name_data == name_metadata):
                 print("\nWARNING: Column name mismatch between data and metadata: {} {}".format(name_data, name_metadata))
 
-        print("\nSUMMARY")
-        print("\nDataframe dimensions\n#rows:    {}\n#columns: {}".format(data.shape[0],data.shape[1]))
-        print("\nColumn name \t Type\n" + 11*"--")
-        for col in metadata['columns']:
-            print("{} \t {}".format(col['name'], col['type']))
+        if verbose:
+            print("\nSUMMARY")
+            print("\nDataframe dimensions\n#rows:    {}\n#columns: {}".format(data.shape[0],data.shape[1]))
+            print("\nColumn name \t Type\n" + 11*"--")
+            for col in metadata['columns']:
+                print("{} \t {}".format(col['name'], col['type']))
 
         if store_internally:
             self.input_data = data
