@@ -10,7 +10,7 @@ class SynthesizerBase:
         self.input_data = None
         self.metadata = None
 
-    def read_data(self, csv_path, json_path, store_internally=False):
+    def read_data(self, csv_path, json_path, store_internally=False, verbose=True):
         """Reads input data from .csv file and metadata from .json file.
         Stores the data and metadata within the class object if
         store_internally=True (default False). Returns data (pandas dataframe)
@@ -27,10 +27,6 @@ class SynthesizerBase:
         with open(json_path) as metadata_json:
             metadata = json.load(metadata_json)
 
-        if store_internally:
-            self.input_data = data
-            self.metadata = metadata
-
         if not ('columns' in metadata):
             sys.exit("Metadata file does not contain 'columns' key. Please refer to the documentation.")
 
@@ -45,9 +41,13 @@ class SynthesizerBase:
                 print("\nWARNING: Column name mismatch between data and metadata: {} {}".format(name_data, name_metadata))
 
         print("\nSUMMARY")
-        print("\nDataframe #rows/#columns: {}/{}".format(data.shape[0],data.shape[1]))
-        print("Column name \t Type")
+        print("\nDataframe dimensions\n#rows:    {}\n#columns: {}".format(data.shape[0],data.shape[1]))
+        print("\nColumn name \t Type\n" + 11*"--")
         for col in metadata['columns']:
             print("{} \t {}".format(col['name'], col['type']))
+
+        if store_internally:
+            self.input_data = data
+            self.metadata = metadata
 
         return data, metadata
