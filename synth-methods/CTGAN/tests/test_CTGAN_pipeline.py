@@ -1,7 +1,4 @@
-import numpy as np
-import sys
 from ctgan import load_demo
-from ctgan.data import read_csv
 from ctgan.synthesizer import CTGANSynthesizer
 
 def test_CTGAN_pipeline():
