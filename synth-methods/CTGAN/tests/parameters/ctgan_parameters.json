@@ -2,7 +2,7 @@
     "parameters": [
         {
             "name": "num_samples_for_fitting",
-            "value": 8
+            "value": -1
         },
         {
             "name": "num_epochs",

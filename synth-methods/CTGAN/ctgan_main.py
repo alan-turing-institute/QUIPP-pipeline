@@ -15,7 +15,7 @@ class SynthesizerCTGAN(SynthesizerBase):
         self.num_epochs = None
         self.num_samples_to_synthesise = None
         self.random_state = None
-        self.column_names = None
+        self.discrete_column_names = None
         super().__init__()
 
     def read_data(self, csv_path, json_path, synthesis_name, store_internally=False, verbose=True):
@@ -47,7 +47,7 @@ class SynthesizerCTGAN(SynthesizerBase):
             if verbose:
                 print("\n[INFO] Reading input data and metadata from disk")
             input_data, metadata = self.read_data(csv_path, metadata_json_path,
-                                                   synthesis_name, store_internally, verbose)
+                                                  synthesis_name, store_internally, verbose)
 
         if verbose:
             print("\nSUMMARY")
@@ -69,8 +69,10 @@ class SynthesizerCTGAN(SynthesizerBase):
                   f"num_epochs = {self.num_epochs}\n"
                   f"random_state = {self.random_state}\n")
 
-        # Extract column names list from metadata
-        self.column_names = [col['name'] for col in metadata['columns']]
+        # Extract discrete column names list from metadata
+        # NOTE: The list of discrete types needs to be updated when the format of the metadata is finalised
+        self.discrete_column_names = [col['name'] for col in metadata['columns']
+                                      if col['type'] in ['categorical', 'ordinal', 'integer']]
 
         # Draw random sample from input data with requested size
         if self.num_samples_for_fitting == 0:
@@ -93,7 +95,7 @@ class SynthesizerCTGAN(SynthesizerBase):
         # Fit the model
         if verbose:
             print(f"\n[INFO] Fitting the CTGAN model, total number of epochs: {self.num_epochs}")
-        ctgan.fit(data_sample, self.column_names, epochs=self.num_epochs)
+        ctgan.fit(data_sample, self.discrete_column_names, epochs=self.num_epochs)
 
         # Store the model
         self.model = ctgan
