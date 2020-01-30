@@ -19,8 +19,8 @@ class SynthesizerCTGAN(SynthesizerBase):
         super().__init__()
 
     def read_data(self, csv_path, json_path, synthesis_name, store_internally=False, verbose=True):
-        """This is intended as a place to to call the parent read_data(...) and also add method-specific
-        data pre-processing after reading from disk. If no pre-processing is required then it can just
+        """This is intended as a place to call the parent read_data(...) and also add method-specific
+        data pre-processing. If no pre-processing is required then it can just
         call the parent read_data(...)"""
         return super().read_data(csv_path, json_path, synthesis_name,
                                  store_internally, verbose)

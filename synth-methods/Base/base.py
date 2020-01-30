@@ -38,8 +38,10 @@ class SynthesizerBase:
         self.dataset_name = path_leaf(csv_path)[:-4]
         self.synthesis_name = synthesis_name
 
+        # Read csv from file
         data = pd.read_csv(csv_path)
 
+        # Read json from file
         with open(json_path) as metadata_json:
             metadata = json.load(metadata_json)
 
@@ -57,6 +59,7 @@ class SynthesizerBase:
                 print("\n[WARNING]: Column name mismatch between data and metadata: {} {}".format(name_data,
                                                                                                   name_metadata))
 
+        # Store data and metadata internally
         if store_internally:
             self.input_data = data
             self.metadata = metadata
@@ -66,7 +69,9 @@ class SynthesizerBase:
         return data, metadata
 
     def fit_synthesizer(self):
+        """Leave empty. Method-specific implementation should be provided in child class of Base"""
         pass
 
     def synthesize(self):
+        """Leave empty. Method-specific implementation should be provided in child class of Base"""
         pass
