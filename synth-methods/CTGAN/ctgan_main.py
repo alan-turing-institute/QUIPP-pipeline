@@ -1,21 +1,28 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import json
 import os
 import pandas as pd
 import sys
-from ctgan.synthesizer import CTGANSynthesizer
+try:
+    from ctgan.synthesizer import CTGANSynthesizer
+except ImportError as err:
+    sys.exit("[ERROR] CTGAN library needs to be installed.\nError message: %s" % err)
 
-sys.path.append("../Base")
+sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir, "Base"))
 from base import SynthesizerBase
 
-
+# --- CTGAN main class
 class SynthesizerCTGAN(SynthesizerBase):
 
     def __init__(self):
         self.num_samples_for_fitting = None
-        self.num_epochs = None
         self.num_samples_to_synthesise = None
-        self.random_state = None
         self.discrete_column_names = None
+        self.num_epochs = None
+        self.random_state = None
+        # instantiate SynthesizerBase from Base directory
         super().__init__()
 
     def read_data(self, csv_path, json_path, synthesis_name, store_internally=False, verbose=True):
@@ -51,7 +58,8 @@ class SynthesizerCTGAN(SynthesizerBase):
 
         if verbose:
             print("\nSUMMARY")
-            print("\nDataframe dimensions\n#rows:    {}\n#columns: {}".format(input_data.shape[0],
+            print("-------")
+            print("Dataframe dimensions\n#rows:    {}\n#columns: {}".format(input_data.shape[0],
                                                                               input_data.shape[1]))
             print("\nColumn name \t Type\n" + 11 * "--")
             for col in metadata['columns']:
@@ -139,12 +147,24 @@ class SynthesizerCTGAN(SynthesizerBase):
 
         return synthetic_data
 
+if __name__ == "__main__":
+    # Test if it works
+    syn = SynthesizerCTGAN()
 
-# Test if it works
-syn = SynthesizerCTGAN()
-syn.fit_synthesizer("tests/data/test_CTGAN_io.csv", "tests/data/test_CTGAN_io_data.json",
-                    "Synthesis00", "tests/parameters/ctgan_parameters.json", True, False, True)
-output = syn.synthesize(150, True, "test.csv", True)
-print("Output df head:\n", output.head())
-# print(syn.model)
-# print(syn.parameters)
+    path2csv = os.path.join("tests", "data", "test_CTGAN_io.csv")
+    path2meta = os.path.join("tests", "data", "test_CTGAN_io_data.json") 
+    # XXX Do we need this?
+    synthesis_name = "Synthesis00"
+    path2params = os.path.join("tests", "parameters", "ctgan_parameters.json")
+    syn.fit_synthesizer(path2csv, path2meta,
+                        synthesis_name, path2params, 
+                        store_internally=False, 
+                        use_stored_inputs=False, 
+                        verbose=True)
+    output = syn.synthesize(num_samples_to_synthesize=150, 
+                            store_internally=True, 
+                            output_filename="test.csv", 
+                            verbose=True)
+    print("Output df head:\n", output.head())
+    # print(syn.model)
+    # print(syn.parameters)

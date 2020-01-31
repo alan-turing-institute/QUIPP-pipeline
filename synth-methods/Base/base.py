@@ -1,15 +1,14 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import json
 import os
 import pandas as pd
+import re
 import sys
 import ntpath
 
-
-def path_leaf(path):
-    head, tail = ntpath.split(path)
-    return tail or ntpath.basename(head)
-
-
+# --- Base class to be used in synth-methods 
 class SynthesizerBase:
 
     def __init__(self):
@@ -21,7 +20,7 @@ class SynthesizerBase:
         self.model = None
         self.synthetic_data = None
 
-    def read_data(self, csv_path, json_path, synthesis_name, store_internally=False, verbose=True):
+    def read_data(self, csv_path, json_path, synthesis_name="synth_default", store_internally=False, verbose=True):
         """Reads input data from .csv file and metadata from .json file.
         Stores the data and metadata within the class object if
         store_internally=True (default False). User has to define a synthesis name (synth_name)
@@ -35,7 +34,7 @@ class SynthesizerBase:
 
         # Extract csv filename only, remove extension and use as dataset_name
         # synthesis_name is provided by user
-        self.dataset_name = path_leaf(csv_path)[:-4]
+        self.dataset_name = re.split(".csv", os.path.basename(csv_path), flags=re.IGNORECASE)[0]
         self.synthesis_name = synthesis_name
 
         # Read csv from file
