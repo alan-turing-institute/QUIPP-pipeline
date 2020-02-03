@@ -123,8 +123,7 @@ class SynthesizerCTGAN(SynthesizerBase):
 
         # Write data to disk if needed
         if output_path:
-            output_path_pardir = os.path.join(output_path, os.path.pardir)
-            import ipdb; ipdb.set_trace()
+            output_path_pardir = os.path.abspath(os.path.join(output_path, os.path.pardir))
             if not os.path.isdir(output_path_pardir):
                 os.makedirs(output_path_pardir)
             if os.path.isfile(output_path):
@@ -150,7 +149,5 @@ if __name__ == "__main__":
     path2params = os.path.join("tests", "parameters", "ctgan_parameters.json")
     syn.read_data(path2csv, path2meta)
     syn.fit_synthesizer(path2params)
-    output = syn.synthesize(num_samples_to_synthesize=200, output_path="./test.csv")
-    print("Output df head:\n", output.head())
-    # print(syn.model)
-    # print(syn.parameters)
+    syn.synthesize(num_samples_to_synthesize=200, output_path="./test.csv")
+    import ipdb; ipdb.set_trace()
