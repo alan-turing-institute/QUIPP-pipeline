@@ -1,28 +1,22 @@
 """
 Script that generates hospital A&E data to use in the synthetic data tutorial.
 
-Columns of data inpired by NHS+ODI Leeds blog post:
+Columns of data inspired by NHS+ODI Leeds blog post:
 https://odileeds.org/blog/2019-01-24-exploring-methods-for-creating-synthetic-a-e-data
 
 """
 
 import argparse
 import os
+from datetime import datetime
 import random
-from datetime import datetime, timedelta
-import uuid
-import random, string
+import string
 import time
 
 import pandas as pd
 import numpy as np
-import scipy.stats as stats
-from scipy.linalg import eigh, cholesky
-from scipy.stats import norm
 
 import filepaths
-
-# TODO: give hospitals different average waiting times
 
 
 def main(num_rows, filename, seed, postcode_file="London postcodes.csv"):
@@ -92,7 +86,7 @@ def generate_ages_times_in_age(num_of_rows) -> (list, list):
     ages = data[:, 0].tolist()
     times_in_ae = data[:, 1].tolist()
 
-    return (ages, times_in_ae)
+    return ages, times_in_ae
 
 
 def corr2cov(correlations: np.ndarray, stdev: np.ndarray) -> np.ndarray:
@@ -110,6 +104,7 @@ def generate_admission_ids(num_of_rows) -> list:
         x = ''.join(random.choice(string.digits) for _ in range(10))
         uids.append(x)
     return uids
+
 
 def generate_health_service_id_numbers(num_of_rows) -> list:
     """ Generate dummy Health Service ID numbers similar to NHS 10 digit format
@@ -230,6 +225,5 @@ if __name__ == "__main__":
     parser.add_argument("--filename", type=str, default='hospital_ae_data.csv', help="Output data filename")
     parser.add_argument("--seed", type=int, default=1234, help="Random seed")
     args = parser.parse_args()
-
 
     main(args.rows, args.filename, args.seed)
