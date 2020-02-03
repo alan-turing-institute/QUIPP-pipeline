@@ -1,20 +1,8 @@
 {
-    "parameters": [
+    "parameters": 
         {
-            "name": "num_samples_for_fitting",
-            "value": -1
-        },
-        {
-            "name": "num_epochs",
-            "value": 20
-        },
-        {
-            "name": "num_samples_to_synthesise",
-            "value": 1000
-        },
-        {
-            "name": "random_state",
-            "value": 1234
+            "num_samples_to_fit": -1,
+            "num_epochs": 20,
+            "random_state": 1234
         }
-    ]
 }
