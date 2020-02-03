@@ -15,3 +15,5 @@ datasets/generated/odi_nhs_ae/*
 !datasets/generated/odi_nhs_ae/test_reference.csv
 !datasets/generated/odi_nhs_ae/test_deidentify_reference.csv
 !datasets/generated/odi_nhs_ae/hospital_ae_data.csv
+!datasets/generated/odi_nhs_ae/hospital_ae_data_deidentify.json
+!datasets/generated/odi_nhs_ae/hospital_ae_data.json

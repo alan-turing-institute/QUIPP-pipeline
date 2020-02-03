@@ -59,8 +59,9 @@ class SynthesizerCTGAN(SynthesizerBase):
 
         # Extract discrete column names list from metadata
         # XXX NOTE: The list of discrete types needs to be updated when the format of the metadata is finalised
+        # XXX Deal with DateTime in CTGAN
         self.discrete_column_names = [col['name'] for col in metadata['columns']
-                                      if col['type'] in ['categorical', 'ordinal', 'integer']]
+                                      if col['type'] in ['Categorical', 'Ordinal', 'DiscreteNumerical', "DateTime"]]
 
         # Draw random sample from input data with requested size
         if self.num_samples_to_fit == 0:
@@ -125,9 +126,14 @@ if __name__ == "__main__":
     # Test if it works
     ctgan_syn = SynthesizerCTGAN()
 
-    path2csv = os.path.join("tests", "data", "test_CTGAN_io.csv")
-    path2meta = os.path.join("tests", "data", "test_CTGAN_io_data.json") 
+    #path2csv = os.path.join("tests", "data", "test_CTGAN_io.csv")
+    #path2meta = os.path.join("tests", "data", "test_CTGAN_io_data.json") 
+    #path2params = os.path.join("tests", "parameters", "ctgan_parameters.json")
+
+    path2csv = os.path.join("../../datasets/generated/odi_nhs_ae/hospital_ae_data_deidentify.csv")
+    path2meta = os.path.join("../../datasets/generated/odi_nhs_ae/hospital_ae_data_deidentify_ctgan.json") 
     path2params = os.path.join("tests", "parameters", "ctgan_parameters.json")
+
     ctgan_syn.fit_synthesizer(path2params, path2csv, path2meta)
-    ctgan_syn.synthesize(num_samples_to_synthesize=200, output_path="./test.csv")
+    ctgan_syn.synthesize(num_samples_to_synthesize=200, output_path="./test_hospital.csv")
     import ipdb; ipdb.set_trace()
