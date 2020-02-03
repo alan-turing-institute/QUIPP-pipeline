@@ -2,23 +2,23 @@
     "columns": [
         {
             "name": "id",
-            "type": "ordinal"
+            "type": "Ordinal"
         },
         {
             "name": "age",
-            "type": "integer"
+            "type": "DiscreteNumerical"
         },
         {
             "name": "height",
-            "type": "continuous"
+            "type": "ContinuousNumerical"
         },
         {
             "name": "origin",
-            "type": "categorical"
+            "type": "Categorical"
         },
         {
             "name": "favourite_food",
-            "type": "categorical"
+            "type": "Categorical"
         }
     ]
 }
