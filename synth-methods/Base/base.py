@@ -12,13 +12,10 @@ class SynthesizerBase:
 
     def __init__(self):
         self.dataset_name = None
-        self.input_data = None
-        self.metadata = None
         self.parameters = None
         self.model = None
-        self.synthetic_data = None
 
-    def read_data(self, csv_path, json_path, store_internally=True, verbose=True):
+    def read_data(self, csv_path, json_path, verbose=True):
         """Reads input data from .csv file and metadata from .json file.
         Stores the data and metadata within the class object if
         store_internally=True (default). User can define a synthesis name (synth_name)
@@ -55,14 +52,7 @@ class SynthesizerBase:
                                                                                                   name_metadata))
         # <<<
 
-        # Store data and metadata internally
-        if store_internally:
-            self.input_data = data
-            self.metadata = metadata
-            if verbose:
-                print("\n[INFO] Stored input data and metadata internally")
-        else:
-            return data, metadata
+        return data, metadata
 
     def fit_synthesizer(self):
         """Leave empty. Method-specific implementation should be provided in child class of Base"""
