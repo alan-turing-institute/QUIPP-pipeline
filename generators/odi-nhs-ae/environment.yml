@@ -1,0 +1,10 @@
+name: generator_odi_nhs_ae
+channels:
+- defaults
+dependencies:
+- matplotlib
+- numpy
+- pandas
+- pytest
+- scipy
+- seaborn

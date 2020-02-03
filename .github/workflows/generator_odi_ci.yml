@@ -1,0 +1,30 @@
+# Run tests for the simulated annealing example
+
+name: Generator ODI CI
+
+on:
+  push:
+    paths:
+      # only run when simulated-annealing folder contents are edited
+      - 'generators/odi-nhs-ae/**'
+      - '.github/workflows/generator_odi_ci.yml'
+
+jobs:
+  run_tests:
+    name: 'Set up conda environment and run tests'
+    runs-on: 'ubuntu-latest'
+    steps:
+      - uses: actions/checkout@v2
+      - uses: goanpeca/setup-miniconda@v1
+        with:
+           activate-environment: generator_odi_nhs_ae
+           environment-file: generators/odi-nhs-ae/environment.yml
+           python-version: 3.6
+           auto-activate-base: false
+      - name: Run tests
+        shell: bash -l {0}
+        run: |
+          cd generators/odi-nhs-ae/
+          pytest -v
+          conda info
+          conda list
