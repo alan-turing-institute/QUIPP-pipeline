@@ -13,6 +13,7 @@ class SynthesizerBase:
     def __init__(self):
         self.dataset_name = None
         self.parameters = None
+        self.metadata = None
         self.model = None
 
     def read_data(self, csv_path, json_path, verbose=True):

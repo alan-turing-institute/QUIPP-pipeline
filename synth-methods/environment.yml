@@ -1,0 +1,12 @@
+name: QUIPP-pipeline
+channels:
+- defaults
+dependencies:
+- numpy
+- pandas
+- pytest
+- UUID
+- pip:
+  - ctgan
+  - ipdb
+

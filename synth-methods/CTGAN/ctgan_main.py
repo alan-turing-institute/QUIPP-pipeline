@@ -23,6 +23,7 @@ class SynthesizerCTGAN(SynthesizerBase):
         self.discrete_column_names = None
         self.num_epochs = None
         self.random_state = None
+
         # instantiate SynthesizerBase from Base directory
         super().__init__()
 
@@ -36,6 +37,8 @@ class SynthesizerCTGAN(SynthesizerBase):
         if verbose:
             print("\n[INFO] Reading input data and metadata from disk")
         input_data, metadata = self.read_data(csv_path, metadata_json_path, verbose)
+        with open(metadata_json_path) as metadata_json:
+            self.metadata = json.load(metadata_json)
 
         if verbose:
             print("\nSUMMARY")
@@ -108,12 +111,18 @@ class SynthesizerCTGAN(SynthesizerBase):
 
         # Write data to disk if needed
         if output_path:
-            output_path_pardir = os.path.abspath(os.path.join(output_path, os.path.pardir))
-            if not os.path.isdir(output_path_pardir):
-                os.makedirs(output_path_pardir)
+            if not os.path.isdir(output_path):
+                os.makedirs(output_path)
             if os.path.isfile(output_path):
                 print(f"[WARNING] Output file {output_path} already exists and will be overwritten")
-            synthetic_data.to_csv(output_path, index=False)
+            synthetic_data.to_csv(os.path.join(output_path,"synthetic_data.csv"))
+
+            with open(os.path.join(output_path,"ctgan_parameters.json"), 'w') as par:
+                json.dump(self.parameters, par)
+
+            with open(os.path.join(output_path,"data_description.json"), 'w') as meta:
+                json.dump(self.metadata, meta)
+
             if verbose:
                 print(f"[INFO] Stored synthesized dataset to file: {output_path}")
 
@@ -126,15 +135,22 @@ class SynthesizerCTGAN(SynthesizerBase):
 if __name__ == "__main__":
     # Test if it works
 
-    #path2csv = os.path.join("tests", "data", "test_CTGAN_io.csv")
-    #path2meta = os.path.join("tests", "data", "test_CTGAN_io_data.json") 
-    #path2params = os.path.join("tests", "parameters", "ctgan_parameters.json")
+    import uuid
+
+    ctgan_syn = SynthesizerCTGAN()
+
+    UUID_run = uuid.uuid1()
+
+    output_path = "../../synth_output/ctgan_"+str(UUID_run)
+
 
     path2csv = os.path.join("../../datasets/generated/odi_nhs_ae/hospital_ae_data_deidentify.csv")
     path2meta = os.path.join("../../datasets/generated/odi_nhs_ae/hospital_ae_data_deidentify.json")
     path2params = os.path.join("tests", "parameters", "ctgan_parameters.json")
 
-    ctgan_syn = SynthesizerCTGAN()
     ctgan_syn.fit_synthesizer(path2params, path2csv, path2meta)
-    ctgan_syn.synthesize(num_samples_to_synthesize=200, output_path="./test_hospital.csv")
-    import ipdb; ipdb.set_trace()
+    ctgan_syn.synthesize(num_samples_to_synthesize=200, output_path=output_path)
+
+
+
+#    import ipdb; ipdb.set_trace()
