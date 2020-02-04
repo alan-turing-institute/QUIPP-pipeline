@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import pytest
 import sys
+import numpy as np
 from ctgan.synthesizer import CTGANSynthesizer as ctgan_original_model_class
 
 sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir))
@@ -13,7 +14,7 @@ path2meta = os.path.join("tests", "data", "test_CTGAN_io_data.json")
 path2params = os.path.join("tests", "parameters", "ctgan_parameters.json")
 dataset_name = 'test_CTGAN_io'
 
-output_path = "./synthetic-output/dataset-name/test.csv"
+output_path = f"./synthetic-output/{dataset_name}/test.csv"
 
 inp_discrete_columns = ['id', 'age', 'origin', 'favourite_food']
 dis_dim = (256, 256)
@@ -26,6 +27,15 @@ random_state = 1234
 num_samples_to_synthesize = 200
 num_samples_to_fit = -1
 
+age2integer = {
+        '0-17': 0,
+        '18-24': 1,
+        '25-44': 2,
+        '45-64': 3,
+        '65-84': 4,
+        '85-': 5
+    }
+
 @pytest.fixture
 def ctgan_syn(): 
     ctgan_syn = SynthesizerCTGAN()
@@ -33,6 +43,7 @@ def ctgan_syn():
 
 def test_SynthesizerCTGAN_init(ctgan_syn):
     assert ctgan_syn.discrete_column_names == None, "discrete_column_names is not instantiated!"
+
 def test_SynthesizerCTGAN_fit_synthesizer(ctgan_syn):
     ctgan_syn.fit_synthesizer(path2params, path2csv, path2meta)
     assert isinstance(ctgan_syn.model, ctgan_original_model_class)
@@ -47,11 +58,40 @@ def test_SynthesizerCTGAN_fit_synthesizer(ctgan_syn):
 
 def test_SynthesizerCTGAN_synthesize(ctgan_syn):
     ctgan_syn.fit_synthesizer(path2params, path2csv, path2meta)
-    ctgan_syn.synthesize(output_path=output_path, num_samples_to_synthesize=num_samples_to_synthesize, store_internally=True)
+    ctgan_syn.synthesize(output_path=output_path, num_samples_to_synthesize=num_samples_to_synthesize, store_internally=False)
     assert ctgan_syn.dataset_name == dataset_name, "Unexpected dataset name: %s" % dataset_name 
     assert ctgan_syn.num_samples_to_synthesize == num_samples_to_synthesize, "Unexpected num_samples_to_synthesize: %s" %num_samples_to_synthesize
     assert os.path.isfile(output_path), "File %s is not created!" % output_path
-    assert os.path.isdir("./synthetic-output/dataset-name"), "Directory is not created"
+    assert os.path.isdir(f"./synthetic-output/{dataset_name}"), "Directory is not created"
     assert os.path.isdir("./synthetic-output"), "Directory is not created"
     read_csv_file = pd.read_csv(output_path) 
-    assert len(read_csv_file) ==  num_samples_to_synthesize, "Number of rows in the generated CSV file is not equal to num_samples_to_synthesize: %s" % num_samples_to_synthesize
+    assert len(read_csv_file) == num_samples_to_synthesize, "Number of rows in the generated CSV file is not equal to num_samples_to_synthesize: %s" % num_samples_to_synthesize
+
+def test_SynthesizerCTGAN_correlation(ctgan_syn):
+    path2csv = os.path.join("..", "..", "datasets", "generated", "odi_nhs_ae", "hospital_ae_data_deidentify.csv")
+    path2meta = os.path.join("..", "..", "datasets", "generated", "odi_nhs_ae", "hospital_ae_data_deidentify.json")
+    path2params = os.path.join("tests", "parameters", "ctgan_parameters_corr.json")
+    dataset_name = 'test_CTGAN_corr'
+    output_path = f"./synthetic-output/{dataset_name}/test.csv"
+
+    num_samples_to_synthesize = 10000
+
+    ctgan_syn.fit_synthesizer(path2params, path2csv, path2meta)
+    ctgan_syn.synthesize(output_path=output_path, num_samples_to_synthesize=num_samples_to_synthesize,
+                         store_internally=False)
+
+    synth = pd.read_csv(output_path)
+    synth = synth.replace({"Age bracket": age2integer})
+    synth_corr = synth.corr().iloc[3, 0]
+
+    real = pd.read_csv(path2csv)
+    real = real.replace({"Age bracket": age2integer})
+    real_corr = real.corr().iloc[3, 0]
+
+    assert np.abs(synth_corr - real_corr / np.abs(real_corr)) < 0.1,\
+        f"Correlation between age band and A&E time differs between synthetic and real data sets (more than 10%): " \
+        f"synthetic: {synth_corr}, real: {real_corr}"
+    #import ipdb; ipdb.set_trace()
+
+
+

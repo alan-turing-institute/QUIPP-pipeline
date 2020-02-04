@@ -5,6 +5,7 @@ import json
 import os
 import pandas as pd
 import sys
+
 try:
     from ctgan.synthesizer import CTGANSynthesizer
 except ImportError as err:
@@ -112,7 +113,7 @@ class SynthesizerCTGAN(SynthesizerBase):
                 os.makedirs(output_path_pardir)
             if os.path.isfile(output_path):
                 print(f"[WARNING] Output file {output_path} already exists and will be overwritten")
-            synthetic_data.to_csv(output_path)
+            synthetic_data.to_csv(output_path, index=False)
             if verbose:
                 print(f"[INFO] Stored synthesized dataset to file: {output_path}")
 
@@ -124,16 +125,16 @@ class SynthesizerCTGAN(SynthesizerBase):
 
 if __name__ == "__main__":
     # Test if it works
-    ctgan_syn = SynthesizerCTGAN()
 
     #path2csv = os.path.join("tests", "data", "test_CTGAN_io.csv")
     #path2meta = os.path.join("tests", "data", "test_CTGAN_io_data.json") 
     #path2params = os.path.join("tests", "parameters", "ctgan_parameters.json")
 
     path2csv = os.path.join("../../datasets/generated/odi_nhs_ae/hospital_ae_data_deidentify.csv")
-    path2meta = os.path.join("../../datasets/generated/odi_nhs_ae/hospital_ae_data_deidentify_ctgan.json") 
+    path2meta = os.path.join("../../datasets/generated/odi_nhs_ae/hospital_ae_data_deidentify.json")
     path2params = os.path.join("tests", "parameters", "ctgan_parameters.json")
 
+    ctgan_syn = SynthesizerCTGAN()
     ctgan_syn.fit_synthesizer(path2params, path2csv, path2meta)
     ctgan_syn.synthesize(num_samples_to_synthesize=200, output_path="./test_hospital.csv")
     import ipdb; ipdb.set_trace()
