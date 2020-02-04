@@ -5,6 +5,7 @@ import json
 import os
 import pandas as pd
 import sys
+
 try:
     from ctgan.synthesizer import CTGANSynthesizer
 except ImportError as err:

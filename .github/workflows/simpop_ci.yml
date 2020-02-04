@@ -20,5 +20,5 @@ jobs:
       run: Rscript -e "install.packages(c('testthat', 'simPop', 'dplyr', 'tidyr', 'magrittr'))"
     - name: Run tests
       run: |-
-        cd methods/simPop/
+        cd synth-methods/simPop/
         Rscript -e 'testthat::test_dir("tests", reporter=c("tap", "summary", "fail"))'

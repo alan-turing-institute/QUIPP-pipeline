@@ -5,7 +5,7 @@ name: sdv ci
 on:
   push:
     paths:
-      - 'methods/SDV/**'
+      - 'synth-methods/SDV/**'
       - '.github/workflows/sdv_ci.yml'
 
 jobs:
@@ -18,13 +18,13 @@ jobs:
         uses: goanpeca/setup-miniconda@v1
         with:
            activate-environment: sdv
-           environment-file: methods/SDV/environment.yml
+           environment-file: synth-methods/SDV/environment.yml
            python-version: 3.6
            auto-activate-base: false
       - shell: bash -l {0}
         run: |
           pip install sdv
-          cd methods/SDV
+          cd synth-methods/SDV
           pytest -v
           conda info
           conda list
