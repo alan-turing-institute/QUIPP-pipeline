@@ -115,7 +115,7 @@ class SynthesizerCTGAN(SynthesizerBase):
                 os.makedirs(output_path)
             if os.path.isfile(output_path):
                 print(f"[WARNING] Output file {output_path} already exists and will be overwritten")
-            synthetic_data.to_csv(os.path.join(output_path,"synthetic_data.csv"))
+            synthetic_data.to_csv(os.path.join(output_path,"synthetic_data.csv"), index=False)
 
             with open(os.path.join(output_path,"ctgan_parameters.json"), 'w') as par:
                 json.dump(self.parameters, par)
