@@ -5,7 +5,7 @@ def test_CTGAN_pipeline():
     num_samples_from_data = 5000
     num_syn_samples_to_generate = 1000   
     random_state = 10
-    num_epochs = 20
+    num_epochs = 2
 
     data = load_demo()
     discrete_columns = [
