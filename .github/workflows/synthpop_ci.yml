@@ -20,5 +20,5 @@ jobs:
       run: Rscript -e "install.packages(c('testthat', 'synthpop'))"
     - name: Run tests
       run: |-
-        cd methods/synthpop/
+        cd synth-methods/synthpop/
         Rscript -e 'testthat::test_dir("tests", reporter=c("tap", "fail"))'
