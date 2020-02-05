@@ -42,11 +42,14 @@ def main():
 
     dataset_path_base = os.path.abspath(dataset)
 
-    os.chdir(os.dirname(args.outfile_prefix))
+    input_json = os.path.abspath(args.infile)
+
+    os.chdir(os.path.dirname(args.outfile_prefix))
 
     os.execv(synth_method_cmd,
-             ["run", args.infile, dataset_path_base,
-              os.basename(args.outfile_prefix)])
+             ["run", input_json,
+              dataset_path_base,
+              os.path.basename(args.outfile_prefix)])
 
 
 if __name__=='__main__':
