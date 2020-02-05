@@ -47,3 +47,10 @@ $(SYNTH_OUTPUTS_CSV) : \
 synth-output/%/synthetic_data.csv : run-inputs/%.json generated-data
 	mkdir -p $$(dirname $@) && \
 	python synthesize.py -i $< -o $$(dirname $@)
+
+
+## ----------------------------------------
+## Clean
+
+clean:
+	rm -rf generator-outputs synth-output
