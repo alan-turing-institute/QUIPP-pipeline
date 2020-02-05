@@ -5,7 +5,7 @@ this_filepath = Path(os.path.realpath(__file__))
 project_root = str(this_filepath.parents[0])
 
 data_dir = os.path.join(project_root, "data")
-output_dir = os.path.join(project_root, "..", "..", "datasets", "generated", "odi_nhs_ae")
+output_dir = "."
 
 postcodes_london = os.path.join(data_dir, 'London postcodes.csv')
 hospitals_london = os.path.join(data_dir, 'hospitals_london.txt')
