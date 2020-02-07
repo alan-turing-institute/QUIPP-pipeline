@@ -7,11 +7,11 @@ import os
 def test_generator():
 
     # Test postcode data was generated with command:
-    # $ awk 'NR % 50000 == 1' data/London\ postcodes.csv > data/London\ postcodes\ test.csv
-    generate_main(20, 'test_generated.csv', 23414, "London postcodes test.csv")
+    # $ awk 'NR % 50000 == 1' London\ postcodes.csv > London\ postcodes\ test.csv
+    generate_main(20, "test_generated.csv", 23414, os.path.join(os.getcwd(), "test-data"), "London postcodes test.csv")
 
-    with open(os.path.join(os.getcwd(), "..", "..", "datasets", "generated", "odi_nhs_ae", "test_reference.csv")) as r,\
-    open(os.path.join(os.getcwd(), "..", "..", "datasets", "generated", "odi_nhs_ae", "test_generated.csv")) as f:
+    with open(os.path.join("test-data", "test_reference.csv")) as r, \
+         open(os.path.join("test-data", "test_generated.csv")) as f:
         reader_r = csv.reader(r)
         reader_f = csv.reader(f)
         

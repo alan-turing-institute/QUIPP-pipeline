@@ -19,7 +19,7 @@ import numpy as np
 import filepaths
 
 
-def main(num_rows, filename, seed, postcode_file="London postcodes.csv"):
+def main(num_rows, filename, seed, output_dir, postcode_file="London postcodes.csv"):
     print('generating data...')
     start = time.time()
 
@@ -49,7 +49,7 @@ def main(num_rows, filename, seed, postcode_file="London postcodes.csv"):
     print('generating patient postcodes...')
     hospital_ae_dataset['Postcode'] = generate_postcodes(num_rows, os.path.join(filepaths.data_dir, postcode_file))
 
-    filepath = filepaths.output_dir + '/' + filename
+    filepath = os.path.join(output_dir, filename)
     write_out_dataset(hospital_ae_dataset, filepath)
     print('dataset written out to: ' + filepath)
 
@@ -224,6 +224,7 @@ if __name__ == "__main__":
     parser.add_argument("--rows", type=int, default=10000, help="Number of rows to generate")
     parser.add_argument("--filename", type=str, default='hospital_ae_data.csv', help="Output data filename")
     parser.add_argument("--seed", type=int, default=1234, help="Random seed")
+    parser.add_argument("--output-dir", type=str, default=os.getcwd(), help="Output directory")
     args = parser.parse_args()
 
-    main(args.rows, args.filename, args.seed)
+    main(args.rows, args.filename, args.seed, args.output_dir)
