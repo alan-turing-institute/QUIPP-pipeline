@@ -28,10 +28,14 @@ class SynthesizerCTGAN(SynthesizerBase):
         super().__init__()
 
     def fit_synthesizer(self, parameters_json_path, csv_path, metadata_json_path, verbose=True):
-        """Fits CTGAN model and stores it internally
-        Uses pre-stored data and metadata if use_stored_inputs=True (default).
-        Stores the data and metadata within the class object if store_internally=True (default False).
-        Returns the fitted model."""
+        """
+        Fits CTGAN model and stores the model internally
+
+        Arguments:
+            parameters_json_path: path to a json file which contains CTGAN parameters (user inputs)
+            csv_path: real data
+            metadata_json_path: file describing the CSV file
+        """
 
         # Read data and metadata
         if verbose:
