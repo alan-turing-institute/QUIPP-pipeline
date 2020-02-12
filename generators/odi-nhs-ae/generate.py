@@ -28,7 +28,7 @@ def main(num_rows: int, output_dir: str, output_filename: str, seed: int, postco
 
     # We expect all the data to be in a "data" folder at the same directory level as this script.
     # The postcodes file is the only exception. As it is so large, we sometimes supply an alternative (with full path).
-    data_dir = os.path.join(os.getcwd(), "data")
+    data_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "data")
     hospitals_file_path = os.path.join(data_dir, "hospitals_london.txt")
     treatment_codes_file_path = os.path.join(data_dir, "nhs_ae_treatment_codes.csv")
     gender_codes_file_path = os.path.join(data_dir, "nhs_ae_gender_codes.csv")

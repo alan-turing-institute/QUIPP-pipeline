@@ -17,8 +17,8 @@ def main(input_filename: str, output_filename: str, output_dir: str, postcode_fi
     start = time.time()
 
     # We may want to supply an alternative postcode file, but will generally use this one:
-    postcode_file_path = os.path.join(os.getcwd(), "data", "London postcodes.csv") if postcode_file is None \
-        else postcode_file
+    postcode_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "data", "London postcodes.csv") \
+        if postcode_file is None else postcode_file
 
     # "_df" is the usual way people refer to a Pandas DataFrame object
     hospital_ae_df = pd.read_csv(input_filename + ".csv")
