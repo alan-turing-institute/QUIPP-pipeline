@@ -8,7 +8,8 @@ def test_generator():
 
     # Test postcode data was generated with command:
     # $ awk 'NR % 50000 == 1' London\ postcodes.csv > London\ postcodes\ test.csv
-    generate_main(20, "test_generated.csv", 23414, os.path.join(os.getcwd(), "test-data"), "London postcodes test.csv")
+    generate_main(20, os.path.join(os.getcwd(), "test-data"), "test_generated", 23414,
+                  os.path.join(os.getcwd(), "data", "London postcodes test.csv"))
 
     with open(os.path.join(os.getcwd(), "test-data", "test_reference.csv")) as r, \
          open(os.path.join(os.getcwd(), "test-data", "test_generated.csv")) as f:
@@ -20,8 +21,10 @@ def test_generator():
 
 
 def test_deidentify():
-    deidentify_main(os.path.join(os.getcwd(), "test-data", "test_reference.csv"), "test_deidentify.csv",
-                    os.path.join(os.getcwd(), "test-data"), postcode_file="London postcodes test.csv")
+    deidentify_main(os.path.join(os.getcwd(), "test-data", "test_reference"),
+                    "test_deidentify",
+                    os.path.join(os.getcwd(), "test-data"),
+                    os.path.join(os.getcwd(), "data", "London postcodes test.csv"))
 
     with open(os.path.join(os.getcwd(), "test-data", "test_deidentify_reference.csv")) as r, \
          open(os.path.join(os.getcwd(), "test-data", "test_deidentify.csv")) as f:

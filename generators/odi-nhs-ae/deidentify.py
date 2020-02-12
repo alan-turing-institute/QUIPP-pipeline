@@ -8,26 +8,29 @@ import string
 import argparse
 import pandas as pd
 import os
+from typing import Optional
 
-import filepaths
 
-
-def main(input_filename, output_filename, output_dir, postcode_file="London postcodes.csv"):
+def main(input_filename: str, output_filename: str, output_dir: str, postcode_file: Optional[str]=None):
 
     print('running de-identification steps...')
     start = time.time()
 
+    # We may want to supply an alternative postcode file, but will generally use this one:
+    postcode_file_path = os.path.join(os.getcwd(), "data", "London postcodes.csv") if postcode_file is None \
+        else postcode_file
+
     # "_df" is the usual way people refer to a Pandas DataFrame object
-    hospital_ae_df = pd.read_csv(input_filename)
+    hospital_ae_df = pd.read_csv(input_filename + ".csv")
 
     print('removing Health Service ID numbers...')
     hospital_ae_df = remove_health_service_numbers(hospital_ae_df)
 
     print('converting postcodes to LSOA...')
-    hospital_ae_df = convert_postcodes_to_lsoa(hospital_ae_df, os.path.join(filepaths.data_dir, postcode_file))
+    hospital_ae_df = convert_postcodes_to_lsoa(hospital_ae_df, postcode_file_path)
 
     print('converting LSOA to IMD decile...')
-    hospital_ae_df = convert_lsoa_to_imd_decile(hospital_ae_df, os.path.join(filepaths.data_dir, postcode_file))
+    hospital_ae_df = convert_lsoa_to_imd_decile(hospital_ae_df, postcode_file_path)
 
     print('replacing Hospital with random number...')
     hospital_ae_df = replace_hospital_with_random_number(hospital_ae_df)
@@ -41,7 +44,12 @@ def main(input_filename, output_filename, output_dir, postcode_file="London post
     print('putting ages in age brackets...')
     hospital_ae_df = add_age_brackets(hospital_ae_df)
 
-    hospital_ae_df.to_csv(os.path.join(output_dir, output_filename), index=False)
+    data_file = os.path.join(output_dir, output_filename) + ".csv"
+    hospital_ae_df.to_csv(data_file, index=False)
+    print('deidentified dataset written out to: ' + data_file)
+
+    metadata_file = os.path.join(output_dir, output_filename) + ".json"
+    print('placeholder: function to write metadata file ' + metadata_file + ' to be added here')
 
     elapsed = round(time.time() - start, 2)
     print('done in ' + str(elapsed) + ' seconds.')
@@ -191,9 +199,10 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
         description="Run de-identification steps for generated synthetic NHS A&E admissions data")
-    parser.add_argument("--input_filename", type=str, default='hospital_ae_data.csv', help="Input data filename")
-    parser.add_argument("--output_filename", type=str, default='hospital_ae_data_deidentify.csv',
-                        help="Output data filename")
+    parser.add_argument("--input-filename", type=str, default='hospital_ae_data.csv',
+                        help="Input data filename (no extension)")
+    parser.add_argument("--output-filename", type=str, default='hospital_ae_data_deidentify',
+                        help="Output data filename (no extension)")
     parser.add_argument("--output-dir", type=str, default=os.getcwd(), help="Output directory")
     args = parser.parse_args()
 
