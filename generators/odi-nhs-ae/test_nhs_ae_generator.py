@@ -10,8 +10,8 @@ def test_generator():
     # $ awk 'NR % 50000 == 1' London\ postcodes.csv > London\ postcodes\ test.csv
     generate_main(20, "test_generated.csv", 23414, os.path.join(os.getcwd(), "test-data"), "London postcodes test.csv")
 
-    with open(os.path.join("test-data", "test_reference.csv")) as r, \
-         open(os.path.join("test-data", "test_generated.csv")) as f:
+    with open(os.path.join(os.getcwd(), "test-data", "test_reference.csv")) as r, \
+         open(os.path.join(os.getcwd(), "test-data", "test_generated.csv")) as f:
         reader_r = csv.reader(r)
         reader_f = csv.reader(f)
         
@@ -20,11 +20,11 @@ def test_generator():
 
 
 def test_deidentify():
-    deidentify_main("test_reference.csv", "test_deidentify.csv", postcode_file="London postcodes test.csv")
+    deidentify_main(os.path.join(os.getcwd(), "test-data", "test_reference.csv"), "test_deidentify.csv",
+                    os.path.join(os.getcwd(), "test-data"), postcode_file="London postcodes test.csv")
 
-    data_path = os.path.join(os.getcwd(), "..", "..", "datasets", "generated", "odi_nhs_ae")
-    with open(os.path.join(data_path, "test_deidentify_reference.csv")) as r, \
-         open(os.path.join(data_path, "test_deidentify.csv")) as f:
+    with open(os.path.join(os.getcwd(), "test-data", "test_deidentify_reference.csv")) as r, \
+         open(os.path.join(os.getcwd(), "test-data", "test_deidentify.csv")) as f:
 
         reader_r = csv.reader(r)
         reader_f = csv.reader(f)

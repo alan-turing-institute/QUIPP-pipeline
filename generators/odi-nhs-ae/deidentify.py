@@ -12,15 +12,13 @@ import os
 import filepaths
 
 
-def main(input_filename, output_filename, postcode_file="London postcodes.csv"):
-
-    filepath = filepaths.output_dir + '/'
+def main(input_filename, output_filename, output_dir, postcode_file="London postcodes.csv"):
 
     print('running de-identification steps...')
     start = time.time()
 
     # "_df" is the usual way people refer to a Pandas DataFrame object
-    hospital_ae_df = pd.read_csv(filepath+"/"+input_filename)
+    hospital_ae_df = pd.read_csv(input_filename)
 
     print('removing Health Service ID numbers...')
     hospital_ae_df = remove_health_service_numbers(hospital_ae_df)
@@ -43,7 +41,7 @@ def main(input_filename, output_filename, postcode_file="London postcodes.csv"):
     print('putting ages in age brackets...')
     hospital_ae_df = add_age_brackets(hospital_ae_df)
 
-    hospital_ae_df.to_csv(filepath+"/"+output_filename, index=False)
+    hospital_ae_df.to_csv(os.path.join(output_dir, output_filename), index=False)
 
     elapsed = round(time.time() - start, 2)
     print('done in ' + str(elapsed) + ' seconds.')
@@ -191,11 +189,13 @@ def add_age_brackets(hospital_ae_df: pd.DataFrame) -> pd.DataFrame:
 
 if __name__ == "__main__":
 
-
-    parser = argparse.ArgumentParser(description="Run de-identification steps for generated synthetic NHS A&E admissions data")
+    parser = argparse.ArgumentParser(
+        description="Run de-identification steps for generated synthetic NHS A&E admissions data")
     parser.add_argument("--input_filename", type=str, default='hospital_ae_data.csv', help="Input data filename")
-    parser.add_argument("--output_filename", type=str, default='hospital_ae_data_deidentify.csv', help="Output data filename")
+    parser.add_argument("--output_filename", type=str, default='hospital_ae_data_deidentify.csv',
+                        help="Output data filename")
+    parser.add_argument("--output-dir", type=str, default=os.getcwd(), help="Output directory")
     args = parser.parse_args()
 
-    main(args.input_filename, args.output_filename)
+    main(args.input_filename, args.output_filename, args.output_dir)
 
