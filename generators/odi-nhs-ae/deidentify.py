@@ -199,7 +199,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
         description="Run de-identification steps for generated synthetic NHS A&E admissions data")
-    parser.add_argument("--input-filename", type=str, default='hospital_ae_data.csv',
+    parser.add_argument("--input-filename", type=str, default='hospital_ae_data',
                         help="Input data filename (no extension)")
     parser.add_argument("--output-filename", type=str, default='hospital_ae_data_deidentify',
                         help="Output data filename (no extension)")
