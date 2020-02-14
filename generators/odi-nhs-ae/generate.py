@@ -8,14 +8,19 @@ https://odileeds.org/blog/2019-01-24-exploring-methods-for-creating-synthetic-a-
 
 import argparse
 from datetime import datetime
+import json
 import os
 import random
 import string
+import sys
 import time
 from typing import Optional
 
 import numpy as np
 import pandas as pd
+
+sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir, os.path.pardir))
+from provenance import generate_provenance_json
 
 
 def main(num_rows: int, output_dir: str, output_filename: str, seed: int, postcode_file: Optional[str]=None):
@@ -36,34 +41,50 @@ def main(num_rows: int, output_dir: str, output_filename: str, seed: int, postco
         else postcode_file
 
     hospital_ae_dataset = {}
+    meta_hospital_ae_dataset = {"columns": [], "provenance": []}
 
     print('generating Health Service ID numbers...')
     hospital_ae_dataset['Health Service ID'] = generate_health_service_id_numbers(num_rows)
+    meta_hospital_ae_dataset["columns"].append({"name": "Health Service ID", "type": "String"})
 
     print('generating patient ages and times in A&E...')
     (hospital_ae_dataset['Age'], hospital_ae_dataset['Time in A&E (mins)']) = generate_ages_times_in_age(num_rows)
+    meta_hospital_ae_dataset["columns"].append({"name": "Time in A&E (mins)", "type": "DiscreteNumerical"})
 
     print('generating hospital instances...')
     hospital_ae_dataset['Hospital'] = generate_hospitals(num_rows, hospitals_file_path)
+    meta_hospital_ae_dataset["columns"].append({"name": "Hospital", "type": "Categorical"})
 
     print('generating arrival times...')
     hospital_ae_dataset['Arrival Time'] = generate_arrival_times(num_rows)
+    meta_hospital_ae_dataset["columns"].append({"name": "Arrival Time", "type": "DateTime"})
 
     print('generating A&E treaments...')
     hospital_ae_dataset['Treatment'] = generate_treatments(num_rows, treatment_codes_file_path)
+    meta_hospital_ae_dataset["columns"].append({"name": "Treatment", "type": "Categorical"})
 
     print('generating patient gender instances...')
     hospital_ae_dataset['Gender'] = generate_genders(num_rows, gender_codes_file_path)
+    meta_hospital_ae_dataset["columns"].append({"name": "Gender", "type": "Categorical"})
 
     print('generating patient postcodes...')
     hospital_ae_dataset['Postcode'] = generate_postcodes(num_rows, postcode_file_path)
+    meta_hospital_ae_dataset["columns"].append({"name": "Postcode", "type": "Categorical"})
 
     data_file = os.path.join(output_dir, output_filename) + ".csv"
     write_out_dataset(hospital_ae_dataset, data_file)
     print('dataset written out to: ' + data_file)
 
+    print('preparing metadata...')
+    parameters = {"seed": seed,
+                  "postcodes": os.path.relpath(postcode_file_path, os.path.dirname(__file__)),
+                  "num_rows": num_rows}
+    meta_hospital_ae_dataset["provenance"] = generate_provenance_json(__file__, parameters)
+
     metadata_file = os.path.join(output_dir, output_filename) + ".json"
-    print('placeholder: function to write metadata file ' + metadata_file + ' to be added here')
+    with open(metadata_file, "w") as mf:
+        json.dump(meta_hospital_ae_dataset, mf, indent=4, sort_keys=True)
+    print('metadata file written out to: ' + metadata_file)
 
     elapsed = round(time.time() - start, 2)
     print('done in ' + str(elapsed) + ' seconds.')
