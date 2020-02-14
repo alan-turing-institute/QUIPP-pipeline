@@ -35,8 +35,7 @@ $(AE_DEIDENTIFIED_DATA) &: $(LONDON_POSTCODES)
 	mkdir -p generator-outputs/odi-nhs-ae/ && \
 	cd generator-outputs/odi-nhs-ae/ && \
 	$(PYTHON) $(QUIPP_ROOT)/generators/odi-nhs-ae/generate.py && \
-	$(PYTHON) $(QUIPP_ROOT)/generators/odi-nhs-ae/deidentify.py && \
-	cp $(QUIPP_ROOT)/datasets/generated/odi_nhs_ae/hospital_ae_data_deidentify.json .
+	$(PYTHON) $(QUIPP_ROOT)/generators/odi-nhs-ae/deidentify.py
 
 
 ## ----------------------------------------

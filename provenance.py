@@ -69,12 +69,15 @@ def get_local_changes():
         local_mods = False
     else:
         for line in status.splitlines():
-            if re.match("[MADRCU]{1,5}", line):
+            if re.match("[ MADRCU]{1,5}", line):
                 local_mods = True
             elif re.match("\?\?", line):    # Indicates untracked files - we don't need to record this
                 continue
             else:
+                print("*****")
                 print("Unexpected start of line - does this indicate a local modification?")
+                print(line)
+                print("*****")
                 local_mods = True           # play it safe and indicate that there are local changes
 
     return local_mods
