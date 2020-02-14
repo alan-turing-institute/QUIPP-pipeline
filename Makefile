@@ -27,10 +27,7 @@ $(LONDON_POSTCODES):
 	curl -o "./data/London postcodes.csv" \
 		https://www.doogal.co.uk/UKPostcodesCSV.ashx?region=E12000007
 
-# Make the "A&E deidentified" generated dataset.  Currently,
-# "generate.py" emits only a csv, with the metadata copied from
-# "datasets/generated"
-#
+# Make the "A&E deidentified" generated dataset
 $(AE_DEIDENTIFIED_DATA) &: $(LONDON_POSTCODES)
 	mkdir -p generator-outputs/odi-nhs-ae/ && \
 	cd generator-outputs/odi-nhs-ae/ && \
