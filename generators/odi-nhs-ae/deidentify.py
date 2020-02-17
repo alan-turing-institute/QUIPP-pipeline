@@ -29,10 +29,6 @@ def main(input_filename: str, output_filename: str, output_dir: str, postcode_fi
     hospital_ae_df = pd.read_csv(input_filename + ".csv")
     meta_hospital_ae_df = {"columns": [], "provenance": []}
 
-    # Some of the columns remain unchanged - add their metadata here
-    meta_hospital_ae_df["columns"].append([{"name": "Time in A&E (mins)", "type": "DiscreteNumerical"},
-                                           {"name": "Treatment", "type": "Categorical"}])
-
     print('removing Health Service ID numbers...')
     hospital_ae_df = remove_health_service_numbers(hospital_ae_df)
 
@@ -41,30 +37,32 @@ def main(input_filename: str, output_filename: str, output_dir: str, postcode_fi
 
     print('converting LSOA to IMD decile...')
     hospital_ae_df = convert_lsoa_to_imd_decile(hospital_ae_df, postcode_file_path)
-    meta_hospital_ae_df["columns"].append({"name": "Index of Multiple Deprivation Decile", "type": "DiscreteNumerical"})
 
     print('replacing Hospital with random number...')
     hospital_ae_df = replace_hospital_with_random_number(hospital_ae_df)
-    meta_hospital_ae_df["columns"].append({"name": "Hospital ID", "type": "Categorical"})
 
     print('putting Arrival Hour in 4-hour bins...')
     hospital_ae_df = put_time_in_4_hour_bins(hospital_ae_df)
-    meta_hospital_ae_df["columns"].append([{"name": "Arrival hour range", "type": "Ordinal"},
-                                           {"name": "Arrival Date", "type": "DateTime"}])
 
     print('removing non-male-or-female from gender ...')
     hospital_ae_df = remove_non_male_or_female(hospital_ae_df)
-    meta_hospital_ae_df["columns"].append({"name": "Gender", "type": "Categorical"})
 
     print('putting ages in age brackets...')
     hospital_ae_df = add_age_brackets(hospital_ae_df)
-    meta_hospital_ae_df["columns"].append({"name": "Age bracket", "type": "Ordinal"})
 
     data_file = os.path.join(output_dir, output_filename) + ".csv"
     hospital_ae_df.to_csv(data_file, index=False)
     print('deidentified dataset written out to: ' + data_file)
 
     print('preparing metadata...')
+    meta_hospital_ae_df["columns"] = [{"name": "Time in A&E (mins)", "type": "DiscreteNumerical"},
+                                      {"name": "Treatment", "type": "Categorical"},
+                                      {"name": "Gender", "type": "Categorical"},
+                                      {"name": "Index of Multiple Deprivation Decile", "type": "DiscreteNumerical"},
+                                      {"name": "Hospital ID", "type": "Categorical"},
+                                      {"name": "Arrival Date", "type": "DateTime"},
+                                      {"name": "Arrival hour range", "type": "Ordinal"},
+                                      {"name": "Age bracket", "type": "Ordinal"}]
     parameters = {"input_file": os.path.relpath(input_filename, os.path.dirname(__file__)),
                   "postcodes": os.path.relpath(postcode_file_path, os.path.dirname(__file__))}
     meta_hospital_ae_df["provenance"] = generate_provenance_json(__file__, parameters)
