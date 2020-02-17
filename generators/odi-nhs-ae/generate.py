@@ -7,51 +7,84 @@ https://odileeds.org/blog/2019-01-24-exploring-methods-for-creating-synthetic-a-
 """
 
 import argparse
-import os
 from datetime import datetime
+import json
+import os
 import random
 import string
+import sys
 import time
+from typing import Optional
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
-import filepaths
+sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir, os.path.pardir))
+from provenance import generate_provenance_json
 
 
-def main(num_rows, filename, seed, postcode_file="London postcodes.csv"):
+def main(num_rows: int, output_dir: str, output_filename: str, seed: int, postcode_file: Optional[str]=None):
+
     print('generating data...')
     start = time.time()
 
     np.random.seed(seed)
     random.seed(seed)
 
+    # We expect all the data to be in a "data" folder at the same directory level as this script.
+    # The postcodes file is the only exception. As it is so large, we sometimes supply an alternative (with full path).
+    data_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "data")
+    hospitals_file_path = os.path.join(data_dir, "hospitals_london.txt")
+    treatment_codes_file_path = os.path.join(data_dir, "nhs_ae_treatment_codes.csv")
+    gender_codes_file_path = os.path.join(data_dir, "nhs_ae_gender_codes.csv")
+    postcode_file_path = os.path.join(data_dir, "London postcodes.csv") if postcode_file is None \
+        else postcode_file
+
     hospital_ae_dataset = {}
+    meta_hospital_ae_dataset = {"columns": [], "provenance": []}
 
     print('generating Health Service ID numbers...')
     hospital_ae_dataset['Health Service ID'] = generate_health_service_id_numbers(num_rows)
+    meta_hospital_ae_dataset["columns"].append({"name": "Health Service ID", "type": "String"})
 
     print('generating patient ages and times in A&E...')
     (hospital_ae_dataset['Age'], hospital_ae_dataset['Time in A&E (mins)']) = generate_ages_times_in_age(num_rows)
+    meta_hospital_ae_dataset["columns"].append({"name": "Time in A&E (mins)", "type": "DiscreteNumerical"})
 
     print('generating hospital instances...')
-    hospital_ae_dataset['Hospital'] = generate_hospitals(num_rows)
+    hospital_ae_dataset['Hospital'] = generate_hospitals(num_rows, hospitals_file_path)
+    meta_hospital_ae_dataset["columns"].append({"name": "Hospital", "type": "Categorical"})
 
     print('generating arrival times...')
     hospital_ae_dataset['Arrival Time'] = generate_arrival_times(num_rows)
+    meta_hospital_ae_dataset["columns"].append({"name": "Arrival Time", "type": "DateTime"})
 
     print('generating A&E treaments...')
-    hospital_ae_dataset['Treatment'] = generate_treatments(num_rows)
+    hospital_ae_dataset['Treatment'] = generate_treatments(num_rows, treatment_codes_file_path)
+    meta_hospital_ae_dataset["columns"].append({"name": "Treatment", "type": "Categorical"})
 
     print('generating patient gender instances...')
-    hospital_ae_dataset['Gender'] = generate_genders(num_rows)
+    hospital_ae_dataset['Gender'] = generate_genders(num_rows, gender_codes_file_path)
+    meta_hospital_ae_dataset["columns"].append({"name": "Gender", "type": "Categorical"})
 
     print('generating patient postcodes...')
-    hospital_ae_dataset['Postcode'] = generate_postcodes(num_rows, os.path.join(filepaths.data_dir, postcode_file))
+    hospital_ae_dataset['Postcode'] = generate_postcodes(num_rows, postcode_file_path)
+    meta_hospital_ae_dataset["columns"].append({"name": "Postcode", "type": "Categorical"})
 
-    filepath = filepaths.output_dir + '/' + filename
-    write_out_dataset(hospital_ae_dataset, filepath)
-    print('dataset written out to: ' + filepath)
+    data_file = os.path.join(output_dir, output_filename) + ".csv"
+    write_out_dataset(hospital_ae_dataset, data_file)
+    print('dataset written out to: ' + data_file)
+
+    print('preparing metadata...')
+    parameters = {"seed": seed,
+                  "postcodes": os.path.relpath(postcode_file_path, os.path.dirname(__file__)),
+                  "num_rows": num_rows}
+    meta_hospital_ae_dataset["provenance"] = generate_provenance_json(__file__, parameters)
+
+    metadata_file = os.path.join(output_dir, output_filename) + ".json"
+    with open(metadata_file, "w") as mf:
+        json.dump(meta_hospital_ae_dataset, mf, indent=4, sort_keys=True)
+    print('metadata file written out to: ' + metadata_file)
 
     elapsed = round(time.time() - start, 2)
     print('done in ' + str(elapsed) + ' seconds.')
@@ -96,7 +129,7 @@ def corr2cov(correlations: np.ndarray, stdev: np.ndarray) -> np.ndarray:
     return covariance
 
 
-def generate_admission_ids(num_of_rows) -> list:
+def generate_admission_ids(num_of_rows: int) -> list:
     """ Generate a unique 10-digit ID for every admission record """
     
     uids = []
@@ -106,7 +139,7 @@ def generate_admission_ids(num_of_rows) -> list:
     return uids
 
 
-def generate_health_service_id_numbers(num_of_rows) -> list:
+def generate_health_service_id_numbers(num_of_rows: int) -> list:
     """ Generate dummy Health Service ID numbers similar to NHS 10 digit format
     See: https://www.nhs.uk/using-the-nhs/about-the-nhs/what-is-an-nhs-number/
     """
@@ -119,7 +152,7 @@ def generate_health_service_id_numbers(num_of_rows) -> list:
     return health_service_id_numbers
 
 
-def generate_postcodes(num_of_rows, postcode_file_path) -> list:
+def generate_postcodes(num_of_rows: int, postcode_file_path: str) -> list:
     """ Reads a .csv containing info on every London postcode. Reads the 
     postcodes in use and returns a sample of them.
 
@@ -131,14 +164,14 @@ def generate_postcodes(num_of_rows, postcode_file_path) -> list:
     return postcodes
 
 
-def generate_hospitals(num_of_rows) -> list:
+def generate_hospitals(num_of_rows: int, hospitals_file_path: str) -> list:
     """ Reads the data/hospitals_london.txt file, and generates a
     sample of them to add to the dataset.
 
     List of London hospitals loosely based on 
     https://en.wikipedia.org/wiki/Category:NHS_hospitals_in_London
     """
-    with open(filepaths.hospitals_london, 'r') as file_in:
+    with open(hospitals_file_path, 'r') as file_in:
         hospitals = file_in.readlines()
     hospitals = [name.strip() for name in hospitals]
 
@@ -148,7 +181,7 @@ def generate_hospitals(num_of_rows) -> list:
     return hospitals
 
 
-def generate_arrival_times(num_of_rows) -> list:
+def generate_arrival_times(num_of_rows: int) -> list:
     """ Generate and return arrival times.
         Hardcoding times to first week of April 2019
     """
@@ -173,13 +206,13 @@ def generate_arrival_times(num_of_rows) -> list:
     return arrival_times
 
 
-def generate_genders(num_of_rows) -> list:
+def generate_genders(num_of_rows: int, gender_codes_file_path: str) -> list:
     """ Generate and return list of genders for every row. 
 
     # National codes for gender in NHS data
     # https://www.datadictionary.nhs.uk/data_dictionary/attributes/p/person/person_gender_code_de.asp?shownav=1
     """
-    gender_codes_df = pd.read_csv(filepaths.nhs_ae_gender_codes)
+    gender_codes_df = pd.read_csv(gender_codes_file_path)
     genders = gender_codes_df['Gender'].tolist()
     # these weights are just dummy values. please don't take them as accurate.
     weights =[0.005, 0.495, 0.495, 0.005]
@@ -187,7 +220,7 @@ def generate_genders(num_of_rows) -> list:
     return gender_codes
 
 
-def generate_treatments(num_of_rows) -> list:
+def generate_treatments(num_of_rows: int, treatment_codes_file_path: str) -> list:
     """ Generate and return sample of treatments patients received. 
 
     Reads data/treatment_codes_nhs_ae.csv file 
@@ -196,7 +229,7 @@ def generate_treatments(num_of_rows) -> list:
     https://www.datadictionary.nhs.uk/web_site_content/supporting_information/clinical_coding/accident_and_emergency_treatment_tables.asp?shownav=1
     """
 
-    treatment_codes_df = pd.read_csv(filepaths.nhs_ae_treatment_codes)
+    treatment_codes_df = pd.read_csv(treatment_codes_file_path)
     treatments = treatment_codes_df['Treatment'].tolist()
 
     # likelihood of each of the treatments - make some more common
@@ -222,8 +255,10 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Generate synthetic NHS A&E admissions data")
     parser.add_argument("--rows", type=int, default=10000, help="Number of rows to generate")
-    parser.add_argument("--filename", type=str, default='hospital_ae_data.csv', help="Output data filename")
+    parser.add_argument("--output-dir", type=str, default=os.getcwd(), help="Output directory")
+    parser.add_argument("--output-filename", type=str, default='hospital_ae_data',
+                        help="Output filename (without extension")
     parser.add_argument("--seed", type=int, default=1234, help="Random seed")
     args = parser.parse_args()
 
-    main(args.rows, args.filename, args.seed)
+    main(args.rows, args.output_dir, args.output_filename, args.seed)
