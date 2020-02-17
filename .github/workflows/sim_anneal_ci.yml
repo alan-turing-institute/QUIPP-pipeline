@@ -6,7 +6,7 @@ on:
   push:
     paths:
       # only run when simulated-annealing folder contents are edited
-      - 'methods/simulated-annealing/**'
+      - 'synth-methods/simulated-annealing/**'
       - '.github/workflows/sim_anneal_ci.yml'
 
 jobs:
@@ -18,12 +18,12 @@ jobs:
       - uses: goanpeca/setup-miniconda@v1
         with:
            activate-environment: sim_anneal
-           environment-file: methods/simulated-annealing/environment.yml
+           environment-file: synth-methods/simulated-annealing/environment.yml
            python-version: 3.6
            auto-activate-base: false
       - shell: bash -l {0}
         run: |
-          cd methods/simulated-annealing
+          cd synth-methods/simulated-annealing
           pytest -v
           conda info
           conda list

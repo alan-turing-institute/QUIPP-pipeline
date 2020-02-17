@@ -1,0 +1,8 @@
+name: generator_odi_nhs_ae
+channels:
+- defaults
+dependencies:
+- numpy
+- pandas
+- pytest
+

@@ -4,7 +4,7 @@ name: MICE CI
 on:
   push:
     paths:
-      - 'methods/mice/**'
+      - 'synth-methods/mice/**'
       - '.github/workflows/mice_ci.yml'
 
 jobs:
@@ -20,5 +20,5 @@ jobs:
       run: Rscript -e "install.packages(c('testthat', 'mice', 'mvtnorm', 'ggplot2'))"
     - name: Run tests
       run: |-
-        cd methods/mice/
+        cd synth-methods/mice/
         Rscript -e 'testthat::test_dir("tests", reporter=c("tap", "fail"))'

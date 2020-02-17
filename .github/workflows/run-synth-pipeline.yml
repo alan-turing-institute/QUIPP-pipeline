@@ -1,0 +1,19 @@
+name: Run complete pipeline
+
+on: [push]
+
+jobs:
+  run_script:
+
+    runs-on: ubuntu-18.04
+    container:
+      image: pytorch/pytorch
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install dependencies
+      run: |-
+        pip install ctgan
+    - name: Run pipeline
+      run: |-
+        make

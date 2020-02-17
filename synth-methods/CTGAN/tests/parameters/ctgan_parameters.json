@@ -1,0 +1,8 @@
+{
+    "parameters": 
+        {
+            "num_samples_to_fit": -1,
+            "num_epochs": 2,
+            "random_state": 1234
+        }
+}
