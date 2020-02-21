@@ -13,7 +13,7 @@ path2csv = os.path.join("..", "..", "datasets", "generated", "odi_nhs_ae", "hosp
 path2synth = "../../synth_output/ctgan_dbc77ed4-5252-11ea-9c88-a860b61fcc00/synthetic_data.csv"
 
 # >>>>>> OBJ file
-epochs2read = range(10, 180+10, 10)
+epochs2read = range(100, 200+100, 100)
 num_CV_fold = 1
 num_samples2generate = 9889
 
@@ -38,19 +38,16 @@ if read_csv_file:
     print("Synthetic correlation is: ", synth_corr)
     print("Real correlation is: ", real_corr)
 else:
+    losses_file = np.loadtxt("checkpoints/losses.txt", delimiter=",")
     ctgan_model = CTGANSynthesizer()
 
     plt.figure()
     plt.subplot(2, 1, 1)
     for cvf in range(num_CV_fold):
-        print(f"Cross Validation fold: {cvf}/{num_CV_fold}")
-        loss_d = []
-        loss_g = []
+        print(f"Cross Validation fold: {cvf+1}/{num_CV_fold}")
         corr2plot = []
         for myepoch in epochs2read:
             ctgan_model.load("checkpoints/model_%i.obj" % myepoch)
-            loss_d.append(ctgan_model.loss_d)
-            loss_g.append(ctgan_model.loss_g)
             synth = ctgan_model.sample(num_samples2generate)
             synth = synth.replace({"Age bracket": age2integer})
             corr2plot.append(synth[['Time in A&E (mins)', 'Age bracket']].astype(float).corr().iloc[0, 1]*100.)
@@ -63,17 +60,17 @@ else:
     plt.grid()
 
     plt.subplot(2, 2, 3)
-    plt.plot(epochs2read, loss_d, c='k', ls='-', marker="o")
+    plt.plot(losses_file[:, 0], losses_file[:, 1], c='k', ls='-')
     plt.xlabel("#epochs", size=16)
-    plt.ylabel("Loss Discriminator", size=16)
+    plt.ylabel("Loss Generator", size=16)
     plt.xticks(size=14)
     plt.yticks(size=14)
     plt.grid()
 
     plt.subplot(2, 2, 4)
-    plt.plot(epochs2read, loss_g, c='k', ls='-', marker="o")
+    plt.plot(losses_file[:, 0], losses_file[:, 2], c='k', ls='-')
     plt.xlabel("#epochs", size=16)
-    plt.ylabel("Loss Generator", size=16)
+    plt.ylabel("Loss Discriminator", size=16)
     plt.xticks(size=14)
     plt.yticks(size=14)
     plt.grid()
