@@ -139,7 +139,10 @@ class SynthesizerCTGAN(SynthesizerBase):
 if __name__ == "__main__":
     # Test if it works
 
+    import time
     import uuid
+
+    start_time = time.time()
 
     ctgan_syn = SynthesizerCTGAN()
 
@@ -154,7 +157,5 @@ if __name__ == "__main__":
 
     ctgan_syn.fit_synthesizer(path2params, path2csv, path2meta)
     ctgan_syn.synthesize(num_samples_to_synthesize=200, output_path=output_path)
-
-
-
-#    import ipdb; ipdb.set_trace()
+    end_time = time.time()
+    print(f"Total time: {(end_time - start_time)}")
