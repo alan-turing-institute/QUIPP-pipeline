@@ -2,24 +2,23 @@
 
 library(jsonlite)
 library(synthpop)
-source("util.R")
 
 main <- function() {
-    args <- commandArgs()
+    args <- commandArgs(trailingOnly=TRUE)
+    
+    parameter_json = args[1]
+    data_path_prefix = args[2]
+    output_prefix = args[3]
 
-    parameter_json = args[0]
-    data_path_prefix = args[1]
-    output_prefix = args[2]
-
-    p <- read_json(parameter_json)
+    p <- read_json(parameter_json, simplifyVector=TRUE)
     params = p$parameters
 
-    data_full <- read.csv(data_path_prefix + ".csv", header=TRUE)
+    data_full <- read.csv(paste0(data_path_prefix, ".csv"), header=TRUE)
 
     if (params$num_samples_to_fit == -1) {
-        N <- nrows(data_full)
+        num_samples <- nrow(data_full)
     } else {
-        N <- params$num_samples_to_fit
+        num_samples <- params$num_samples_to_fit
     }
 
     data_synth <- syn(data = data_full, 
@@ -28,12 +27,17 @@ main <- function() {
                       #rules = rules,
                       #rvalues = rule_values,
                       m = 1,
-                      k = params$num_samples_to_fit,
+                      k = num_samples,
                       seed = params$random_state,
                       proper = params$proper,
                       ctree.minbucket = params$tree_minbucket,
                       smoothing = params$smoothing)
 
-    write.csv(data_synth, file=output_prefix + 'synthetic_data.csv')
+    write.csv(data_synth$syn,
+              file=paste0(output_prefix,
+                          "/synthetic_data.csv"),
+              row.names=FALSE)
 
 }
+
+main()
