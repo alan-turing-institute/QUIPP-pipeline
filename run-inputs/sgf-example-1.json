@@ -1,0 +1,15 @@
+{
+    "dataset" : "generator-outputs/odi-nhs-ae/hospital_ae_data_deidentify",
+    "synth-method" : "sgf",
+    "parameters": 
+    {
+        "num_samples_to_fit": -1,
+        "random_state": 1234        
+
+        "gamma": 4
+        "omega": 7
+
+        "ncomp": "adv"
+        "ndist": "geom"
+    }
+}
