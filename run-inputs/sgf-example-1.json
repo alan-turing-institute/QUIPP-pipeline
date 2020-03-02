@@ -4,12 +4,12 @@
     "parameters": 
     {
         "num_samples_to_fit": -1,
-        "random_state": 1234        
+        "random_state": 1234,
 
-        "gamma": 4
-        "omega": 7
+        "gamma": 4,
+        "omega": 7,
 
-        "ncomp": "adv"
+        "ncomp": "adv",
         "ndist": "geom"
     }
 }
