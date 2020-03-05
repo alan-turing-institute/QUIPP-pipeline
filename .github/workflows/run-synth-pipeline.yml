@@ -5,19 +5,14 @@ on: [push]
 jobs:
   run_script:
 
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.6]
+    runs-on: ubuntu-18.04
     container:
       image: rocker/tidyverse:3.6.1
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python
       uses: actions/setup-python@v1
-      with:
-        python-version: ${{ matrix.python-version }}
     - name: Install Python dependencies
       run: |
         python --version
