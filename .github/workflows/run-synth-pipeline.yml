@@ -15,7 +15,8 @@ jobs:
       run: Rscript -e "install.packages(c('testthat', 'synthpop'))"
     - name: Install Python dependencies
       run: |
-        sudo apt install python3-pip
+        python --version
+        sudo apt install python3-pip --assume-yes
         pip install ctgan
     - name: Run pipeline
       run: |-
