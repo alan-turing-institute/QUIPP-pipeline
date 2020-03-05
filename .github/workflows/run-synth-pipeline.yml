@@ -14,7 +14,9 @@ jobs:
     - name: Install R dependencies
       run: Rscript -e "install.packages(c('testthat', 'synthpop'))"
     - name: Install Python dependencies
-      run: pip install ctgan
+      run: |
+        apt-get install pip
+        pip install ctgan
     - name: Run pipeline
       run: |-
         make
