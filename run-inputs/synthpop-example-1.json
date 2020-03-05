@@ -12,6 +12,8 @@
                               "sample", "sample", "sample", "sample"],
         "proper": true,
         "tree_minbucket": 1,
-        "smoothing": {}
+        "smoothing": {},
+        "num_samples_intruder": -1,
+        "vars_intruder": [1, 2, 3, 4, 5, 6, 7, 8]
     }
 }
