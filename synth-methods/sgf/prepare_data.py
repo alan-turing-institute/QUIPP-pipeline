@@ -100,7 +100,10 @@ def main():
 
     data = pd.read_csv(args.data_path_prefix + ".csv")
     
-    dataprefix = os.path.basename(args.data_path_prefix)
+    ## use the basename of the data file path prefix, relative to the
+    ## working directory
+    dataprefix = os.path.join(os.getcwd(),
+                              os.path.basename(args.data_path_prefix))
 
 
     ## split the data into "stats" (training) and "records" (seeding)
