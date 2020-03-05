@@ -23,7 +23,6 @@ jobs:
            auto-activate-base: false
       - shell: bash -l {0}
         run: |
-          cd synth-methods/simulated-annealing
-          pytest -v
+          pytest -v synth-methods/simulated-annealing
           conda info
           conda list
