@@ -5,7 +5,7 @@ on: [push]
 jobs:
   run_script:
 
-    runs-on: ubuntu-lastest
+    runs-on: ubuntu-latest
     container:
       image: datascienceschool/rpython
 
