@@ -7,15 +7,15 @@ jobs:
 
     runs-on: ubuntu-18.04
     container:
-      image: pytorch/pytorch
+      image: rocker/tidyverse:3.6.1
 
     steps:
-    - uses: actions/checkout@master
-    - uses: r-lib/actions/setup-r@v1
-      with:
-        r-version: '3.5.3' # The R version to download (if necessary) and use.
-    - name: Install dependencies
-      run: |-
+    - uses: actions/checkout@v1
+    - name: Install R dependencies
+      run: Rscript -e "install.packages(c('testthat', 'synthpop'))"
+    - name: Install Python dependencies
+      run: |
+        apt-get install pip
         pip install ctgan
     - name: Run pipeline
       run: |-
