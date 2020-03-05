@@ -24,7 +24,6 @@ jobs:
       - name: Run tests
         shell: bash -l {0}
         run: |
-          cd generators/odi-nhs-ae/
-          pytest -v
+          pytest -v generators/odi-nhs-ae/
           conda info
           conda list

@@ -1,0 +1,43 @@
+#!/usr/bin/env Rscript
+
+library(jsonlite)
+library(synthpop)
+
+main <- function() {
+    args <- commandArgs(trailingOnly=TRUE)
+    
+    parameter_json = args[1]
+    data_path_prefix = args[2]
+    output_prefix = args[3]
+
+    p <- read_json(parameter_json, simplifyVector=TRUE)
+    params = p$parameters
+
+    data_full <- read.csv(paste0(data_path_prefix, ".csv"), header=TRUE)
+
+    if (params$num_samples_to_fit == -1) {
+        num_samples <- nrow(data_full)
+    } else {
+        num_samples <- params$num_samples_to_fit
+    }
+
+    data_synth <- syn(data = data_full, 
+                      visit.sequence = params$vars_sequence,
+                      method = params$synthesis_methods,
+                      #rules = rules,
+                      #rvalues = rule_values,
+                      m = 1,
+                      k = num_samples,
+                      seed = params$random_state,
+                      proper = params$proper,
+                      ctree.minbucket = params$tree_minbucket,
+                      smoothing = params$smoothing)
+
+    write.csv(data_synth$syn,
+              file=paste0(output_prefix,
+                          "/synthetic_data.csv"),
+              row.names=FALSE)
+
+}
+
+main()
