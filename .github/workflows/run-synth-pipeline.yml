@@ -7,13 +7,14 @@ jobs:
 
     runs-on: ubuntu-18.04
     container:
-      image: pytorch/pytorch
+      image: rocker/tidyverse:3.6.1
 
     steps:
     - uses: actions/checkout@v1
-    - name: Install dependencies
-      run: |-
-        pip install ctgan
+    - name: Install R dependencies
+      run: Rscript -e "install.packages(c('testthat', 'synthpop'))"
+    - name: Install Python dependencies
+      run: pip install ctgan
     - name: Run pipeline
       run: |-
         make
