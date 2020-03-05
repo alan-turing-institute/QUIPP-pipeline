@@ -5,18 +5,15 @@ on: [push]
 jobs:
   run_script:
 
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-lastest
     container:
-      image: rocker/tidyverse:3.6.1
+      image: datascienceschool/rpython
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v1
+    - uses: actions/checkout@v1
     - name: Install Python dependencies
       run: |
         python --version
-        sudo apt install python3-pip --assume-yes
         pip install ctgan
     - name: Install R dependencies
       run: Rscript -e "install.packages(c('testthat', 'synthpop'))"    
