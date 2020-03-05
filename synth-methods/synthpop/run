@@ -15,28 +15,31 @@ main <- function() {
 
     data_full <- read.csv(paste0(data_path_prefix, ".csv"), header=TRUE)
 
-    if (params$num_samples_to_fit == -1) {
-        num_samples <- nrow(data_full)
+    if (params$num_samples_to_synthesize == -1) {
+        num_samples_to_synthesize <- nrow(data_full)
     } else {
-        num_samples <- params$num_samples_to_fit
+        num_samples_to_synthesize <- params$num_samples_to_synthesize
     }
+    
+    num_datasets_to_synthesize = params$num_datasets_to_synthesize
 
     data_synth <- syn(data = data_full, 
                       visit.sequence = params$vars_sequence,
                       method = params$synthesis_methods,
                       #rules = rules,
                       #rvalues = rule_values,
-                      m = 1,
-                      k = num_samples,
+                      m = num_datasets_to_synthesize,
+                      k = num_samples_to_synthesize,
                       seed = params$random_state,
                       proper = params$proper,
                       ctree.minbucket = params$tree_minbucket,
                       smoothing = params$smoothing)
 
-    write.csv(data_synth$syn,
-              file=paste0(output_prefix,
-                          "/synthetic_data.csv"),
-              row.names=FALSE)
+    for(i in 1:num_datasets_to_synthesize) {
+        write.csv(data_synth$syn[[i]],
+                file=paste0(output_prefix, "/synthetic_data_", i, ".csv", sep=""),
+                row.names=FALSE)
+    }
 
 }
 
