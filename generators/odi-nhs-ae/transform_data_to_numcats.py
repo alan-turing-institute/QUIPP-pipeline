@@ -26,10 +26,9 @@ def make_column_to_numerical_category(data, column):
 
     # map numbers with and categories
     dict_cat = {}
-    data_cat = data[column].astype("category").cat.codes
-    dict_cat[column] = [dict( enumerate(data[column].astype("category").cat.categories))]
+    data_cat = data[column].astype("category").cat.codes + 1
+    dict_cat[column] = [{k+1: v for k, v in dict(enumerate(data[column].astype("category").cat.categories)).items()}]
     return data_cat, dict_cat
-
 
 
 def main():
@@ -43,11 +42,11 @@ def main():
     for column in data.columns:
 
         # only process columns with non numerical categories
-        if pd.api.types.is_integer_dtype(data[column]) == False:
+        #if pd.api.types.is_integer_dtype(data[column]) == False:
 
             # rewrite the column on the dataframe, and get category-number map
-            data[column], data_dict = make_column_to_numerical_category(data,column)
-            dict_cats.append(data_dict)
+        data[column], data_dict = make_column_to_numerical_category(data,column)
+        dict_cats.append(data_dict)
 
     # saved processed data
     data_file = os.path.join(args.output_dir, args.output_filename) + ".csv"
