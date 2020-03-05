@@ -5,10 +5,8 @@
     {
         "num_samples_to_fit": -1,
         "random_state": 1234,
-
         "gamma": 4,
         "omega": 7,
-        //"vars_sequence":[1,2,3,4,5,8,6,7,8], this should be a topological order infered from the data.
         "ncomp": "adv",
         "ndist": "geom"
     }

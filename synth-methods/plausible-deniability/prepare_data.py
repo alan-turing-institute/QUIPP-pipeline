@@ -31,7 +31,7 @@ gamma={d['gamma']}
 omega={d['omega']}
 ncomp={d['ncomp']}
 ndist={d['ndist']}
-max_ps=10000
+max_ps=0
 max_check_ps=0
 workdir={d['workdir']}
 dataprefix={d['dataprefix']}
@@ -40,6 +40,39 @@ runtime=3600
 """
     with open(filename, "w") as f:
         f.write(cfg)
+
+
+def write_dag(corr, filename):
+    # short name for the string interpolation
+    dag = f"""8, {corr}
+0
+0
+0
+0
+0
+0
+0
+"""
+    with open(filename, "w") as f:
+        f.write(dag)
+
+
+def write_order(filename):
+    # short name for the string interpolation
+    order = f"""2
+3
+4
+5
+6
+7
+8
+1
+"""
+    with open(filename, "w") as f:
+        f.write(order)
+
+
+
 
 
 def write_attrs(data, filename):
@@ -100,6 +133,8 @@ def main():
     ## write "attrs" and "grps"
     write_attrs(data, dataprefix + "_attrs.csv")
     write_grps(data, dataprefix + "_grps.csv")
+    write_dag(0.95, dataprefix + "_dag.csv")
+    write_order(dataprefix + "_order.csv")
 
 
 if __name__=="__main__":
