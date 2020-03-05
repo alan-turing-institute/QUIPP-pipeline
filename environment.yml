@@ -6,11 +6,10 @@ dependencies:
 - r-tidyverse
 - r-rcpparmadillo
 - python=3.7
-- pip
 - numpy
 - pandas
 - pytest
-- uuid
+- UUID
 - pip:
   - ctgan
   - ipdb
