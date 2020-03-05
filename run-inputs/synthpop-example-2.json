@@ -1,0 +1,16 @@
+{
+    "dataset" : "generator-outputs/odi-nhs-ae/hospital_ae_data_deidentify",
+    "synth-method" : "synthpop",
+    "parameters": 
+    {
+        "num_samples_to_fit": -1,
+        "num_samples_to_synthesize": -1,
+        "num_datasets_to_synthesize": 5,
+        "random_state": 1234,
+        "vars_sequence": [5, 3, 8, 1],
+        "synthesis_methods": ["cart", "", "cart", "", "cart", "", "", "cart"],
+        "proper": true,
+        "tree_minbucket": 1,
+        "smoothing": {}
+    }
+}
