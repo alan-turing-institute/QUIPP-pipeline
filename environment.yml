@@ -10,7 +10,7 @@ dependencies:
 - numpy
 - pandas
 - pytest
-- uuid
 - pip:
   - ctgan
   - ipdb
+  - uuid
