@@ -9,4 +9,4 @@ RUN chown -R ${NB_USER} ${HOME}
 USER ${NB_USER}
 
 ## Run an install.R script, if it exists.
-RUN if [ -f install.R ]; then R --quiet -f install.R; fi
+RUN if [ -f binder/install.R ]; then R --quiet -f binder/install.R; fi
