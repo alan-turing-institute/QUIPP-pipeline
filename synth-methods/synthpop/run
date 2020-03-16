@@ -53,11 +53,15 @@ main <- function() {
                 row.names=FALSE)
     }
 
-    # write intruder dataset to .csv
-    data_intruder <- data_full[sample(nrow(data_full), num_samples_intruder), params$vars_intruder]
+    # sample indexes and use them to select rows from original data to form intruder dataset
+    # also save indexes-1 (to start indexing from 0) to .json
+    indexes = sample.int(n = nrow(data_full), size = num_samples_intruder, replace=FALSE)
+    data_intruder <- data_full[indexes, params$vars_intruder]
     write.csv(data_intruder,
                 file=paste0(output_prefix, "/intruder_data.csv", sep=""),
                 row.names=FALSE)
+    write(toJSON(indexes - 1), paste0(output_prefix, "/intruder_indexes.json", sep=""))
+
 
 }
 
