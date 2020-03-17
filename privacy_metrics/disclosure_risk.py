@@ -6,12 +6,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pickle
+import json
 
 # --- inputs
 # path to released (synthetic) datasets 
 path_released_ds = "../synth-output/synthpop-example-2/synthetic_data_*.csv"
 # path to intruder's dataset
 path_intruder_ds = "../synth-output/synthpop-example-2/intruder_data.csv"
+path_intruder_indexes = "../synth-output/synthpop-example-2/intruder_indexes.json"
+path_privacy_metrics = "../synth-output/synthpop-example-2/disclosure_risk.json"
 # save maximum values/indices for all intruder's rows in a dictionary
 path_save_max_values = "./dict_max_matches.pkl"
 # if output_mode = 3, save the pdfs (see below for more info)
@@ -154,3 +157,23 @@ while (row_select >= 0) and (output_mode == 3):
     plt.grid()
     plt.tight_layout()
     plt.show()
+
+
+# Calculate privacy metrics
+with open(path_intruder_indexes) as f_intruder_indexes:
+    intruder_indexes = json.load(f_intruder_indexes)
+
+c = {key: len(value[0]) for key, value in dict_max_matches.items()}
+
+I = {key: np.multiply(intruder_indexes[int(key)] in value[0], 1) for key, value in dict_max_matches.items()}
+products = {k: c.get(k) * I.get(k) for k in set(c)}
+K = {key: np.multiply(value == 1, 1) for key, value in products.items()}
+c_indicator = {key: np.multiply(value == 1, 1) for key, value in c.items()}
+
+EMRi = sum({k: I.get(k) / c.get(k) for k in set(c)}.values())
+TMRi = float(sum(K.values()))
+TMRa = TMRi / sum(c_indicator.values())
+metrics = {'EMRi': EMRi, 'TMRi': TMRi, 'TMRa': TMRa}
+
+with open(path_privacy_metrics, 'w') as f:
+    json.dump(metrics, f)
