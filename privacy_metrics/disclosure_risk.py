@@ -217,7 +217,7 @@ def main():
     TMRi = float(sum(K.values()))
     TMRa = TMRi / sum(c_indicator.values())
     metrics = {'EMRi': EMRi, 'TMRi': TMRi, 'TMRa': TMRa}
-    print(f"Disclosure risk metrics: {metrics}")
+    print(f"\nDisclosure risk metrics: {metrics}")
 
     with open(path_released_ds + "/disclosure_risk_metrics.json", 'w') as f:
         json.dump(metrics, f)

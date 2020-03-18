@@ -1,0 +1,19 @@
+{
+    "dataset" : "datasets/polish_data_2011/polish_data_2011",
+    "synth-method" : "synthpop",
+    "parameters":
+    {
+        "num_samples_to_fit": -1,
+        "num_samples_to_synthesize": -1,
+        "num_datasets_to_synthesize": 5,
+        "random_state": 12345,
+        "vars_sequence": [1,2,3,4,8,9,10,5,6,7],
+        "synthesis_methods": ["sample", "logreg", "cart", "polyreg", "cart", "cart", "cart", "cart", "cart", "cart"],
+        "proper": false,
+        "tree_minbucket": 5,
+        "smoothing": {},
+        "num_samples_intruder": 1500,
+        "vars_intruder": ["sex", "sport", "marital", "region"]
+    }
+}
+
