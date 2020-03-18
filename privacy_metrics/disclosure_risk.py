@@ -8,17 +8,10 @@ import argparse
 import sys
 import os
 
-# path to released (synthetic) datasets 
-#path_released_ds = "../synth-output/synthpop-example-2/synthetic_data_*.csv"
-# path to intruder's dataset
-#path_intruder_ds = "../synth-output/synthpop-example-2/intruder_data.csv"
-#path_intruder_indexes = "../synth-output/synthpop-example-2/intruder_indexes.json"
-#path_privacy_metrics = "../synth-output/synthpop-example-2/disclosure_risk.json"
-# save maximum values/indices for all intruder's rows in a dictionary
+# constants
 path_save_max_values = "./dict_max_matches.pkl"
 # if output_mode = 3, save the pdfs (see below for more info)
 path_save_p_dist_all = "./p_dist_all.pkl"
-# XXX REMOVE? 
 # column that contains indices of the original (not synthesized) dataset
 # when matching rows between two datasets, ignore indx_column 
 indx_column = "idx"
@@ -70,16 +63,19 @@ def main():
     with open(args.infile) as f:
         synth_params = json.load(f)
 
+    # read dataset name from .json
     dataset = synth_params["dataset"]
     path_original_ds = os.path.abspath(dataset) + '.csv'
-    data_full = pd.read_csv(path_original_ds)
     path_released_ds = args.outfile_prefix
 
-
+    # read parameters from .json
     parameters = synth_params["parameters"]
-
     np.random.seed(parameters['random_state'])
 
+    # read original data set
+    data_full = pd.read_csv(path_original_ds)
+
+    # read/set intruder samples number
     if parameters['num_samples_intruder'] > data_full.shape[0]:
         sys.exit("Intruder samples cannot be more than original dataset samples: " + parameters['num_samples_intruder'] + " > " + data_full.shape[0])
     elif parameters['num_samples_intruder'] == -1:
@@ -92,7 +88,6 @@ def main():
     indexes = np.random.choice(data_full.shape[0], num_samples_intruder, replace=False).tolist()
     data_intruder = data_full.loc[indexes, parameters['vars_intruder']]
     data_intruder.to_csv(path_released_ds + "/intruder_data.csv", index=False)
-
     with open(path_released_ds + "/intruder_indexes.json", 'w') as f:
         json.dump(indexes, f)
 
@@ -101,18 +96,19 @@ def main():
     # XXX should be changed after indices are added to real/synthetic data
     df_itdr["idx"] = df_itdr.index
 
-    # list of paths of the released datasets
+    # list of paths of the released/synthetic datasets
     list_paths_released_ds = glob(path_released_ds + "/synthetic_data_*.csv")
     list_paths_released_ds.sort()
 
     # if output_mode == 1, set the threshold to 0.99,
-    # this should help with floating point comparison
+    # this should help with floating point comparisons of numbers that are very close
     if output_mode == 1:
         threshold_max = 0.999
 
     dict_matches = {}
     num_rows_released = False
     num_files_released = False
+
     # rlsd: released
     # itdr: intruder
     print(10*"===")
@@ -172,7 +168,7 @@ def main():
         values_max_matches = p_dist_row[indx_max_matches].tolist()
         dict_max_matches[f"{i_itdr}"] = [indx_max_matches, values_max_matches]
 
-    # -------- save outputs
+    # save outputs
     with open(path_save_max_values, "wb") as output_file:
         pickle.dump(dict_max_matches, output_file)
     # output_mode == 3, returns full probability
@@ -180,7 +176,7 @@ def main():
         with open(path_save_p_dist_all, "wb") as output_file:
             pickle.dump(p_dist_all, output_file)
 
-    # -------- Plot p.d.f computed in the previous step
+    # Plot p.d.f computed in the previous step
     # This only works with output_mode == 3 (return full probability)
     row_select = 0
     while (row_select >= 0) and (output_mode == 3):
@@ -212,7 +208,6 @@ def main():
         intruder_indexes = json.load(f_intruder_indexes)
 
     c = {key: len(value[0]) for key, value in dict_max_matches.items()}
-
     I = {key: np.multiply(intruder_indexes[int(key)] in value[0], 1) for key, value in dict_max_matches.items()}
     products = {k: c.get(k) * I.get(k) for k in set(c)}
     K = {key: np.multiply(value == 1, 1) for key, value in products.items()}
