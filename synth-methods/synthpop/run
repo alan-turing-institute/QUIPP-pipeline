@@ -13,7 +13,7 @@ main <- function() {
     p <- read_json(parameter_json, simplifyVector=TRUE)
     params = p$parameters
 
-    data_full <- read.csv(paste0(data_path_prefix, ".csv"), header=TRUE)
+    data_full <- read.csv(paste0(data_path_prefix, ".csv"), header=TRUE, check.names=FALSE)
 
     if (params$num_samples_to_synthesize == -1) {
         num_samples_to_synthesize <- nrow(data_full)
@@ -34,11 +34,9 @@ main <- function() {
     }
 
     # synthesize the requested number of datasets
-    data_synth <- syn(data = data_full, 
+    data_synth <- syn(data = data_full,
                       visit.sequence = params$vars_sequence,
                       method = params$synthesis_methods,
-                      #rules = rules,
-                      #rvalues = rule_values,
                       m = num_datasets_to_synthesize,
                       k = num_samples_to_synthesize,
                       seed = params$random_state,
