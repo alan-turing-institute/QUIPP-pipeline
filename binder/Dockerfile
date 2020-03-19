@@ -1,4 +1,4 @@
-FROM docker.pkg.github.com/louiseabowler/quipp-pipeline/quipp-env:0.0.1
+FROM louiseab/quipp-pipeline/quipp-env:0.0.1
 
 ARG NB_USER=jovyan
 ARG NB_UID=1000
