@@ -42,6 +42,19 @@ runtime=3600
         f.write(cfg)
 
 
+def write_privacy_parameters(parameters_dict, filename):
+
+        d =parameters_dict
+
+        if d['epsilon0'] == 0:
+
+            cfg = f"""{d['k']}"""
+        else:
+            cfg = f"""{d['count']} {d['k']} {d['epsilon0']} {d['tinc']}"""
+
+        with open(filename, "w") as f:
+            f.write(cfg)
+
 def write_dag(corr, filename):
     # short name for the string interpolation
     dag = f"""8, {corr}
@@ -126,6 +139,9 @@ def main():
                       'omega': method_params['omega'],
                       'ncomp': method_params['ncomp'],
                       'ndist': method_params['ndist'],
+                      'k': method_params['k'],
+                      'epsilon0': method_params['epsilon0'],
+                      'tinc': method_params['tinc'],
                       'workdir': os.getcwd(),
                       'dataprefix': dataprefix,
                       'count': count}
@@ -138,7 +154,7 @@ def main():
     write_grps(data, dataprefix + "_grps.csv")
     write_dag(0.95, dataprefix + "_dag.csv")
     write_order(dataprefix + "_order.csv")
-
+    write_privacy_parameters(parameters_dict,"privacy_params")
 
 if __name__=="__main__":
     main()

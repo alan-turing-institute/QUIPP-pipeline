@@ -3,6 +3,10 @@ set -euo pipefail
 
 SGFINIT=${SGFROOT:+$SGFROOT/}sgfinit
 SGFGEN=${SGFROOT:+$SGFROOT/}sgfgen
+SGFEXT=${SGFROOT:+$SGFROOT/}sgfextract
+
+
+echo $SGFINIT
 
 PREPARE_DATA_PY=$(dirname $0)/prepare_data.py
 
@@ -31,6 +35,7 @@ python ../../generators/odi-nhs-ae/transform_data_to_numcats.py \
     --input-filename $data_path_prefix \
     --output-filename $data_path_prefix_numcat
 
+
 python $PREPARE_DATA_PY $parameter_json $data_path_prefix_numcat
 
 echo >log.conf <<END
@@ -52,5 +57,9 @@ echo >log.conf <<END
 
 END
 
+
 $SGFINIT my.cfg
 $SGFGEN my.cfg
+
+cat ./gen/*.out > ./cand.out
+$SGFEXT my.cfg cand.out synthetic_data.csv "$(< privacy_params)"
