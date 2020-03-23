@@ -14,10 +14,7 @@ jobs:
     - name: Install dependencies
       run: |-
         pip install ctgan
-        curl -k https://cmake.org/files/v3.5/cmake-3.5.2-Linux-x86_64.tar.gz | tar -xzC /cmake_dir
-        cd /cmake_dir
-        yes | /bin/sh cmake-3.17.0-Linux-x86_64.sh
-        cd ..
+        apt-get -y install cmake
         curl -O -k https://vbinds.ch/sites/default/files/Artifacts/sgf-0.10a.tgz
         tar xf sgf-0.10a.tgz
         rm sgf-0.10a.tgz
