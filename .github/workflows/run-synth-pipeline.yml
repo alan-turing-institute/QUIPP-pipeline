@@ -14,7 +14,7 @@ jobs:
     - name: Install dependencies
       run: |-
         pip install ctgan
-        curl -O https://vbinds.ch/sites/default/files/Artifacts/sgf-0.10a.tgz
+        curl -O -k https://vbinds.ch/sites/default/files/Artifacts/sgf-0.10a.tgz
         tar xf sgf-0.10a.tgz
         rm sgf-0.10a.tgz
         cd sgf
