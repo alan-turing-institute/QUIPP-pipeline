@@ -14,7 +14,12 @@ jobs:
     - name: Install dependencies
       run: |-
         pip install ctgan
-        apt-get -y install cmake
+        apt-get install build-essential
+        wget https://github.com/Kitware/CMake/releases/download/v3.17.0/cmake-3.17.0.tar.gz
+        tar xf cmake-3.17.0.tar.gz
+        cd cmake-3.17.0
+        ./bootstrap && make && sudo make install
+        cd ..
         curl -O -k https://vbinds.ch/sites/default/files/Artifacts/sgf-0.10a.tgz
         tar xf sgf-0.10a.tgz
         rm sgf-0.10a.tgz
