@@ -10,6 +10,8 @@ import json
 import numpy as np
 import pandas as pd
 import warnings
+import os
+import sys
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
@@ -50,7 +52,7 @@ def utility_measure_sklearn_classifiers(path_original_ds, path_original_meta, pa
 
     # Read original and released/synthetic datasets
     orig_df = pd.read_csv(path_original_ds)
-    rlsd_df = pd.read_csv(path_released_ds)
+    rlsd_df = pd.read_csv(path_released_ds + "/synthetic_data_1.csv")
     if num_leaked_rows > 0:
         rlsd_df[:num_leaked_rows] = orig_df[:num_leaked_rows]
 
@@ -147,31 +149,44 @@ def utility_measure_sklearn_classifiers(path_original_ds, path_original_meta, pa
         json.dump(utility_collector, out_fio)
 
 def handle_cmdline_args():
+    """Return an object with attributes 'infile' and 'outfile', after
+handling the command line arguments"""
+
     parser = argparse.ArgumentParser(
-        description='Read input files and output file for run of utility_measure_sklearn_classifiers.')
-    parser.add_argument('--path_original_ds', help='path to original datasets')
-    parser.add_argument('--path_original_meta', help='path to original metadata')
-    parser.add_argument('--path_released_ds', help='path to released (synthetic) dataset')
-    parser.add_argument('--input_columns', help='which columns should be used as inputs to a classifier?')
-    parser.add_argument('--label_column', help='label/output column to be used in a classifier')
-    parser.add_argument('--test_train_ratio', help='test/train ratio to split both original and released datasets')
-    parser.add_argument('--output_file_json', help='output filename in JSON format')
-    parser.add_argument('--num_leaked_rows', help='Number of leaked rows from original dataset into the released dataset', default=-10)
+        description='Generate synthetic data from a specification in a json '
+        'file using the "synth-method" described in the json file.  ')
+
+    parser.add_argument(
+        '-i', dest='infile', required=True,
+        help='The input json file. Must contain a "synth-method" property')
+
+    parser.add_argument(
+        '-o', dest='outfile_prefix', required=True, help='The prefix of the output paths (data json and csv), relative to the QUIPP-pipeline root directory')
 
     args = parser.parse_args()
-
     return args
 
 def main():
     args = handle_cmdline_args()
-    path_original_ds = args.path_original_ds
-    path_original_meta = args.path_original_meta
-    path_released_ds = args.path_released_ds
-    input_columns = eval(args.input_columns)
-    label_column = args.label_column
-    test_train_ratio = float(args.test_train_ratio)
-    output_file_json = args.output_file_json
-    num_leaked_rows = int(args.num_leaked_rows)
+
+    with open(args.infile) as f:
+        synth_params = json.load(f)
+
+    # read dataset name from .json
+    dataset = synth_params["dataset"]
+    path_original_ds = os.path.abspath(dataset) + '.csv'
+    path_original_meta = os.path.abspath(dataset) + '.json'
+    path_released_ds = args.outfile_prefix
+
+    # read parameters from .json
+    #parameters = synth_params["parameters"]
+    sklearn_utility_parameters = synth_params["sklearn_utility_parameters"]
+
+    input_columns = sklearn_utility_parameters["input_columns"]
+    label_column = sklearn_utility_parameters["label_column"]
+    test_train_ratio = sklearn_utility_parameters["test_train_ratio"]
+    output_file_json = path_released_ds + "/utility_metric_sklearn.json"
+    num_leaked_rows = sklearn_utility_parameters["num_leaked_rows"]
 
     print("\n=================================================")
     print("[WARNING] the classifiers are hardcoded in main()")

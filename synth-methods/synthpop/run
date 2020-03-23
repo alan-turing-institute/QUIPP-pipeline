@@ -23,16 +23,6 @@ main <- function() {
     
     num_datasets_to_synthesize = params$num_datasets_to_synthesize
 
-    if (params$num_samples_intruder > nrow(data_full)) {
-        stop(cat("Intruder samples cannot be more than original dataset samples",
-                 params$num_samples_intruder, " > ", nrow(data_full)))
-    }
-    else if (params$num_samples_intruder == -1) {
-        num_samples_intruder <- nrow(data_full)
-    } else {
-        num_samples_intruder <- params$num_samples_intruder
-    }
-
     # synthesize the requested number of datasets
     data_synth <- syn(data = data_full,
                       visit.sequence = params$vars_sequence,
@@ -50,15 +40,6 @@ main <- function() {
                 file=paste0(output_prefix, "/synthetic_data_", i, ".csv", sep=""),
                 row.names=FALSE)
     }
-
-    # sample indexes and use them to select rows from original data to form intruder dataset
-    # also save indexes-1 (to start indexing from 0) to .json
-    indexes = sample.int(n = nrow(data_full), size = num_samples_intruder, replace=FALSE)
-    data_intruder <- data_full[indexes, params$vars_intruder]
-    write.csv(data_intruder,
-                file=paste0(output_prefix, "/intruder_data.csv", sep=""),
-                row.names=FALSE)
-    write(toJSON(indexes - 1), paste0(output_prefix, "/intruder_indexes.json", sep=""))
 
 
 }

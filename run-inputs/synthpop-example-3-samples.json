@@ -11,8 +11,19 @@
         "synthesis_methods": ["sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample"],
         "proper": true,
         "tree_minbucket": 1,
-        "smoothing": {},
-        "num_samples_intruder": 1000,
+        "smoothing": {}
+
+    },
+    "disclosure_risk_parameters":
+    {
+        "num_samples_intruder": 100,
         "vars_intruder": ["Treatment", "Gender", "Age bracket"]
+    },
+    "sklearn_utility_parameters":
+    {
+        "input_columns": ["Time in A&E (mins)"],
+        "label_column": "Age bracket",
+        "test_train_ratio": 0.2,
+        "num_leaked_rows": 9000
     }
 }

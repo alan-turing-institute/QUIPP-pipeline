@@ -70,23 +70,24 @@ def main():
 
     # read parameters from .json
     parameters = synth_params["parameters"]
+    disclosure_risk_parameters = synth_params["disclosure_risk_parameters"]
     np.random.seed(parameters['random_state'])
 
     # read original data set
     data_full = pd.read_csv(path_original_ds)
 
     # read/set intruder samples number
-    if parameters['num_samples_intruder'] > data_full.shape[0]:
-        sys.exit("Intruder samples cannot be more than original dataset samples: " + parameters['num_samples_intruder'] + " > " + data_full.shape[0])
-    elif parameters['num_samples_intruder'] == -1:
+    if disclosure_risk_parameters['num_samples_intruder'] > data_full.shape[0]:
+        sys.exit("Intruder samples cannot be more than original dataset samples: " + disclosure_risk_parameters['num_samples_intruder'] + " > " + data_full.shape[0])
+    elif disclosure_risk_parameters['num_samples_intruder'] == -1:
         num_samples_intruder = data_full.shape[0]
     else:
-        num_samples_intruder = parameters['num_samples_intruder']
+        num_samples_intruder = disclosure_risk_parameters['num_samples_intruder']
 
     # sample indexes and use them to select rows from original data to form intruder dataset
     # also save indexes to .json
     indexes = np.random.choice(data_full.shape[0], num_samples_intruder, replace=False).tolist()
-    data_intruder = data_full.loc[indexes, parameters['vars_intruder']]
+    data_intruder = data_full.loc[indexes, disclosure_risk_parameters['vars_intruder']]
     data_intruder.to_csv(path_released_ds + "/intruder_data.csv", index=False)
     with open(path_released_ds + "/intruder_indexes.json", 'w') as f:
         json.dump(indexes, f)
@@ -219,7 +220,7 @@ def main():
     metrics = {'EMRi': EMRi, 'TMRi': TMRi, 'TMRa': TMRa}
     print(f"\nDisclosure risk metrics: {metrics}")
 
-    with open(path_released_ds + "/disclosure_risk_metrics.json", 'w') as f:
+    with open(path_released_ds + "/privacy_metric_disclosure_risk.json", 'w') as f:
         json.dump(metrics, f)
 
 if __name__=='__main__':

@@ -44,6 +44,7 @@ synth-output/%/synthetic_data.csv : run-inputs/%.json generated-data
 	mkdir -p $$(dirname $@) && \
 	python synthesize.py -i $< -o $$(dirname $@)
 	python privacy_metrics/disclosure_risk.py -i $< -o $$(dirname $@)
+	python utility_metrics/sklearn_classifiers.py -i $< -o $$(dirname $@)
 
 
 ## ----------------------------------------
