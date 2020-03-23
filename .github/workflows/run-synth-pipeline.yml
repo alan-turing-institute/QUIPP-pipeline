@@ -3,7 +3,7 @@ name: Run complete pipeline
 on:
   push:
     branches-ignore:
-      -'**'
+      - '**'
 
 jobs:
   run_script:
