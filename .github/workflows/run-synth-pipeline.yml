@@ -15,7 +15,8 @@ jobs:
       run: |-
         pip install ctgan
         apt-get install build-essential
-        curl -O -k https://github.com/Kitware/CMake/releases/download/v3.17.0/cmake-3.17.0.tar.gz
+        apt-get install wget
+        wget https://github.com/Kitware/CMake/releases/download/v3.17.0/cmake-3.17.0.tar.gz
         tar xf cmake-3.17.0.tar.gz
         cd cmake-3.17.0
         ./bootstrap && make && sudo make install
