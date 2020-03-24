@@ -4,7 +4,7 @@
     "synth-method" : "sgf",
     "parameters": 
     {
-        "enabled" : false,
+        "enabled" : true,
         "num_samples_to_fit": 1000,
         "random_state": 1234,
         "gamma": 4,
