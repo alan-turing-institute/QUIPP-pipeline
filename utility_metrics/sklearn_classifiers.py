@@ -31,7 +31,7 @@ from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 
-def utility_measure_sklearn_classifiers(path_original_ds, path_original_meta, path_released_ds, 
+def utility_measure_sklearn_classifiers(synth_method, path_original_ds, path_original_meta, path_released_ds,
                                         input_columns, label_column, test_train_ratio, classifiers,
                                         output_file_json, num_leaked_rows, random_seed=1364):
     np.random.seed(random_seed)
@@ -45,7 +45,9 @@ def utility_measure_sklearn_classifiers(path_original_ds, path_original_meta, pa
     discrete_features = []
     numeric_features = []
     for col in orig_metadata['columns']:
-        if col['type'] in ['Categorical', 'Ordinal', 'DiscreteNumerical', "DateTime"]:
+        if synth_method == 'sgf':
+            discrete_features.append(col["name"])
+        elif col['type'] in ['Categorical', 'Ordinal', 'DiscreteNumerical', "DateTime"]:
             discrete_features.append(col["name"])
         else:
             numeric_features.append(col["name"])
@@ -182,9 +184,13 @@ def main():
 
     # read dataset name from .json
     dataset = synth_params["dataset"]
-    path_original_ds = os.path.abspath(dataset) + '.csv'
+    synth_method = synth_params["synth-method"]
     path_original_meta = os.path.abspath(dataset) + '.json'
     path_released_ds = args.outfile_prefix
+    if synth_method == 'sgf':
+        path_original_ds = os.path.join(path_released_ds, os.path.basename(dataset) + "_numcat.csv")
+    else:
+        path_original_ds = os.path.abspath(dataset) + '.csv'
 
     # read parameters from .json
     #parameters = synth_params["parameters"]
@@ -214,7 +220,10 @@ def main():
         QuadraticDiscriminantAnalysis: {}
         }
 
-    utility_measure_sklearn_classifiers(path_original_ds, 
+    np.random.seed(synth_params['parameters']['random_state'])
+
+    utility_measure_sklearn_classifiers(synth_method,
+                                        path_original_ds,
                                         path_original_meta, 
                                         path_released_ds, 
                                         input_columns, 

@@ -68,13 +68,16 @@ def main():
 
     # read dataset name from .json
     dataset = synth_params["dataset"]
-    path_original_ds = os.path.abspath(dataset) + '.csv'
+    synth_method = synth_params["synth-method"]
     path_released_ds = args.outfile_prefix
+    if synth_method == 'sgf':
+        path_original_ds = os.path.join(path_released_ds, os.path.basename(dataset) + "_numcat.csv")
+    else:
+        path_original_ds = os.path.abspath(dataset) + '.csv'
 
     # read parameters from .json
     parameters = synth_params["parameters"]
     disclosure_risk_parameters = synth_params["parameters_disclosure_risk"]
-    np.random.seed(parameters['random_state'])
 
     # read original data set
     data_full = pd.read_csv(path_original_ds)
@@ -89,6 +92,7 @@ def main():
 
     # sample indexes and use them to select rows from original data to form intruder dataset
     # also save indexes to .json
+    np.random.seed(parameters['random_state'])
     indexes = np.random.choice(data_full.shape[0], num_samples_intruder, replace=False).tolist()
     data_intruder = data_full.loc[indexes, disclosure_risk_parameters['vars_intruder']]
     data_intruder.to_csv(path_released_ds + "/intruder_data.csv", index=False)

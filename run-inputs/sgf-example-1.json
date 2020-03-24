@@ -1,9 +1,10 @@
 {
-    "enabled" : false,
+    "enabled" : true,
     "dataset" : "generator-outputs/odi-nhs-ae/hospital_ae_data_deidentify",
     "synth-method" : "sgf",
     "parameters": 
     {
+        "enabled" : false,
         "num_samples_to_fit": 1000,
         "random_state": 1234,
         "gamma": 4,
@@ -14,5 +15,19 @@
         "epsilon0": 0,
         "tinc": 0
 
+    },
+    "parameters_disclosure_risk":
+    {
+        "enabled": true,
+        "num_samples_intruder": 100,
+        "vars_intruder": ["Treatment", "Gender", "Age bracket"]
+    },
+    "parameters_sklearn_utility":
+    {
+        "enabled": true,
+        "input_columns": ["Time in A&E (mins)"],
+        "label_column": "Age bracket",
+        "test_train_ratio": 0.2,
+        "num_leaked_rows": 0
     }
 }
