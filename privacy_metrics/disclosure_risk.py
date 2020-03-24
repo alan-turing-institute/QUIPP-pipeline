@@ -63,6 +63,9 @@ def main():
     with open(args.infile) as f:
         synth_params = json.load(f)
 
+    if not (synth_params["enabled"] and synth_params['parameters_disclosure_risk']['enabled']):
+        return
+
     # read dataset name from .json
     dataset = synth_params["dataset"]
     path_original_ds = os.path.abspath(dataset) + '.csv'
@@ -70,7 +73,7 @@ def main():
 
     # read parameters from .json
     parameters = synth_params["parameters"]
-    disclosure_risk_parameters = synth_params["disclosure_risk_parameters"]
+    disclosure_risk_parameters = synth_params["parameters_disclosure_risk"]
     np.random.seed(parameters['random_state'])
 
     # read original data set

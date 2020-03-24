@@ -34,6 +34,9 @@ def main():
     with open(args.infile) as f:
         synth_params = json.load(f)
 
+    if not (synth_params["enabled"] and synth_params['parameters']['enabled']):
+        return
+
     synth_method = synth_params["synth-method"]
     dataset = synth_params["dataset"]
 

@@ -18,7 +18,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
-#from sklearn.impute import SimpleImputer
+from sklearn.impute import SimpleImputer
 # --- Classifiers
 from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier
@@ -51,10 +51,15 @@ def utility_measure_sklearn_classifiers(path_original_ds, path_original_meta, pa
             numeric_features.append(col["name"])
 
     # Read original and released/synthetic datasets
+    # NOTE: Only the first synthetic data set is used for utility evaluation
     orig_df = pd.read_csv(path_original_ds)
     rlsd_df = pd.read_csv(path_released_ds + "/synthetic_data_1.csv")
     if num_leaked_rows > 0:
         rlsd_df[:num_leaked_rows] = orig_df[:num_leaked_rows]
+
+    # Drop nans
+    orig_df = orig_df.dropna(axis=0)
+    rlsd_df = rlsd_df.dropna(axis=0)
 
     # split original
     X_o, y_o = orig_df[input_columns], orig_df[label_column]
@@ -172,6 +177,9 @@ def main():
     with open(args.infile) as f:
         synth_params = json.load(f)
 
+    if not (synth_params["enabled"] and synth_params['parameters_sklearn_utility']['enabled']):
+        return
+
     # read dataset name from .json
     dataset = synth_params["dataset"]
     path_original_ds = os.path.abspath(dataset) + '.csv'
@@ -180,7 +188,7 @@ def main():
 
     # read parameters from .json
     #parameters = synth_params["parameters"]
-    sklearn_utility_parameters = synth_params["sklearn_utility_parameters"]
+    sklearn_utility_parameters = synth_params["parameters_sklearn_utility"]
 
     input_columns = sklearn_utility_parameters["input_columns"]
     label_column = sklearn_utility_parameters["label_column"]
