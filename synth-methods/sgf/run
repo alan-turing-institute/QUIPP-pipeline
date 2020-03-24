@@ -63,3 +63,5 @@ $SGFGEN my.cfg
 
 cat ./gen/*.out > ./cand.out
 $SGFEXT my.cfg cand.out synthetic_data.csv "$(< privacy_params)"
+
+mv synthetic_data.csv.synth synthetic_data_1.csv
