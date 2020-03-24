@@ -61,10 +61,10 @@ def test_SynthesizerCTGAN_synthesize(ctgan_syn):
     ctgan_syn.synthesize(output_path=output_path, num_samples_to_synthesize=num_samples_to_synthesize, store_internally=True)
     assert ctgan_syn.dataset_name == dataset_name, "Unexpected dataset name: %s" % dataset_name
     assert ctgan_syn.num_samples_to_synthesize == num_samples_to_synthesize, "Unexpected num_samples_to_synthesize: %s" %num_samples_to_synthesize
-    assert os.path.isfile(os.path.join(output_path,"synthetic_data.csv")), "File %s is not created!" % output_path
+    assert os.path.isfile(os.path.join(output_path,"synthetic_data_1.csv")), "File %s is not created!" % output_path
     assert os.path.isdir("./synthetic-output/dataset-name"), "Directory is not created"
     assert os.path.isdir("./synthetic-output"), "Directory is not created"
-    read_csv_file = pd.read_csv(os.path.join(output_path,"synthetic_data.csv"))
+    read_csv_file = pd.read_csv(os.path.join(output_path,"synthetic_data_1.csv"))
     assert len(read_csv_file) ==  num_samples_to_synthesize, "Number of rows in the generated CSV file is not equal to num_samples_to_synthesize: %s" % num_samples_to_synthesize
 
 def test_SynthesizerCTGAN_correlation(ctgan_syn):
@@ -80,7 +80,7 @@ def test_SynthesizerCTGAN_correlation(ctgan_syn):
     ctgan_syn.synthesize(output_path=output_path, num_samples_to_synthesize=num_samples_to_synthesize,
                          store_internally=False)
 
-    synth = pd.read_csv(os.path.join(output_path,"synthetic_data.csv"))
+    synth = pd.read_csv(os.path.join(output_path,"synthetic_data_1.csv"))
     synth = synth.replace({"Age bracket": age2integer})
     synth_corr = synth.corr().iloc[3, 0]
 
