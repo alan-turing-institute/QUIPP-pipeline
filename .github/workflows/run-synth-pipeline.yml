@@ -1,6 +1,9 @@
 name: Run complete pipeline
 
-on: [push]
+on:
+  push:
+    branches-ignore:
+      - '**'
 
 jobs:
   run_script:
