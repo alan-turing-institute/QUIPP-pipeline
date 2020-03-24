@@ -1,0 +1,47 @@
+#!/usr/bin/env Rscript
+
+library(jsonlite)
+library(synthpop)
+
+main <- function() {
+    args <- commandArgs(trailingOnly=TRUE)
+    
+    parameter_json = args[1]
+    data_path_prefix = args[2]
+    output_prefix = args[3]
+
+    p <- read_json(parameter_json, simplifyVector=TRUE)
+    params = p$parameters
+
+    data_full <- read.csv(paste0(data_path_prefix, ".csv"), header=TRUE, check.names=FALSE)
+
+    if (params$num_samples_to_synthesize == -1) {
+        num_samples_to_synthesize <- nrow(data_full)
+    } else {
+        num_samples_to_synthesize <- params$num_samples_to_synthesize
+    }
+    
+    num_datasets_to_synthesize = params$num_datasets_to_synthesize
+
+    # synthesize the requested number of datasets
+    data_synth <- syn(data = data_full,
+                      visit.sequence = params$vars_sequence,
+                      method = params$synthesis_methods,
+                      m = num_datasets_to_synthesize,
+                      k = num_samples_to_synthesize,
+                      seed = params$random_state,
+                      proper = params$proper,
+                      ctree.minbucket = params$tree_minbucket,
+                      smoothing = params$smoothing)
+
+    # write synthetic datasets to .csv files
+    for(i in 1:num_datasets_to_synthesize) {
+        write.csv(data_synth$syn[[i]],
+                file=paste0(output_prefix, "/synthetic_data_", i, ".csv", sep=""),
+                row.names=FALSE)
+    }
+
+
+}
+
+main()

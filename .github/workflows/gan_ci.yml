@@ -21,5 +21,4 @@ jobs:
         pip install pytest
     - name: Run tests
       run: |-
-        cd synth-methods/CTGAN
-        pytest -s .
+        pytest -s synth-methods/CTGAN

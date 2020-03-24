@@ -9,9 +9,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir))
 from ctgan_main import SynthesizerCTGAN
 
 # Fixed inputs for tests
-path2csv = os.path.join("tests", "data", "test_CTGAN_io.csv")
-path2meta = os.path.join("tests", "data", "test_CTGAN_io_data.json")
-path2params = os.path.join("tests", "parameters", "ctgan_parameters.json")
+path2csv = os.path.join("synth-methods", "CTGAN", "tests", "data", "test_CTGAN_io.csv")
+path2meta = os.path.join("synth-methods", "CTGAN", "tests", "data", "test_CTGAN_io_data.json")
+path2params = os.path.join("synth-methods", "CTGAN", "tests", "parameters", "ctgan_parameters.json")
 dataset_name = 'test_CTGAN_io'
 
 output_path = "./synthetic-output/dataset-name"
@@ -68,9 +68,9 @@ def test_SynthesizerCTGAN_synthesize(ctgan_syn):
     assert len(read_csv_file) ==  num_samples_to_synthesize, "Number of rows in the generated CSV file is not equal to num_samples_to_synthesize: %s" % num_samples_to_synthesize
 
 def test_SynthesizerCTGAN_correlation(ctgan_syn):
-    path2csv = os.path.join("..", "..", "datasets", "generated", "odi_nhs_ae", "hospital_ae_data_deidentify.csv")
-    path2meta = os.path.join("..", "..", "datasets", "generated", "odi_nhs_ae", "hospital_ae_data_deidentify.json")
-    path2params = os.path.join("tests", "parameters", "ctgan_parameters_corr.json")
+    path2csv = os.path.join("datasets", "generated", "odi_nhs_ae", "hospital_ae_data_deidentify.csv")
+    path2meta = os.path.join("datasets", "generated", "odi_nhs_ae", "hospital_ae_data_deidentify.json")
+    path2params = os.path.join("synth-methods", "CTGAN", "tests", "parameters", "ctgan_parameters_corr.json")
     dataset_name = 'test_CTGAN_corr'
     output_path = f"./synthetic-output/{dataset_name}"
 

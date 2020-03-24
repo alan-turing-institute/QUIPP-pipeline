@@ -1,20 +1,19 @@
 {
     "enabled" : true,
     "dataset" : "generator-outputs/odi-nhs-ae/hospital_ae_data_deidentify",
-    "synth-method" : "sgf",
+    "synth-method" : "synthpop",
     "parameters": 
     {
-        "enabled" : false,
-        "num_samples_to_fit": 1000,
-        "random_state": 1234,
-        "gamma": 4,
-        "omega": 7,
-        "ncomp": "adv",
-        "ndist": "geom",
-        "k": 100,
-        "epsilon0": 0,
-        "tinc": 0
-
+        "enabled" : true,
+        "num_samples_to_fit": -1,
+        "num_samples_to_synthesize": -1,
+        "num_datasets_to_synthesize": 5,
+        "random_state": 12345,
+        "vars_sequence": [5, 3, 8, 1],
+        "synthesis_methods": ["cart", "", "cart", "", "cart", "", "", "cart"],
+        "proper": true,
+        "tree_minbucket": 1,
+        "smoothing": {}
     },
     "parameters_disclosure_risk":
     {

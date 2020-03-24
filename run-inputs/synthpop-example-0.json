@@ -1,0 +1,33 @@
+{
+    "enabled" : true,
+    "dataset" : "datasets/polish_data_2011/polish_data_2011",
+    "synth-method" : "synthpop",
+    "parameters":
+    {
+        "enabled" : true,
+        "num_samples_to_fit": -1,
+        "num_samples_to_synthesize": -1,
+        "num_datasets_to_synthesize": 5,
+        "random_state": 12345,
+        "vars_sequence": [1,2,3,4,8,9,10,5,6,7],
+        "synthesis_methods": ["sample", "logreg", "cart", "polyreg", "cart", "cart", "cart", "cart", "cart", "cart"],
+        "proper": false,
+        "tree_minbucket": 5,
+        "smoothing": {}
+    },
+    "parameters_disclosure_risk":
+    {
+        "enabled": true,
+        "num_samples_intruder": 200,
+        "vars_intruder": ["sex", "sport", "marital", "region"]
+    },
+    "parameters_sklearn_utility":
+    {
+        "enabled": true,
+        "input_columns": ["sex", "marital", "region"],
+        "label_column": "sport",
+        "test_train_ratio": 0.2,
+        "num_leaked_rows": 0
+    }
+}
+

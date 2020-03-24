@@ -8,14 +8,15 @@ on:
 jobs:
   run_script:
 
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     container:
-      image: pytorch/pytorch
+      image: datascienceschool/rpython
 
     steps:
     - uses: actions/checkout@v1
-    - name: Install dependencies
-      run: |-
+    - name: Install Python dependencies
+      run: |
+        python --version
         pip install ctgan
         apt-get install build-essential
         apt-get install wget
@@ -34,6 +35,8 @@ jobs:
         make
         export SGFROOT=$(pwd)
         cd ../../
+    - name: Install R dependencies
+      run: Rscript -e "install.packages(c('testthat', 'synthpop'))" 
     - name: Run pipeline
       run: |-
         make

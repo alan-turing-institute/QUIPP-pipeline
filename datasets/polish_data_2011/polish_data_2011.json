@@ -1,0 +1,44 @@
+{
+    "columns": [
+        {
+            "name": "smoke",
+            "type": "Categorical"
+        },
+        {
+            "name": "sex",
+            "type": "Categorical"
+        },
+        {
+            "name": "age",
+            "type": "DiscreteNumerical"
+        },
+        {
+            "name": "edu",
+            "type": "Categorical"
+        },
+        {
+            "name": "weight",
+            "type": "DiscreteNumerical"
+        },
+        {
+            "name": "height",
+            "type": "DiscreteNumerical"
+        },
+        {
+            "name": "bmi",
+            "type": "ContinuousNumerical"
+        },
+        {
+            "name": "sport",
+            "type": "Categorical"
+        },
+        {
+            "name": "marital",
+            "type": "Categorical"
+        },
+        {
+            "name": "region",
+            "type": "Categorical"
+        }
+    ]
+}

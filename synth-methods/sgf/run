@@ -9,6 +9,7 @@ SGFEXT=${SGFROOT:+$SGFROOT/}sgfextract
 echo $SGFINIT
 
 PREPARE_DATA_PY=$(dirname $0)/prepare_data.py
+POSTPROCESSING_PY=$(dirname $0)/postprocessing.py
 
 # this is run from
 # $QUIPP_ROOT/synth-output/$run-input-name/
@@ -65,3 +66,6 @@ cat ./gen/*.out > ./cand.out
 $SGFEXT my.cfg cand.out synthetic_data.csv "$(< privacy_params)"
 
 mv synthetic_data.csv.synth synthetic_data_1.csv
+
+python $POSTPROCESSING_PY
+
