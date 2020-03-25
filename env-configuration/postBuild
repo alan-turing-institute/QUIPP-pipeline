@@ -1,1 +1,1 @@
-rm runtime.txt install.R requirements.txt postBuild
+rm README.md runtime.txt install.R requirements.txt postBuild
