@@ -9,11 +9,11 @@ This repository contains a pipeline for synthetic population
 generation, using a variety of methods as implemented by several
 libraries.  Measures of privacy and utility can be built on this.
 
-### Installation
+## Installation
 - Clone the repository `git clone
   git@github.com:alan-turing-institute/QUIPP-pipeline.git`
 
-### Dependencies
+## Dependencies
 - The code is written and tested in Python 3.6, R 3.6, C++ and Bash. 
 - It depends on the following libraries/tools:
   - Python: numpy, pandas, scikit-learn, scipy, ctgan, sdv, simanneal. 
@@ -31,7 +31,7 @@ libraries.  Measures of privacy and utility can be built on this.
   environmental variable `SGFROOT` to point to the directory of the executables:
   `export SGFROOT=path/to/executables`.
  
-### Top-level directory contents
+## Top-level directory contents
 
  - `generators`: Quickly generating input data for the pipeline from a
    few tunable and well-understood models
