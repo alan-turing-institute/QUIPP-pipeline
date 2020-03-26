@@ -1,0 +1,32 @@
+{
+    "enabled" : false,
+    "dataset" : "generator-outputs/odi-nhs-ae/hospital_ae_data_deidentify",
+    "synth-method" : "synthpop",
+    "parameters":
+    {
+        "enabled" : true,
+        "num_samples_to_fit": -1,
+        "num_samples_to_synthesize": -1,
+        "num_datasets_to_synthesize": 5,
+        "random_state": 12345,
+        "vars_sequence": [5,1,8],
+        "synthesis_methods": ["cart", "", "", "", "sample", "", "", "cart"],
+        "proper": false,
+        "tree_minbucket": 5,
+        "smoothing": {}
+    },
+    "parameters_disclosure_risk":
+    {
+        "enabled": true,
+        "num_samples_intruder": 1000,
+        "vars_intruder": ["Time in A&E (mins)", "Arrival hour range", "Gender", "Age bracket", "Arrival Date"]
+    },
+    "parameters_sklearn_utility":
+    {
+        "enabled": true,
+        "input_columns": ["Time in A&E (mins)"],
+        "label_column": "Age bracket",
+        "test_train_ratio": 0.3,
+        "num_leaked_rows": 0
+    }
+}
