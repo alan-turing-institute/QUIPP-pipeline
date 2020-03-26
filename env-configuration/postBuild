@@ -1,1 +1,14 @@
-rm README.md runtime.txt install.R requirements.txt postBuild
+#!/bin/bash
+
+curl -O -k https://vbinds.ch/sites/default/files/Artifacts/sgf-0.10a.tgz
+tar xf sgf-0.10a.tgz
+rm sgf-0.10a.tgz
+cd sgf
+mkdir bin
+cd bin
+cmake ../source
+make
+export SGFROOT=$(pwd)
+cd ../../
+
+rm README.md apt.txt runtime.txt install.R requirements.txt postBuild

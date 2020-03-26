@@ -1,4 +1,4 @@
-FROM turinginst/quipp-env:0.0.2
+FROM louiseab/quipp-env:0.0.3
 
 ARG NB_USER=jovyan
 ARG NB_UID=1000
