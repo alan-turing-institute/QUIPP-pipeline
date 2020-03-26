@@ -33,18 +33,26 @@ utility of the resulting data.
   git@github.com:alan-turing-institute/QUIPP-pipeline.git`
 
 ## Dependencies
-- The code is written and tested in Python 3.6, R 3.6, C++ and Bash. 
+
+- Various parts of this code and its dependencies are written in
+  Python, R, C++ and Bash.
+- It has been tested with
+  - python 3.6
+  - R 3.6
+  - gcc 9.3
+  - bash 3.2
 - It depends on the following libraries/tools:
   - Python: numpy, pandas, scikit-learn, scipy, ctgan, sdv, simanneal. 
-  All of them can be installed by running the following terminal command
-  (assuming `pip` is installed):
-  `pip install numpy pandas sklearn scipy ctgan sdv simanneal`
-  - R: simPop, synthpop, mice, dplyr. All of them can be installed using
+  All of them can be installed by running the following terminal command:
+  ```
+  python -m pip install numpy pandas sklearn scipy ctgan sdv simanneal
+  ```
+  - R: simPop, synthpop, mice, dplyr. 
+  All of them can be installed using
   the following R command: `install.packages("simPop", "synthpop", "mice", 
   "dplyr", "magrittr", "tidyr")`
   - C++: sgf. This can be downloaded from [here](https://vbinds.ch/node/69).
-  See the library's README file for how to compile the code. You will need
-  to install cmake beforehand from [here](https://cmake.org/download/).
+  See the library's README file for how to compile the code.  You will need a recent version of cmake (tested with version 3.17), either installed through your system's package manager, or from [here](https://cmake.org/download/).
   After compilation and once the three executables (`sgfinit`, `sgfgen` and
   `sgfextract`) have been created, you also need to also need to assign the 
   environmental variable `SGFROOT` to point to the directory of the executables:
