@@ -3,9 +3,11 @@
 
 # Python
 __pycache__
+venv
 
 # Editors
 .idea
+.vscode
 
 # Jupyter
 .ipynb_checkpoints
