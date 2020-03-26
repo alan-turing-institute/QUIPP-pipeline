@@ -1,13 +1,32 @@
 # QUIPP-pipeline
 Privacy preserving synthetic data generation workflows
 
-Collaboration and project management is in the
+_Collaboration and project management is in the
 [QUIPP-collab](https://github.com/alan-turing-institute/QUIPP-collab)
-repo (which is currently private).
+repo (which is currently private)._
+
+The QUiPP (Quantifying Utility and Preserving Privacy) project aims to
+produce a framework to facilitate the creation of synthetic population
+data where the privacy of individuals is quantified. In addition,
+QUiPP can assess utility in a variety of contexts.  Does a model
+trained on the synthetic data generalize as well to the population as
+the same model trained on the confidential sample, for example?
+
+The proliferation of individual-level data sets has opened up new
+research opportunities.  This individual information is tightly
+restricted in many contexts: in health and census records, for example.
+This creates difficulties in working openly and reproducibly, since
+full analyses cannot then be shared.  Methods exist for creating
+synthetic populations that are representative of the existing
+relationships and attributes in the original data.  However,
+understanding the utility of the synthetic data and simultaneously
+protecting individuals' privacy, such that these data can be released
+more openly, is challenging.
 
 This repository contains a pipeline for synthetic population
 generation, using a variety of methods as implemented by several
-libraries.  Measures of privacy and utility can be built on this.
+libraries.  In addition, the pipeline emits measures of privacy and
+utility of the resulting data.
 
 ## Installation
 - Clone the repository `git clone
