@@ -60,10 +60,6 @@ def utility_measure_sklearn_classifiers(synth_method, path_original_ds, path_ori
     if num_leaked_rows > 0:
         rlsd_df[:num_leaked_rows] = orig_df[:num_leaked_rows]
 
-    # Drop nans
-    orig_df = orig_df.dropna(axis=0)
-    rlsd_df = rlsd_df.dropna(axis=0)
-
     # split original
     X_o, y_o = orig_df[input_columns], orig_df[label_column]
     X_train_o, X_test_o, y_train_o, y_test_o = \
@@ -76,17 +72,19 @@ def utility_measure_sklearn_classifiers(synth_method, path_original_ds, path_ori
         train_test_split(X_r, y_r, test_size=test_train_ratio,
                          random_state=random_seed)
 
+    #import ipdb; ipdb.set_trace()
+
     # Create preprocessing pipelines for both numeric and discrete data.
     # SimpleImputer: Imputation transformer for completing missing values.
     # StandardScaler: Standardize features by removing the mean and scaling to unit variance
     numeric_transformer = Pipeline(steps=[
-        # ('imputer', SimpleImputer(strategy='median')),
+        #('imputer', SimpleImputer(strategy='median')),
         ('scaler', StandardScaler())
     ])
 
     # OneHotEncoder: Encode discrete features as a one-hot numeric array.
     discrete_transformer = Pipeline(steps=[
-        # ('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
+        #('imputer', SimpleImputer(strategy='most_frequent')),
         ('onehot', OneHotEncoder(sparse=False, handle_unknown='ignore'))
     ])
 
@@ -115,6 +113,7 @@ def utility_measure_sklearn_classifiers(synth_method, path_original_ds, path_ori
             # Append classifier to preprocessing pipeline.
             clf_orig = Pipeline(steps=[('preprocessor', preprocessor),
                                        ('classifier', one_clf(**classifiers[one_clf]))])
+
             clf_orig.fit(X_train_o, y_train_o)
             # o ---> o
             y_test_pred_o_o = clf_orig.predict(X_test_o)
