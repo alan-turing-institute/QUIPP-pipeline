@@ -34,7 +34,7 @@ See [#22](https://github.com/alan-turing-institute/QUIPP-pipeline/issues/22) for
 
 ## Updating the Docker image
 
-The Docker image will be updated periodically as we use new libraries in the QUIPP-pipeline project.
+The Docker image will be updated periodically as we use additional or newer versions of libraries in the QUIPP-pipeline project.
 For now, this will be done manually; see #?? for notes on the move to continuous integration.
 
 To add new R or Python libraries, the name of the library should be added to the `install.R` or `requirements.txt` file as appropriate.
