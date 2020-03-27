@@ -1,5 +1,4 @@
 import json
-import sys
 import os
 import subprocess
 import shutil
@@ -28,7 +27,8 @@ def run_pipeline():
 def main():
 
     copy_parameter_files()
-    #run_pipeline()
+
+    run_pipeline()
 
     f_list = os.listdir(path=in_path)
     privacy_scores = []
