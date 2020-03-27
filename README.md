@@ -42,23 +42,48 @@ utility of the resulting data.
   - gcc 9.3
   - bash 3.2
 - It depends on the following libraries/tools:
-  - Python: numpy, pandas, scikit-learn, scipy, ctgan, sdv, simanneal. 
-  All of them can be installed by running the following terminal command:
-  ```
-  python -m pip install numpy pandas sklearn scipy ctgan sdv simanneal
-  ```
-  - R: simPop, synthpop, mice, dplyr. 
-  All of them can be installed using
-  the following R command: `install.packages("simPop", "synthpop", "mice", 
-  "dplyr", "magrittr", "tidyr")`
-  - C++: sgf. This can be downloaded from [here](https://vbinds.ch/node/69).
-  See the library's README file for how to compile the code.  You will need a recent version of cmake (tested with version 3.17), either installed through your system's package manager, or from [here](https://cmake.org/download/).
-  After compilation and once the three executables (`sgfinit`, `sgfgen` and
-  `sgfextract`) have been created, you also need to also need to assign the 
-  environmental variable `SGFROOT` to point to the directory of the executables:
-  `export SGFROOT=path/to/executables`.
+  - Python: numpy, pandas, scikit-learn, scipy, ctgan, sdv, simanneal. (TODO: links)
+  - R: ...
+  - sgf (link)
+
+_Note that a Docker image is provided with the dependencies
+pre-installed, as
+[turinginst/quipp-env](https://hub.docker.com/repository/docker/turinginst/quipp-env).
+More detail on setting this up can be found
+[here](env-configuration/README.md)._
+
+### Installing the dependencies
+
+To install all of the python and R dependencies, run the following
+commands in a terminal from the root of this repository:
+
+```bash
+python -m pip install -r env-configuration/requirements.txt
+Rscript env-configuration/install.R
+```
+
+Another external dependency is the sgf implementation of plausible
+deniability:
+  
+- download sgf [here](https://vbinds.ch/node/69)
+  
+See the library's README file for how to compile the code.  You will
+need a recent version of cmake (tested with version 3.17), either
+installed through your system's package manager, or from
+[here](https://cmake.org/download/).  After compilation and once the
+three executables (`sgfinit`, `sgfgen` and `sgfextract`) have been
+built, either:
+ 
+ - these should either be in your PATH; or
+ - assign the environmental variable `SGFROOT` to point to the
+directory containing these executables:
+```
+export SGFROOT=path/to/executables`
+```
  
 ## Top-level directory contents
+
+The top-level directory structure mirrors the data pipeline. (TODO more)
 
  - `generators`: Quickly generating input data for the pipeline from a
    few tunable and well-understood models
