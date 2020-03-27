@@ -5,7 +5,7 @@ To provide a consistent computational environment for this project, we use the `
 [repo2docker](https://repo2docker.readthedocs.io/en/latest/) is the tool that is used under-the-hood by [BinderHub](https://binderhub.readthedocs.io/en/latest/) to create Docker images of a repository that a user wishes to launch on a [Binder service](https://mybinder.readthedocs.io/en/latest/) such as [`mybinder.org`](https://mybinder.org/).
 We use the same tool here to produce a Docker image that is easily compatible with BinderHub.
 
-The resulting Docker images are available from Docker Hub: [`louiseab/quipp-env`](https://hub.docker.com/r/louiseab/quipp-env).
+The resulting Docker images are available from Docker Hub: [`turinginst/quipp-env`](https://hub.docker.com/r/turinginst/quipp-env).
 
 
 ## Configuration files
@@ -33,8 +33,6 @@ See [#22](https://github.com/alan-turing-institute/QUIPP-pipeline/issues/22) for
 
 
 ## Updating the Docker image
-
-_Note that for now we are storing the images in Louise's Docker Hub account (louiseab), but will move to the Turing's own account (turinginst) at a convenient future point._
 
 The Docker image will be updated periodically as we use new libraries in the QUIPP-pipeline project.
 For now, this will be done manually; see #?? for notes on the move to continuous integration.
@@ -76,6 +74,6 @@ $ docker image ls
 ...and can then push the image to Docker Hub using the following:
 ```
 $ docker login docker.io
-$ docker tag 341baa92e34a louiseab/quipp-env:0.0.1
-$ docker push louiseab/quipp-env:0.0.1
+$ docker tag 341baa92e34a turinginst/quipp-env:0.0.1
+$ docker push turinginst/quipp-env:0.0.1
 ```
