@@ -6,7 +6,7 @@ RUN_INPUTS = $(wildcard run-inputs/*.json)
 ## construct the synthetic output datafile names
 RUN_INPUTS_BASE_PREFIX = $(patsubst %.json,%,$(notdir $(RUN_INPUTS)))
 SYNTH_OUTPUTS_PREFIX = $(addprefix synth-output/,$(RUN_INPUTS_BASE_PREFIX))
-SYNTH_OUTPUTS_CSV = $(addsuffix /synthetic_data.csv,$(SYNTH_OUTPUTS_PREFIX))
+SYNTH_OUTPUTS_CSV = $(addsuffix /synthetic_data_1.csv,$(SYNTH_OUTPUTS_PREFIX))
 
 .PHONY: all-synthetic generated-data clean
 
@@ -40,7 +40,7 @@ $(AE_DEIDENTIFIED_DATA) &: $(LONDON_POSTCODES)
 
 ## This rule also builds "synth-output/%/data_description.json"
 $(SYNTH_OUTPUTS_CSV) : \
-synth-output/%/synthetic_data.csv : run-inputs/%.json generated-data
+synth-output/%/synthetic_data_1.csv : run-inputs/%.json $(AE_DEIDENTIFIED_DATA)
 	mkdir -p $$(dirname $@) && \
 	python synthesize.py -i $< -o $$(dirname $@)
 	python privacy-metrics/disclosure_risk.py -i $< -o $$(dirname $@)
