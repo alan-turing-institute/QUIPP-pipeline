@@ -56,7 +56,7 @@ pip install -r requirements-dev.txt
 With that set up, it's time to create the Docker image.
 We call repo2docker with the following arguments, detailed below:
 ```
-$ jupyter-repo2docker --subdir env-configuration --image-name quipp-env-0.0.1 --user-name jovyan --user-id 1000 .
+$ jupyter-repo2docker --subdir env-configuration --image-name quipp-env-0.0.1 --user-name jovyan --user-id 1000 --env SGFROOT=/home/jovyan/sgf/bin .
 ```
 `--subdir` We build the image based on the contents of this directory.
 
