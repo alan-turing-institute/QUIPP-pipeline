@@ -52,15 +52,9 @@ More detail on setting this up can be found
   - gcc 9.3
   - bash 3.2
 - It depends on the following libraries/tools:
-  - Python: numpy, pandas, scikit-learn, scipy, ctgan, sdv, simanneal. (TODO: links)
-  - R: ...
-  - sgf (link)
-
-_Note that a Docker image is provided with the dependencies
-pre-installed, as
-[turinginst/quipp-env](https://hub.docker.com/repository/docker/turinginst/quipp-env).
-More detail on setting this up can be found
-[here](env-configuration/README.md)._
+  - Python: [numpy](https://pypi.org/project/numpy/), [pandas](https://pypi.org/project/pandas/), [scikit-learn](https://pypi.org/project/scikit-learn/), [scipy](https://pypi.org/project/scipy/), [ctgan](https://pypi.org/project/ctgan/), [sdv](https://pypi.org/project/sdv/), [simanneal](https://pypi.org/project/simanneal/)
+  - R: [simPop](https://CRAN.R-project.org/package=simPop), [synthpop](https://CRAN.R-project.org/package=synthpop), [mice](https://CRAN.R-project.org/package=mice), [dplyr](https://CRAN.R-project.org/package=dplyr), [magrittr](https://CRAN.R-project.org/package=magrittr), [tidyr](https://CRAN.R-project.org/package=tidyr)
+  - [SGF](https://vbinds.ch/node/69) (Synthetic Data Generation Framework)
 
 ### Installing the dependencies
 
@@ -72,10 +66,10 @@ python -m pip install -r env-configuration/requirements.txt
 Rscript env-configuration/install.R
 ```
 
-Another external dependency is the sgf implementation of plausible
+Another external dependency is the SGF implementation of plausible
 deniability:
   
-- download sgf [here](https://vbinds.ch/node/69)
+- download SGF [here](https://vbinds.ch/node/69)
   
 See the library's README file for how to compile the code.  You will
 need a recent version of cmake (tested with version 3.17), either
@@ -90,7 +84,7 @@ directory containing these executables:
 ```
 export SGFROOT=path/to/executables`
 ```
- 
+
 ## Top-level directory contents
 
 The top-level directory structure mirrors the data pipeline. (TODO more)
