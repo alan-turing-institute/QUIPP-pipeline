@@ -58,6 +58,8 @@ More detail on setting this up can be found
 
 ### Installing the dependencies
 
+#### R and Python dependencies
+
 To install all of the python and R dependencies, run the following
 commands in a terminal from the root of this repository:
 
@@ -65,6 +67,8 @@ commands in a terminal from the root of this repository:
 python -m pip install -r env-configuration/requirements.txt
 Rscript env-configuration/install.R
 ```
+
+#### SGF
 
 Another external dependency is the SGF implementation of plausible
 deniability:
@@ -80,7 +84,7 @@ built, either:
  
  - these should either be in your PATH; or
  - assign the environmental variable `SGFROOT` to point to the
-directory containing these executables:
+directory containing these executables, in bash as:
 ```
 export SGFROOT=path/to/executables`
 ```
