@@ -73,25 +73,22 @@ Rscript env-configuration/install.R
 Another external dependency is the SGF implementation of plausible
 deniability:
   
-- download SGF [here](https://vbinds.ch/node/69)
-  
-See the library's README file for how to compile the code.  You will
+ - Download SGF [here](https://vbinds.ch/node/69)
+ - See the library's README file for how to compile the code.  You will
 need a recent version of cmake (tested with version 3.17), either
 installed through your system's package manager, or from
-[here](https://cmake.org/download/).  After compilation and once the
-three executables (`sgfinit`, `sgfgen` and `sgfextract`) have been
-built, either:
- 
- - these should either be in your PATH; or
- - assign the environmental variable `SGFROOT` to point to the
-directory containing these executables, in bash as:
-```
-export SGFROOT=path/to/executables`
-```
+[here](https://cmake.org/download/).
+ - After compilation, the three executables of the SGF package
+(`sgfinit`, `sgfgen` and `sgfextract`) should have been built.  Add
+their location to your PATH, or alternatively, assign the
+environmental variable `SGFROOT` to point to this location.  That is, in bash,
+   - either ```export PATH=$PATH:/path/to/sgf/bin```,
+   - or ```export SGFROOT=/path/to/sgf/bin```
 
 ## Top-level directory contents
 
-The top-level directory structure mirrors the data pipeline. (TODO more)
+The top-level directory structure mirrors the data pipeline. (TODO
+more)
 
  - `generators`: Quickly generating input data for the pipeline from a
    few tunable and well-understood models
