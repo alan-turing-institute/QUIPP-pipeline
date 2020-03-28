@@ -65,7 +65,12 @@ commands in a terminal from the root of this repository:
 
 ```bash
 python -m pip install -r env-configuration/requirements.txt
-Rscript env-configuration/install.R
+```
+
+```
+R
+> source("env-configuration/install.R")
+> q()
 ```
 
 #### SGF
@@ -87,8 +92,10 @@ environmental variable `SGFROOT` to point to this location.  That is, in bash,
 
 ## Top-level directory contents
 
-The top-level directory structure mirrors the data pipeline. (TODO
-more)
+The top-level directory structure mirrors the data pipeline.
+
+ - `doc`: The QUiPP report - a high-level overview of the project, our
+   work and the methods we have considered so far.
 
  - `generators`: Quickly generating input data for the pipeline from a
    few tunable and well-understood models
