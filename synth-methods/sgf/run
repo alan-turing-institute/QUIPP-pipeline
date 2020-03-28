@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# If SGFROOT is defined, this is used to prefix the sgf executables,
+# otherwise they are assumed to be in the PATH.
+#
 SGFINIT=${SGFROOT:+$SGFROOT/}sgfinit
 SGFGEN=${SGFROOT:+$SGFROOT/}sgfgen
 SGFEXT=${SGFROOT:+$SGFROOT/}sgfextract
-
-
-echo $SGFINIT
 
 PREPARE_DATA_PY=$(dirname $0)/prepare_data.py
 POSTPROCESSING_PY=$(dirname $0)/postprocessing.py
