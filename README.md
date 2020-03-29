@@ -97,17 +97,40 @@ The top-level directory structure mirrors the data pipeline.
  - `doc`: The QUiPP report - a high-level overview of the project, our
    work and the methods we have considered so far.
 
+ - `examples`: Tutorial examples of using some of the methods
+   (_currently just CTGAN_).  These are independent of the pipeline.
+
+ - `binder`: Configuration files to set up the pipeline using
+   [Binder](https://mybinder.org)
+ 
+ - `env-configuration`: Set-up of the computational environment needed
+   by the pipeline and its dependencies
+ 
  - `generators`: Quickly generating input data for the pipeline from a
    few tunable and well-understood models
 
  - `datasets`: A few (public, open) datasets that we use as input to
    the methods are reproduced here where licence and size permit
 
- - `synth-methods`: One directory per library/tool, implementing a
-   complete synthesis.
+ - `synth-methods`: One directory per library/tool, each of them
+   implementing a complete synthesis method
 
- - `run-inputs`: Parameter json files (see below) for each run.
+ - `utility-metrics`: Scripts relating to computing the utility
+   metrics
+ 
+ - `privacy-metrics`: Scripts relating to computing the privacy
+   metrics
 
+ - `run-inputs`: Parameter json files (see below), one for each run
+
+When the pipeline is run, additional directories are created:
+
+ - `generator-outputs`: Sample generated input data (using
+   `generators`)
+   
+ - `synth-output`: Contains the result of each run (as specified in
+   `run-inputs`), which will typically consist of the synthetic data
+   itself and a selection of utility and privacy scores
 
 ## Running the pipeline
 
