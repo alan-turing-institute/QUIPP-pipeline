@@ -132,6 +132,8 @@ When the pipeline is run, additional directories are created:
    `run-inputs`), which will typically consist of the synthetic data
    itself and a selection of utility and privacy scores
 
+![Flowchart of pipeline](doc/fig/pipeline.svg)
+
 ## Running the pipeline
 
 1. Make a parameter json file, in `run-inputs/`, for each desired
