@@ -21,13 +21,18 @@ LONDON_POSTCODES = generators/odi-nhs-ae/data/London\ postcodes.csv
 
 generated-data: $(AE_DEIDENTIFIED_DATA)
 
-# Download the London Postcodes dataset used by the A&E generated dataset
+# Download the London Postcodes dataset used by the A&E generated
+# dataset (this is about 133 MB)
 $(LONDON_POSTCODES):
 	cd generators/odi-nhs-ae/ && \
 	curl -o "./data/London postcodes.csv" \
 		https://www.doogal.co.uk/UKPostcodesCSV.ashx?region=E12000007
 
 # Make the "A&E deidentified" generated dataset
+#
+# This is currently the only generated dataset, so it is handled with
+# its own rule
+#
 $(AE_DEIDENTIFIED_DATA) &: $(LONDON_POSTCODES)
 	mkdir -p generator-outputs/odi-nhs-ae/ && \
 	cd generator-outputs/odi-nhs-ae/ && \
