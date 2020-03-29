@@ -132,7 +132,17 @@ When the pipeline is run, additional directories are created:
    `run-inputs`), which will typically consist of the synthetic data
    itself and a selection of utility and privacy scores
 
-![Flowchart of pipeline](doc/fig/pipeline.svg)
+## The pipeline
+
+The following indicates the full pipeline, as run on an input file
+called `example.json`.  This input file has keywords `dataset` (the
+base of the filename to use for the original input data) and
+`synth-method` which refers to one of the synthesis methods.  As
+output, the pipeline produces synthetic data (in one or more files
+`synthetic_data_1.csv`, `synthetic_data_2.csv`, ...) and
+`metrics.json`, containing the privacy and utility scores.
+
+![Flowchart of the pipeline](doc/fig/pipeline.svg)
 
 ## Running the pipeline
 
