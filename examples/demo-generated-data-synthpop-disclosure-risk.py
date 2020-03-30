@@ -1,3 +1,9 @@
+"""
+This example runs the pipeline on four synthpop syntheses (using the input files in 
+`examples/parameter_files/generated-synthpop-dr`) and plots a graph of a utility score (relative
+difference of F1 scores) against a privacy score (disclosure risk).
+"""
+
 import json
 import os
 import subprocess
