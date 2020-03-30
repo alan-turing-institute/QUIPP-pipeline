@@ -53,8 +53,8 @@ def main(*args):
     args = handle_cmdline_args()
     indirectory = args.indirectory
 
-    #copy_parameter_files(indirectory)
-    #run_pipeline()
+    copy_parameter_files(indirectory)
+    run_pipeline()
 
     f_list = os.listdir(path=indirectory)
     privacy_scores = []
