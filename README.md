@@ -212,3 +212,41 @@ methods.  The json schema for this parameter file is [here](doc/schema/).
 **To be usable by the pipeline, the parameter input file must be
 located in the `run-inputs` directory**
 
+### Example
+
+The following example is in [`run-inputs/synthpop-example-2.json`](run-inputs/synthpop-example-2.json).
+
+```json
+{
+    "enabled" : true,
+    "dataset" : "generator-outputs/odi-nhs-ae/hospital_ae_data_deidentify",
+    "synth-method" : "synthpop",
+    "parameters": 
+    {
+        "enabled" : true,
+        "num_samples_to_fit": -1,
+        "num_samples_to_synthesize": -1,
+        "num_datasets_to_synthesize": 5,
+        "random_state": 12345,
+        "vars_sequence": [5, 3, 8, 1],
+        "synthesis_methods": ["cart", "", "cart", "", "cart", "", "", "cart"],
+        "proper": true,
+        "tree_minbucket": 1,
+        "smoothing": {}
+    },
+    "parameters_disclosure_risk":
+    {
+        "enabled": true,
+        "num_samples_intruder": 100,
+        "vars_intruder": ["Treatment", "Gender", "Age bracket"]
+    },
+    "parameters_sklearn_utility":
+    {
+        "enabled": true,
+        "input_columns": ["Time in A&E (mins)"],
+        "label_column": "Age bracket",
+        "test_train_ratio": 0.2,
+        "num_leaked_rows": 0
+    }
+}
+```
