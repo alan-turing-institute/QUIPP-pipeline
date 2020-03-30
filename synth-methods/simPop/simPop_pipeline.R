@@ -71,7 +71,7 @@ read_data <- function(dataset_name){
     
   } else if (dataset_name == "CensusUK2011"){
     # ONS Census 2011 teaching file 
-    data_full <- read.csv("../../datasets/rft-teaching-file/2011 Census Microdata Teaching File.csv",
+    data_full <- read.csv("../../datasets-raw/rft-teaching-file/2011 Census Microdata Teaching File.csv",
                           header=TRUE, skip=1)
     # Exclude Wales to avoid mismatch with aggregated census data file
     data_full <- filter(data_full, as.character(Region) != "W92000004")
@@ -152,7 +152,7 @@ if (dataset_name == "Austrian"){
   orig_data_agg <- totalsRG
 } else if (dataset_name == "CensusUK2011"){
   # ONS Census 2011 aggregated  data (counts by region and sex) - downloaded from  http://infuse.ukdataservice.ac.uk/
-  orig_data_agg_temp <- read.csv("../../datasets/CensusUK2011_Aggregated_Sex_Region/Data_SEX_REGION_UNIT.csv",
+  orig_data_agg_temp <- read.csv("../../datasets-raw/CensusUK2011_Aggregated_Sex_Region/Data_SEX_REGION_UNIT.csv",
                                  header=TRUE, skip=1)
   # Reshape sex column to match the format expected from simPop - also change naming
   colnames(orig_data_agg_temp) <- c("CDU_ID", "Region", "Region.name", "Region.type", 
