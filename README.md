@@ -154,7 +154,12 @@ The files "dataset.csv" and "dataset.json" could be in
 
 2. Run `make` in the top level QUIPP-pipeline directory to run all
    syntheses (one per file).  The output for `run-inputs/example.json`
-   can be found in `synth-output/example/`.
+   can be found in `synth-output/example/`.  It will consist of:
+   - one or more syntehtic data sets, based on the orignal data (as
+     specified in `example.json`), called `synthetic_data_1.csv`,
+     `synthetic_data_2.csv`, ...
+   - the file `metrics.json`, containing the applicable utility and
+     privacy scores for the synthesis
 
 3. `make clean` removes all synthetic output and generated data.
 
