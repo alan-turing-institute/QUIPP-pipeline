@@ -9,8 +9,8 @@
         "num_samples_to_synthesize": -1,
         "num_datasets_to_synthesize": 5,
         "random_state": 12345,
-        "vars_sequence": [5],
-        "synthesis_methods": ["", "", "", "", "", "", "", ""],
+        "vars_sequence": [5,3,4,6,7,1,8],
+        "synthesis_methods": ["", "", "", "", "sample", "", "", ""],
         "proper": false,
         "tree_minbucket": 5,
         "smoothing": {}
@@ -19,7 +19,7 @@
     {
         "enabled": true,
         "num_samples_intruder": 1000,
-        "vars_intruder": ["Time in A&E (mins)", "Arrival hour range", "Gender", "Age bracket", "Arrival Date"]
+        "vars_intruder": ["Time in A&E (mins)", "Arrival hour range", "Gender", "Age bracket", "Arrival Date", "Index of Multiple Deprivation Decile"]
     },
     "parameters_sklearn_utility":
     {

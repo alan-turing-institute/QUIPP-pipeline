@@ -1,5 +1,5 @@
 {
-    "enabled" : false,
+    "enabled" : true,
     "dataset" : "generator-outputs/odi-nhs-ae/hospital_ae_data_deidentify",
     "synth-method" : "synthpop",
     "parameters":
@@ -9,8 +9,8 @@
         "num_samples_to_synthesize": -1,
         "num_datasets_to_synthesize": 5,
         "random_state": 12345,
-        "vars_sequence": [5,1,8],
-        "synthesis_methods": ["cart", "", "", "", "sample", "", "", "cart"],
+        "vars_sequence": [5,4,6,3,7,1,8],
+        "synthesis_methods": ["cart", "", "cart", "", "sample", "", "cart", "cart"],
         "proper": false,
         "tree_minbucket": 5,
         "smoothing": {}
@@ -19,7 +19,7 @@
     {
         "enabled": true,
         "num_samples_intruder": 1000,
-        "vars_intruder": ["Time in A&E (mins)", "Arrival hour range", "Gender", "Age bracket", "Arrival Date"]
+        "vars_intruder": ["Time in A&E (mins)", "Arrival hour range", "Gender", "Age bracket", "Arrival Date", "Index of Multiple Deprivation Decile"]
     },
     "parameters_sklearn_utility":
     {

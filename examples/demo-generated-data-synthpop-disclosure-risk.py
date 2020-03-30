@@ -4,19 +4,43 @@ import subprocess
 import shutil
 import seaborn as sns
 import matplotlib.pyplot as plt
+import numpy as np
+import argparse
 
-in_path = "parameter_files/generated-synthpop-dr/"
 out_path = "../run-inputs/"
 synth_path = "../synth-output/"
 
 
-def copy_parameter_files():
-    f_list = os.listdir(path=in_path)
+def handle_cmdline_args():
+    """Return an object with attribute 'indirectory', after
+    handling the command line arguments"""
+
+    parser = argparse.ArgumentParser(
+        description='Run pipeline for each .json files in the input directory '
+                    'and plot the results. ')
+
+    parser.add_argument(
+        '-i', dest='indirectory', required=False,
+        default="parameter_files/generated-synthpop-dr",
+        help='The directory containing all input json files.')
+
+    args = parser.parse_args()
+    return args
+
+
+def copy_parameter_files(indirectory):
+    """Cope all .json parameter files from indirectory to out_path (global
+    variable)."""
+    f_list = os.listdir(path=indirectory)
     for f in f_list:
-        shutil.copyfile(os.path.join(in_path, f), os.path.join(out_path, f))
+        shutil.copyfile(os.path.join(indirectory, f), os.path.join(out_path, f))
 
 
 def run_pipeline():
+    """Runs QUiPP pipeline for all enabled .json files in run-inputs
+    Note: Can take several minutes depending on number of files and
+    method used. Not all output is printed to the console. If you want to see
+    all the output, you can run make from bash."""
     cmd = '''
     cd ..
     make   
@@ -24,15 +48,18 @@ def run_pipeline():
     subprocess.check_output(cmd, shell=True)
 
 
-def main():
+def main(*args):
 
-    copy_parameter_files()
+    args = handle_cmdline_args()
+    indirectory = args.indirectory
 
-    run_pipeline()
+    #copy_parameter_files(indirectory)
+    #run_pipeline()
 
-    f_list = os.listdir(path=in_path)
+    f_list = os.listdir(path=indirectory)
     privacy_scores = []
     utility_scores = []
+
     for f in [os.path.splitext(name)[0] for name in f_list]:
 
         with open(os.path.join(synth_path, f, "privacy_metric_disclosure_risk.json")) as privacy_file:
@@ -44,17 +71,17 @@ def main():
             print(utility_file)
         utility_scores.append(utility_dict["Overall"]["f1_diff"])
 
-    print(privacy_scores)
-    print(utility_scores)
+    print(f"Privacy scores: {1-np.array(privacy_scores)}")
+    print(f"Utility scores: {1-np.array(utility_scores)}")
 
-    sns.set()
-    cmap = sns.cubehelix_palette(dark=.3, light=.8, as_cmap=True)
-    synthesised_columns = [0, 2, 4, 6]
-    ax = sns.scatterplot(x=utility_scores, y=privacy_scores, hue=synthesised_columns, palette=cmap)
-    plt.title('Utility/Privacy/#Synthesised columns plot')
-    plt.xlabel('Utility (Mean abs. relative difference in F1)')
-    plt.ylabel('Expected Match Risk')
-    ax.legend(loc='upper right', frameon=False, title="# Synthesised columns")
+    sns.set_palette("hls", 8)
+    ax = sns.scatterplot(x=1-np.array(utility_scores), y=1-np.array(privacy_scores), s=70)
+
+    plt.title('Utility/Privacy plot')
+    plt.xlabel('Utility')
+    plt.ylabel('Privacy')
+    plt.grid(linestyle='--', linewidth=0.5)
+    ax.set(xlim=(0, 1.03), ylim=(0, 1.03))
     plt.show()
 
 

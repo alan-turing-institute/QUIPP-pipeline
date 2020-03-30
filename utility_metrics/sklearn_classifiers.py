@@ -127,6 +127,7 @@ def utility_measure_sklearn_classifiers(synth_method, path_original_ds, path_ori
             # r ---> r
             y_test_pred_r_r = clf_rlsd.predict(X_test_r)
 
+
             clf_name = one_clf.__name__
             utility_collector[clf_name] = \
                 {
@@ -250,11 +251,11 @@ def main():
         # SVC: {"gamma": 2, "C": 1},
         # GaussianProcessClassifier: {"kernel": 1.0 * RBF(1.0)},
         # DecisionTreeClassifier: {"max_depth": 5},
-        RandomForestClassifier: {"max_depth": 5, "n_estimators": 10, "max_features": 1},
+        # RandomForestClassifier: {"max_depth": 5, "n_estimators": 10, "max_features": 1},
         # MLPClassifier: {"alpha": 1, "max_iter": 5000},
         # AdaBoostClassifier: {},
-         GaussianNB: {},
-         QuadraticDiscriminantAnalysis: {}
+        GaussianNB: {},
+        QuadraticDiscriminantAnalysis: {}
     }
 
     utility_measure_sklearn_classifiers(synth_method,
