@@ -6,14 +6,15 @@
     {
         "enabled" : true,
         "num_samples_to_fit": 1000,
-        "random_state": 12345,
-        "gamma": 1.5,
+        "random_state": 1234,
+        "gamma": 20,
         "omega": 7,
         "ncomp": "adv",
         "ndist": "geom",
-        "k": 200,
+        "k": 2,
         "epsilon0": 0,
         "tinc": 0
+
     },
     "parameters_disclosure_risk":
     {

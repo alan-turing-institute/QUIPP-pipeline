@@ -39,6 +39,18 @@
         {
             "name": "region",
             "type": "Categorical"
+        },
+        {
+            "name": "wkabint",
+            "type": "Categorical"
+        },
+        {
+            "name": "income",
+            "type": "DiscreteNumerical"
+        },
+        {
+            "name": "ls",
+            "type": "Categorical"
         }
     ]
 }
