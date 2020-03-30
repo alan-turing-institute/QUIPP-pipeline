@@ -24,7 +24,7 @@ def read_data(dataset_name):
 
         return pd.read_csv(url, names=columns)
     elif dataset_name == 'ons':
-        temp = pd.read_csv("datasets/rft-teaching-file/2011 Census Microdata Teaching File.csv", header=1)
+        temp = pd.read_csv("datasets-raw/rft-teaching-file/2011 Census Microdata Teaching File.csv", header=1)
         return temp[['Marital Status', 'Sex', 'Hours worked per week', 'Region']]
     else:
         return 0
