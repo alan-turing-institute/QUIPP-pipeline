@@ -222,9 +222,11 @@ def main():
     c_indicator = {key: np.multiply(value == 1, 1) for key, value in c.items()}
 
     EMRi = sum({k: I.get(k) / c.get(k) for k in set(c)}.values())
+    EMRi_norm = EMRi / disclosure_risk_parameters['num_samples_intruder']
     TMRi = float(sum(K.values()))
+    TMRi_norm = TMRi / disclosure_risk_parameters['num_samples_intruder']
     TMRa = TMRi / sum(c_indicator.values())
-    metrics = {'EMRi': EMRi, 'TMRi': TMRi, 'TMRa': TMRa}
+    metrics = {'EMRi': EMRi, 'TMRi': TMRi, 'TMRa': TMRa, 'EMRi_norm': EMRi_norm, 'TMRi_norm': TMRi_norm}
     print(f"\nDisclosure risk metrics: {metrics}")
 
     with open(path_released_ds + "/privacy_metric_disclosure_risk.json", 'w') as f:
