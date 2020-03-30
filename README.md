@@ -109,8 +109,12 @@ The top-level directory structure mirrors the data pipeline.
  - [`generators`](generators): Quickly generating input data for the pipeline from a
    few tunable and well-understood models
 
- - [`datasets`](datasets): A few (public, open) datasets that we use as input to
-   the methods are reproduced here where licence and size permit
+ - [`datasets`](datasets): Sample data that can be consumed by the pipeline.
+
+ - [`datasets-raw`](datasets-raw): A few (public, open) datasets that
+   we have used are reproduced here where licence and size permit.
+   They are not necessarily of the correct format to be consumed by
+   the pipeline.
 
  - [`synth-methods`](synth-methods): One directory per library/tool, each of them
    implementing a complete synthesis method
