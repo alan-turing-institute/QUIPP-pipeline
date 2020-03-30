@@ -6,9 +6,19 @@ RUN_INPUTS = $(wildcard run-inputs/*.json)
 ## construct the synthetic output datafile names
 RUN_INPUTS_BASE_PREFIX = $(patsubst %.json,%,$(notdir $(RUN_INPUTS)))
 SYNTH_OUTPUTS_PREFIX = $(addprefix synth-output/,$(RUN_INPUTS_BASE_PREFIX))
+
+## the synthetic data is in files synthetic_data_1.csv,
+## synthetic_data_2.csv, ...
 SYNTH_OUTPUTS_CSV = $(addsuffix /synthetic_data_1.csv,$(SYNTH_OUTPUTS_PREFIX))
 
-.PHONY: all-synthetic generated-data clean
+## The privacy and utility scores: 
+SYNTH_OUTPUTS_DISCL_RISK = $(addsuffix /privacy_metric_disclosure_risk.json,$(SYNTH_OUTPUTS_PREFIX))
+
+SYNTH_OUTPUTS_UTIL_SKLEARN = $(addsuffix /utility_metric_sklearn.json,$(SYNTH_OUTPUTS_PREFIX))
+
+.PHONY: all all-synthetic generated-data clean
+
+all: $(SYNTH_OUTPUTS_DISCL_RISK) $(SYNTH_OUTPUTS_UTIL_SKLEARN)
 
 all-synthetic: $(SYNTH_OUTPUTS_CSV)
 
@@ -48,7 +58,18 @@ $(SYNTH_OUTPUTS_CSV) : \
 synth-output/%/synthetic_data_1.csv : run-inputs/%.json $(AE_DEIDENTIFIED_DATA)
 	mkdir -p $$(dirname $@) && \
 	python synthesize.py -i $< -o $$(dirname $@)
+
+
+## ----------------------------------------
+## Privacy and utility metrics
+$(SYNTH_OUTPUTS_DISCL_RISK) : \
+synth-output/%/privacy_metric_disclosure_risk.json : \
+run-inputs/%.json synth-output/%/synthetic_data_1.csv
 	python privacy-metrics/disclosure_risk.py -i $< -o $$(dirname $@)
+
+$(SYNTH_OUTPUTS_UTIL_SKLEARN) : \
+synth-output/%/utility_metric_sklearn.json : \
+run-inputs/%.json synth-output/%/synthetic_data_1.csv
 	python utility-metrics/sklearn_classifiers.py -i $< -o $$(dirname $@)
 
 
