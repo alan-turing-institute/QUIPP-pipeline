@@ -184,7 +184,7 @@ The files `dataset.csv` and `dataset.json` could be in a subdirectory of
    be used as the value of the `"synth-method"` name.
 
 
-## Data format
+## Data file format
 
 The input data should be present as two files with the same prefix: a
 [csv](https://tools.ietf.org/html/rfc4180.html) file (with suffix
@@ -207,7 +207,7 @@ next section) as the top-level property `dataset`: there is no
 restriction on where these can be located, although a few examples can
 be found in `datasets/`.
 
-## Parameter format
+## Parameter file format
 
 The pipeline takes a single json file, describing the data synthesis
 to perform, including any parameters the synthesis method might need,
