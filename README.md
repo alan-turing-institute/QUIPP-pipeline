@@ -144,7 +144,7 @@ output, the pipeline produces synthetic data (in one or more files
 
 ![Flowchart of the pipeline](doc/fig/pipeline.svg)
 
-The files "dataset.csv" and "dataset.json" could be in
+The files `dataset.csv` and `dataset.json` could be in a subdirectory of
 [datasets](datasets/), but this is not a requirement.
 
 ## Running the pipeline
