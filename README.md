@@ -144,9 +144,10 @@ The following indicates the full pipeline, as run on an input file
 called `example.json`.  This input file has keywords `dataset` (the
 base of the filename to use for the original input data) and
 `synth-method` which refers to one of the synthesis methods.  As
-output, the pipeline produces synthetic data (in one or more files
-`synthetic_data_1.csv`, `synthetic_data_2.csv`, ...) and
-`metrics.json`, containing the privacy and utility scores.
+output, the pipeline produces:
+ - synthetic data, in one or more files `synthetic_data_1.csv`, `synthetic_data_2.csv`, ...
+ - the disclosure risk privacy score, in `privacy_metric_disclosure_risk.json`
+ - classification scores of utility, `utility_metric_sklearn.json`
 
 ![Flowchart of the pipeline](doc/fig/pipeline.svg)
 
@@ -164,8 +165,10 @@ The files `dataset.csv` and `dataset.json` could be in a subdirectory of
    - one or more syntehtic data sets, based on the orignal data (as
      specified in `example.json`), called `synthetic_data_1.csv`,
      `synthetic_data_2.csv`, ...
-   - the file `metrics.json`, containing the applicable utility and
-     privacy scores for the synthesis
+   - the file `privacy_metric_disclosure_risk.json`, containing the
+     disclosure risk scores
+   - the file `utility_metric_sklearn.json`, containing the
+     classification scores
 
 3. `make clean` removes all synthetic output and generated data.
 
