@@ -144,6 +144,9 @@ output, the pipeline produces synthetic data (in one or more files
 
 ![Flowchart of the pipeline](doc/fig/pipeline.svg)
 
+The files "dataset.csv" and "dataset.json" could be in
+[datasets](datasets/), but this is not a requirement.
+
 ## Running the pipeline
 
 1. Make a parameter json file, in `run-inputs/`, for each desired
@@ -178,8 +181,34 @@ output, the pipeline produces synthetic data (in one or more files
 
 ## Data format
 
-TODO: describe requirements on csv and json (data) files
+The input data should be present as two files with the same prefix: a
+[csv](https://tools.ietf.org/html/rfc4180.html) file (with suffix
+`.csv`) which must contain column headings (along with the column data
+itself), and a [json file](doc/schema/) (the "data json file")
+describing the types of the columns used for synthesis.
+
+For example, see [the Polish dataset](datasets/polish_data_2011/).
+This contains the files
+
+ - `datasets/polish_data_2011/polish_data_2011.csv`
+ - `datasets/polish_data_2011/polish_data_2011.json` 
+ 
+and so has the prefix `datasets/polish_data_2011/polish_data_2011`
+relative to the root of this repository.
+
+The prefix of the data files (as an absolute path, or relative to the
+root of the repository) is given in the parameter json file (see the
+next section) as the top-level property `dataset`: there is no
+restriction on where these can be located, although a few examples can
+be found in `datasets/`.
 
 ## Parameter format
 
-TODO: parameter json files
+The pipeline takes a single json file, describing the data synthesis
+to perform, including any parameters the synthesis method might need,
+as well as any additional parameters for the privacy and utlity
+methods.  The json schema for this parameter file is [here](doc/schema/).
+
+**To be usable by the pipeline, the parameter input file must be
+located in the `run-inputs` directory**
+
