@@ -48,7 +48,7 @@ def run_pipeline():
     subprocess.check_output(cmd, shell=True)
 
 
-def main(*args):
+def main():
 
     args = handle_cmdline_args()
     indirectory = args.indirectory
