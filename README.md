@@ -94,34 +94,34 @@ environmental variable `SGFROOT` to point to this location.  That is, in bash,
 
 The top-level directory structure mirrors the data pipeline.
 
- - `doc`: The QUiPP report - a high-level overview of the project, our
+ - [`doc`](doc): The QUiPP report - a high-level overview of the project, our
    work and the methods we have considered so far.
 
- - `examples`: Tutorial examples of using some of the methods
+ - [`examples`](examples): Tutorial examples of using some of the methods
    (_currently just CTGAN_).  These are independent of the pipeline.
 
- - `binder`: Configuration files to set up the pipeline using
+ - [`binder`](binder): Configuration files to set up the pipeline using
    [Binder](https://mybinder.org)
  
- - `env-configuration`: Set-up of the computational environment needed
+ - [`env-configuration`](env-configuration): Set-up of the computational environment needed
    by the pipeline and its dependencies
  
- - `generators`: Quickly generating input data for the pipeline from a
+ - [`generators`](generators): Quickly generating input data for the pipeline from a
    few tunable and well-understood models
 
- - `datasets`: A few (public, open) datasets that we use as input to
+ - [`datasets`](datasets): A few (public, open) datasets that we use as input to
    the methods are reproduced here where licence and size permit
 
- - `synth-methods`: One directory per library/tool, each of them
+ - [`synth-methods`](synth-methods): One directory per library/tool, each of them
    implementing a complete synthesis method
 
- - `utility-metrics`: Scripts relating to computing the utility
+ - [`utility-metrics`](utility-metrics): Scripts relating to computing the utility
    metrics
  
- - `privacy-metrics`: Scripts relating to computing the privacy
+ - [`privacy-metrics`](privacy-metrics): Scripts relating to computing the privacy
    metrics
 
- - `run-inputs`: Parameter json files (see below), one for each run
+ - [`run-inputs`](run-inputs): Parameter json files (see below), one for each run
 
 When the pipeline is run, additional directories are created:
 
