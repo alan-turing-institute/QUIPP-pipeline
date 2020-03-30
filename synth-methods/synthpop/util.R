@@ -11,7 +11,7 @@ read_data <- function(dataset_name){
     
   } else if (dataset_name == "CensusUK2011"){
     # ONS Census 2011 teaching file
-    data_full <- read.csv("../../datasets/rft-teaching-file/2011 Census Microdata Teaching File.csv",
+    data_full <- read.csv("../../datasets-raw/rft-teaching-file/2011 Census Microdata Teaching File.csv",
                           header=TRUE, skip=1)
     
   } else stop("Unknown datsaset")
