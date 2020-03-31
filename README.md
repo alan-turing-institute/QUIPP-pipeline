@@ -289,7 +289,7 @@ The parameter JSON file must include the following names:
     - `num_samples_intruder` (_integer_): how many records
       corresponding to the original dataset exist in a dataset visible
       to an attacker.
-      - `vars_intruder` (_array_):
+    - `vars_intruder` (_array_):
       - items (_string_): names of the columns that are available in
         the attacker-visible dataset.
  - `parameters_sklearn_utility` (_object_): parameters needed to
@@ -298,13 +298,13 @@ The parameter JSON file must include the following names:
     - `input_columns` (_array_):
       - items (_string_): names of the columns to use as the
         explanatory variables for the classification
-      - `label_column` (_string_): the column to use for the category
-        labels
-      - `test_train_ratio` (_number_): fraction of records to use in
-        the test set for the classification
-      - `num_leaked_rows` (_integer_): the number of additional
-        records from the original dataset with which to augment the
-        synthetic data set before training the classifiers. This is
-        primarily an option to enable testing of the utility metric
-        (i.e. the more rows we leak, the better the utility should
-        become). It should be set to 0 during normal synthesis tasks.
+    - `label_column` (_string_): the column to use for the category
+       labels
+    - `test_train_ratio` (_number_): fraction of records to use in
+       the test set for the classification
+    - `num_leaked_rows` (_integer_): the number of additional records
+       from the original dataset with which to augment the synthetic
+       data set before training the classifiers. This is primarily an
+       option to enable testing of the utility metric (i.e. the more
+       rows we leak, the better the utility should become). It should
+       be set to 0 during normal synthesis tasks.
