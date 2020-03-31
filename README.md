@@ -54,7 +54,7 @@ More detail on setting this up can be found
   - gcc 9.3
   - bash 3.2
 - It depends on the following libraries/tools:
-  - Python: [numpy](https://pypi.org/project/numpy/), [pandas](https://pypi.org/project/pandas/), [scikit-learn](https://pypi.org/project/scikit-learn/), [scipy](https://pypi.org/project/scipy/), [ctgan](https://pypi.org/project/ctgan/), [sdv](https://pypi.org/project/sdv/), [simanneal](https://pypi.org/project/simanneal/)
+  - Python: [numpy](https://pypi.org/project/numpy/), [pandas](https://pypi.org/project/pandas/), [scikit-learn](https://pypi.org/project/scikit-learn/), [scipy](https://pypi.org/project/scipy/), [ctgan](https://pypi.org/project/ctgan/), [SDV](https://pypi.org/project/sdv/), [simanneal](https://pypi.org/project/simanneal/)
   - R: [simPop](https://CRAN.R-project.org/package=simPop), [synthpop](https://CRAN.R-project.org/package=synthpop), [mice](https://CRAN.R-project.org/package=mice), [dplyr](https://CRAN.R-project.org/package=dplyr), [magrittr](https://CRAN.R-project.org/package=magrittr), [tidyr](https://CRAN.R-project.org/package=tidyr)
   - [SGF](https://vbinds.ch/node/69) (Synthetic Data Generation Framework)
 
