@@ -264,3 +264,47 @@ The following example is in [`run-inputs/synthpop-example-2.json`](run-inputs/sy
     }
 }
 ```
+
+### Schema
+
+The JSON schema for the parameter json file is [here](doc/schema/parameters.schema.json).
+
+#### Description
+
+The parameter JSON file must include the following names:
+
+ - `enabled` (_boolean_): Run this example?
+ - `dataset` (_string_): The prefix of the dataset (.csv and .json are
+   appended to get the paths of the data files)
+ - `synth-method` (_string_): The synthesis method used by the run.
+   It must correspond to a subdirectory of `synth-methods`.
+ - `parameters` (_object_): The parameters passed to the synthesis
+   method.  The contents of this object will depend on the
+   `synth-method` used: the contents of this object are documented
+   separately for each.
+    - ...
+ - `parameters_disclosure_risk` (_object_): parameters needed to
+   compute the disclosure risk privacy score
+    - `enabled` (_boolean_): compute this score?
+    - `num_samples_intruder` (_integer_): how many records
+      corresponding to the original dataset exist in a dataset visible
+      to an attacker.
+      - `vars_intruder` (_array_):
+      - items (_string_): names of the columns that are available in
+        the attacker-visible dataset.
+ - `parameters_sklearn_utility` (_object_): parameters needed to
+   compute the classification utility scores with scikit learn:
+    - `enabled` (_boolean_): compute this score?
+    - `input_columns` (_array_):
+      - items (_string_): names of the columns to use as the
+        explanatory variables for the classification
+      - `label_column` (_string_): the column to use for the category
+        labels
+      - `test_train_ratio` (_number_): fraction of records to use in
+        the test set for the classification
+      - `num_leaked_rows` (_integer_): the number of additional
+        records from the original dataset with which to augment the
+        synthetic data set before training the classifiers. This is
+        primarily an option to enable testing of the utility metric
+        (i.e. the more rows we leak, the better the utility should
+        become). It should be set to 0 during normal synthesis tasks.
