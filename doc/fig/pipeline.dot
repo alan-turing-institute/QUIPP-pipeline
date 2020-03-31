@@ -10,7 +10,7 @@ digraph pipeline {
     privacy_metrics [shape=box, label="privacy-metrics/*"]
     utility_metrics [shape=box, label="utility-metrics/*"]
     privacy_score [shape=cylinder, label=<synth-output/<i>example</i>/disclosure_risk.json<br/>...>]
-    utility_score [shape=cylinder, label=<synth-output/<i>example</i>/sklearn_classifiers .json<br/>...>]
+    utility_score [shape=cylinder, label=<synth-output/<i>example</i>/sklearn_classifiers.json<br/>...>]
 
     {rank="source"; run_inputs}
     {rank="same"; run_inputs, dataset}
