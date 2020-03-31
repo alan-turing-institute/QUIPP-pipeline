@@ -11,9 +11,9 @@ def simpleworld_example():
 
     this_directory = os.path.dirname(os.path.abspath(__file__))
 
-    ind = pd.read_csv(os.path.join(this_directory, "..", "..", "datasets", "SimpleWorld", "ind-full.csv"))
-    age = pd.read_csv(os.path.join(this_directory, "..", "..", "datasets", "SimpleWorld", "age.csv"))
-    sex = pd.read_csv(os.path.join(this_directory, "..", "..", "datasets", "SimpleWorld", "sex.csv"))
+    ind = pd.read_csv(os.path.join(this_directory, "..", "..", "datasets-raw", "SimpleWorld", "ind-full.csv"))
+    age = pd.read_csv(os.path.join(this_directory, "..", "..", "datasets-raw", "SimpleWorld", "age.csv"))
+    sex = pd.read_csv(os.path.join(this_directory, "..", "..", "datasets-raw", "SimpleWorld", "sex.csv"))
 
     age_conditions = [ind["age"] < 50, ind["age"] >= 50]
     sex_conditions = [ind["sex"] == "m", ind["sex"] == "f"]
