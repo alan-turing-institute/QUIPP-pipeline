@@ -5,7 +5,7 @@ Privacy preserving synthetic data generation workflows
 
 _Collaboration and project management is in the
 [QUIPP-collab](https://github.com/alan-turing-institute/QUIPP-collab)
-repo (which is currently private)._
+repo._
 
 The QUiPP (Quantifying Utility and Preserving Privacy) project aims to
 produce a framework to facilitate the creation of synthetic population
