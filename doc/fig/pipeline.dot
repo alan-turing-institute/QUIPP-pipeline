@@ -7,10 +7,10 @@ digraph pipeline {
     synth_method [shape=box, label=<synth-methods/<i>synth-method</i>/run>]
     run_inputs [shape=parallelogram, label=<run-inputs/<i>example</i>.json>, width=3.5, fixedsize=TRUE]
     synth_data [shape=cylinder, label=<synth-output/<i>example</i>/synthetic_data_*.csv>]
-    privacy_metrics [shape=box, label="utility-metrics/*"]
-    utility_metrics [shape=box, label="privacy-metrics/*"]
+    privacy_metrics [shape=box, label="privacy-metrics/*"]
+    utility_metrics [shape=box, label="utility-metrics/*"]
     privacy_score [shape=cylinder, label=<synth-output/<i>example</i>/disclosure_risk.json<br/>...>]
-    utility_score [shape=cylinder, label=<synth-output/<i>example</i>/sklearn_classifiers.json<br/>...>]
+    utility_score [shape=cylinder, label=<synth-output/<i>example</i>/sklearn_classifiers .json<br/>...>]
 
     {rank="source"; run_inputs}
     {rank="same"; run_inputs, dataset}
