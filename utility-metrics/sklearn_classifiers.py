@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: UTF-8 -*-
 
 """
 Utility metrics using scikit-learn library.
@@ -236,7 +235,7 @@ def main():
     input_columns = sklearn_utility_parameters["input_columns"]
     label_column = sklearn_utility_parameters["label_column"]
     test_train_ratio = sklearn_utility_parameters["test_train_ratio"]
-    output_file_json = path_released_ds + "/utility_metric_sklearn.json"
+    output_file_json = path_released_ds + "/sklearn_classifiers.json"
     num_leaked_rows = sklearn_utility_parameters["num_leaked_rows"]
     seed = synth_params['parameters']['random_state']
 

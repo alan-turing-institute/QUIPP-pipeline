@@ -229,7 +229,7 @@ def main():
     metrics = {'EMRi': EMRi, 'TMRi': TMRi, 'TMRa': TMRa, 'EMRi_norm': EMRi_norm, 'TMRi_norm': TMRi_norm}
     print(f"\nDisclosure risk metrics: {metrics}")
 
-    with open(path_released_ds + "/privacy_metric_disclosure_risk.json", 'w') as f:
+    with open(path_released_ds + "/disclosure_risk.json", 'w') as f:
         json.dump(metrics, f)
 
 if __name__=='__main__':

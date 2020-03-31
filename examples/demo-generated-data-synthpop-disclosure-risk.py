@@ -68,11 +68,11 @@ def main():
 
     for f in [os.path.splitext(name)[0] for name in f_list]:
 
-        with open(os.path.join(synth_path, f, "privacy_metric_disclosure_risk.json")) as privacy_file:
+        with open(os.path.join(synth_path, f, "disclosure_risk.json")) as privacy_file:
             privacy_dict = json.load(privacy_file)
         privacy_scores.append(privacy_dict["EMRi_norm"])
 
-        with open(os.path.join(synth_path, f, "utility_metric_sklearn.json")) as utility_file:
+        with open(os.path.join(synth_path, f, "sklearn_classifiers.json")) as utility_file:
             utility_dict = json.load(utility_file)
             print(utility_file)
         utility_scores.append(utility_dict["Overall"]["f1_diff"])

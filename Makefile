@@ -12,9 +12,9 @@ SYNTH_OUTPUTS_PREFIX = $(addprefix synth-output/,$(RUN_INPUTS_BASE_PREFIX))
 SYNTH_OUTPUTS_CSV = $(addsuffix /synthetic_data_1.csv,$(SYNTH_OUTPUTS_PREFIX))
 
 ## The privacy and utility scores: 
-SYNTH_OUTPUTS_DISCL_RISK = $(addsuffix /privacy_metric_disclosure_risk.json,$(SYNTH_OUTPUTS_PREFIX))
+SYNTH_OUTPUTS_DISCL_RISK = $(addsuffix /disclosure_risk.json,$(SYNTH_OUTPUTS_PREFIX))
 
-SYNTH_OUTPUTS_UTIL_SKLEARN = $(addsuffix /utility_metric_sklearn.json,$(SYNTH_OUTPUTS_PREFIX))
+SYNTH_OUTPUTS_UTIL_SKLEARN = $(addsuffix /sklearn_classifiers.json,$(SYNTH_OUTPUTS_PREFIX))
 
 .PHONY: all all-synthetic generated-data clean
 
@@ -63,12 +63,12 @@ synth-output/%/synthetic_data_1.csv : run-inputs/%.json $(AE_DEIDENTIFIED_DATA)
 ## ----------------------------------------
 ## Privacy and utility metrics
 $(SYNTH_OUTPUTS_DISCL_RISK) : \
-synth-output/%/privacy_metric_disclosure_risk.json : \
+synth-output/%/disclosure_risk.json : \
 run-inputs/%.json synth-output/%/synthetic_data_1.csv
 	python privacy-metrics/disclosure_risk.py -i $< -o $$(dirname $@)
 
 $(SYNTH_OUTPUTS_UTIL_SKLEARN) : \
-synth-output/%/utility_metric_sklearn.json : \
+synth-output/%/sklearn_classifiers.json : \
 run-inputs/%.json synth-output/%/synthetic_data_1.csv
 	python utility-metrics/sklearn_classifiers.py -i $< -o $$(dirname $@)
 
