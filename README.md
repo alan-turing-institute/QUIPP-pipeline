@@ -135,7 +135,7 @@ When the pipeline is run, additional directories are created:
    [`generators`](generators/))
    
  - `synth-output`: Contains the result of each run (as specified in
-   `run-inputs`), which will typically consist of the synthetic data
+   [`run-inputs`](run-inputs/)), which will typically consist of the synthetic data
    itself and a selection of utility and privacy scores
 
 ## The pipeline
@@ -156,7 +156,7 @@ The files `dataset.csv` and `dataset.json` could be in a subdirectory of
 
 ## Running the pipeline
 
-1. Make a parameter json file, in `run-inputs/`, for each desired
+1. Make a parameter json file, in [`run-inputs/`](run-inputs/), for each desired
    synthesis (see below for the structure of these files).
 
 2. Run `make` in the top level QUIPP-pipeline directory to run all
@@ -175,7 +175,7 @@ The files `dataset.csv` and `dataset.json` could be in a subdirectory of
 
 ## Adding another synthesis method
 
-1. Make a subdirectory in `synth-methods` having the name of the new
+1. Make a subdirectory in [`synth-methods`](synth-methods) having the name of the new
    method.
 
 2. This directory should contain an executable file `run` that when
@@ -189,7 +189,7 @@ The files `dataset.csv` and `dataset.json` could be in a subdirectory of
    `$dataset_base.{csv,json}` (see data format, below), and puts its
    output files in the directory `$outfile_prefix`.
 
-3. In the parameter json file (e.g. in `run-inputs`), the method can
+3. In the parameter JSON file (a JSON file in [`run-inputs`](run-inputs)), the method can
    be used as the value of the `"synth-method"` name.
 
 
@@ -214,7 +214,7 @@ The prefix of the data files (as an absolute path, or relative to the
 root of the repository) is given in the parameter json file (see the
 next section) as the top-level property `dataset`: there is no
 restriction on where these can be located, although a few examples can
-be found in `datasets/`.
+be found in [`datasets/`](datasets/).
 
 ## Parameter file format
 
