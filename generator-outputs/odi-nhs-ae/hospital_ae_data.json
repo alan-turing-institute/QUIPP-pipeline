@@ -1,0 +1,42 @@
+{
+    "columns": [
+        {
+            "name": "Health Service ID",
+            "type": "String"
+        },
+        {
+            "name": "Time in A&E (mins)",
+            "type": "DiscreteNumerical"
+        },
+        {
+            "name": "Hospital",
+            "type": "Categorical"
+        },
+        {
+            "name": "Arrival Time",
+            "type": "DateTime"
+        },
+        {
+            "name": "Treatment",
+            "type": "Categorical"
+        },
+        {
+            "name": "Gender",
+            "type": "Categorical"
+        },
+        {
+            "name": "Postcode",
+            "type": "Categorical"
+        }
+    ],
+    "provenance": {
+        "commit": "4d17d53",
+        "local_modifications": false,
+        "parameters": {
+            "num_rows": 10000,
+            "postcodes": "data/London postcodes.csv",
+            "seed": 1234
+        },
+        "script": "/Users/ostrickson/projects/QUIPP-pipeline/generators/odi-nhs-ae/generate.py"
+    }
+}

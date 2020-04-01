@@ -1,0 +1,45 @@
+{
+    "columns": [
+        {
+            "name": "Time in A&E (mins)",
+            "type": "DiscreteNumerical"
+        },
+        {
+            "name": "Treatment",
+            "type": "Categorical"
+        },
+        {
+            "name": "Gender",
+            "type": "Categorical"
+        },
+        {
+            "name": "Index of Multiple Deprivation Decile",
+            "type": "DiscreteNumerical"
+        },
+        {
+            "name": "Hospital ID",
+            "type": "Categorical"
+        },
+        {
+            "name": "Arrival Date",
+            "type": "DateTime"
+        },
+        {
+            "name": "Arrival hour range",
+            "type": "Ordinal"
+        },
+        {
+            "name": "Age bracket",
+            "type": "Ordinal"
+        }
+    ],
+    "provenance": {
+        "commit": "4d17d53",
+        "local_modifications": false,
+        "parameters": {
+            "input_file": "../../generator-outputs/odi-nhs-ae/hospital_ae_data",
+            "postcodes": "data/London postcodes.csv"
+        },
+        "script": "/Users/ostrickson/projects/QUIPP-pipeline/generators/odi-nhs-ae/deidentify.py"
+    }
+}
