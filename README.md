@@ -30,7 +30,7 @@ generation, using a variety of methods as implemented by several
 libraries.  In addition, the pipeline emits measures of privacy and
 utility of the resulting data.
 
-The current draft QUiPP report can be found in `doc`, with a pdf
+The current draft QUiPP report can be found in [`doc`](doc/), with a pdf
 available
 [here](https://github.com/alan-turing-institute/QUIPP-pipeline/releases).
 
@@ -277,7 +277,7 @@ The parameter JSON file must include the following names:
  - `dataset` (_string_): The prefix of the dataset (.csv and .json are
    appended to get the paths of the data files)
  - `synth-method` (_string_): The synthesis method used by the run.
-   It must correspond to a subdirectory of `synth-methods`.
+   It must correspond to a subdirectory of [`synth-methods`](synth-methods/).
  - `parameters` (_object_): The parameters passed to the synthesis
    method.  The contents of this object will depend on the
    `synth-method` used: the contents of this object are documented
