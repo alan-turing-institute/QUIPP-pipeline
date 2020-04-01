@@ -6,7 +6,7 @@ pipeline: see [Adding another synthesis
 method](../README.md#adding-another-synthesis-method) for the
 requirements on this.
 
- - [ctgan](https://pypi.org/project/ctgan/) (Conditional GAN for Tabular data)
+ - [CTGAN](https://pypi.org/project/ctgan/) (Conditional GAN for Tabular data)
  - [SGF](https://vbinds.ch/node/69) (Synthetic Data Generation Framework)
  - [synthpop](https://CRAN.R-project.org/package=synthpop) (multiple imputations library in R)
  
