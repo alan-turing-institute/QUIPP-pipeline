@@ -201,7 +201,7 @@ The input data should be present as two files with the same prefix: a
 itself), and a [json file](doc/schema/) (the "data json file")
 describing the types of the columns used for synthesis.
 
-For example, see [the Polish dataset](datasets/polish_data_2011/).
+For example, see [the Polish Social Diagnosis dataset](datasets/polish_data_2011/).
 This contains the files
 
  - `datasets/polish_data_2011/polish_data_2011.csv`
