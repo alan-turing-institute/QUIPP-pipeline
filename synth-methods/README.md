@@ -10,7 +10,7 @@ requirements on this.
  - [SGF](https://vbinds.ch/node/69) (Synthetic Data Generation Framework)
  - [synthpop](https://CRAN.R-project.org/package=synthpop) (multiple imputations library in R)
  
-In addition, there are placeholders and worked examples for other methods
+In addition, there are placeholders and worked examples for other methods:
  - Base: a synthesizer Python base class
  - [mice](https://CRAN.R-project.org/package=mice)
  - [SDV](https://pypi.org/project/sdv/) (Synthetic Data Vault,
