@@ -132,7 +132,7 @@ The top-level directory structure mirrors the data pipeline.
 When the pipeline is run, additional directories are created:
 
  - `generator-outputs`: Sample generated input data (using
-   `generators`)
+   [`generators`](generators/))
    
  - `synth-output`: Contains the result of each run (as specified in
    `run-inputs`), which will typically consist of the synthetic data
