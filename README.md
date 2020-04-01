@@ -291,6 +291,9 @@ The parameter JSON file must include the following names:
     pass a value of `-1`.
   - `num_datasets_to_synthesize` (_integer_): How many entire synthetic datasets should
     be produced?
+  - `random_seed` (_integer_): the seed for the random number generator (most methods
+    require a PRNG: the seed can be explicitly passed to aid with the testability and
+    reproducibility of the synthetic output)
 - `parameters_disclosure_risk` (_object_): parameters needed to
   compute the disclosure risk privacy score
   - `enabled` (_boolean_): compute this score?
