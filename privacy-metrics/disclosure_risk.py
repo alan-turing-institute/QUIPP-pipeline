@@ -230,7 +230,7 @@ def main():
     print(f"\nDisclosure risk metrics: {metrics}")
 
     with open(path_released_ds + "/disclosure_risk.json", 'w') as f:
-        json.dump(metrics, f)
+        json.dump(metrics, f, indent=4)
 
 if __name__=='__main__':
     main()
