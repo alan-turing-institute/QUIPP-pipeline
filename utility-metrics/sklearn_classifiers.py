@@ -186,7 +186,7 @@ def utility_measure_sklearn_classifiers(synth_method, path_original_ds, path_ori
     for iw in warns: print(iw.message)
 
     with open(output_file_json, "w") as out_fio:
-        json.dump(utility_collector, out_fio)
+        json.dump(utility_collector, out_fio, indent=4)
 
 
 def handle_cmdline_args():
