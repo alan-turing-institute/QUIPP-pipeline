@@ -11,3 +11,10 @@ Reference:
   year={2019}
 }
 ```
+
+## Additional synthesis parameters
+
+`num_epochs` (_integer_): number of training epochs the CTGAN model will perform
+
+### Example
+[ctgan-example-0.json](../../run-inputs/ctgan-example-0.json)
