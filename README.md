@@ -294,6 +294,9 @@ The parameter JSON file must include the following names:
   - `random_seed` (_integer_): the seed for the random number generator (most methods
     require a PRNG: the seed can be explicitly passed to aid with the testability and
     reproducibility of the synthetic output)
+  - Additional options for [CTGAN](synth-methods/CTGAN/README.md#additional-synthesis-parameters),
+    [SGF](synth-methods/sgf/README.md#additional-synthesis-parameters) and
+    [synthpop](synth-methods/synthpop/README.md#additional-synthesis-parameters)
 - `parameters_disclosure_risk` (_object_): parameters needed to
   compute the disclosure risk privacy score
   - `enabled` (_boolean_): compute this score?
