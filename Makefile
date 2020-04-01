@@ -16,7 +16,7 @@ SYNTH_OUTPUTS_DISCL_RISK = $(addsuffix /disclosure_risk.json,$(SYNTH_OUTPUTS_PRE
 
 SYNTH_OUTPUTS_UTIL_SKLEARN = $(addsuffix /sklearn_classifiers.json,$(SYNTH_OUTPUTS_PREFIX))
 
-.PHONY: all all-synthetic generated-data clean
+.PHONY: all all-synthetic clean
 
 all: $(SYNTH_OUTPUTS_DISCL_RISK) $(SYNTH_OUTPUTS_UTIL_SKLEARN)
 
@@ -25,29 +25,29 @@ all-synthetic: $(SYNTH_OUTPUTS_CSV)
 ## ----------------------------------------
 ## Generated data
 
-AE_DEIDENTIFIED_DATA = generator-outputs/odi-nhs-ae/hospital_ae_data_deidentify.csv generator-outputs/odi-nhs-ae/hospital_ae_data_deidentify.json
+#AE_DEIDENTIFIED_DATA = generator-outputs/odi-nhs-ae/hospital_ae_data_deidentify.csv generator-outputs/odi-nhs-ae/hospital_ae_data_deidentify.json
 
-LONDON_POSTCODES = generators/odi-nhs-ae/data/London\ postcodes.csv
+#LONDON_POSTCODES = generators/odi-nhs-ae/data/London\ postcodes.csv
 
-generated-data: $(AE_DEIDENTIFIED_DATA)
+#generated-data: $(AE_DEIDENTIFIED_DATA)
 
 # Download the London Postcodes dataset used by the A&E generated
 # dataset (this is about 133 MB)
-$(LONDON_POSTCODES):
-	cd generators/odi-nhs-ae/ && \
-	curl -o "./data/London postcodes.csv" \
-		https://www.doogal.co.uk/UKPostcodesCSV.ashx?region=E12000007
+#$(LONDON_POSTCODES):
+#	cd generators/odi-nhs-ae/ && \
+#	curl -o "./data/London postcodes.csv" \
+#		https://www.doogal.co.uk/UKPostcodesCSV.ashx?region=E12000007
 
 # Make the "A&E deidentified" generated dataset
 #
 # This is currently the only generated dataset, so it is handled with
 # its own rule
 #
-$(AE_DEIDENTIFIED_DATA) &: $(LONDON_POSTCODES)
-	mkdir -p generator-outputs/odi-nhs-ae/ && \
-	cd generator-outputs/odi-nhs-ae/ && \
-	$(PYTHON) $(QUIPP_ROOT)/generators/odi-nhs-ae/generate.py && \
-	$(PYTHON) $(QUIPP_ROOT)/generators/odi-nhs-ae/deidentify.py
+#$(AE_DEIDENTIFIED_DATA) &: $(LONDON_POSTCODES)
+#	mkdir -p generator-outputs/odi-nhs-ae/ && \
+#	cd generator-outputs/odi-nhs-ae/ && \
+#	$(PYTHON) $(QUIPP_ROOT)/generators/odi-nhs-ae/generate.py && \
+#	$(PYTHON) $(QUIPP_ROOT)/generators/odi-nhs-ae/deidentify.py
 
 
 ## ----------------------------------------
@@ -55,7 +55,7 @@ $(AE_DEIDENTIFIED_DATA) &: $(LONDON_POSTCODES)
 
 ## This rule also builds "synth-output/%/data_description.json"
 $(SYNTH_OUTPUTS_CSV) : \
-synth-output/%/synthetic_data_1.csv : run-inputs/%.json $(AE_DEIDENTIFIED_DATA)
+synth-output/%/synthetic_data_1.csv : run-inputs/%.json
 	mkdir -p $$(dirname $@) && \
 	python synthesize.py -i $< -o $$(dirname $@)
 
@@ -77,4 +77,4 @@ run-inputs/%.json synth-output/%/synthetic_data_1.csv
 ## Clean
 
 clean:
-	rm -rf generator-outputs synth-output
+	rm -rf synth-output

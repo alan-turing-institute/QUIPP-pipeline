@@ -1,6 +1,6 @@
 {
-    "enabled" : false,
-    "dataset" : "datasets/polish_data_2011/polish_data_2011",
+    "enabled" : true,
+    "dataset" : "generator-outputs/odi-nhs-ae/hospital_ae_data_deidentify",
     "synth-method" : "synthpop",
     "parameters":
     {
@@ -9,8 +9,8 @@
         "num_samples_to_synthesize": -1,
         "num_datasets_to_synthesize": 5,
         "random_state": 12345,
-        "vars_sequence": [12,4,9,13,1,2],
-        "synthesis_methods": ["cart", "cart", "", "cart", "", "", "", "", "cart", "", "", "sample", "cart"],
+        "vars_sequence": [5,1,2,3,4,6,7,8],
+        "synthesis_methods": ["sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample"],
         "proper": false,
         "tree_minbucket": 5,
         "smoothing": {}
@@ -19,13 +19,13 @@
     {
         "enabled": true,
         "num_samples_intruder": 1000,
-        "vars_intruder": ["sex", "edu", "marital", "ls", "smoke", "wkabint"]
+        "vars_intruder": ["Time in A&E (mins)", "Arrival hour range", "Gender", "Age bracket", "Arrival Date", "Index of Multiple Deprivation Decile"]
     },
     "parameters_sklearn_utility":
     {
         "enabled": true,
-        "input_columns": ["sex", "age", "edu", "marital", "sport", "ls", "smoke"],
-        "label_column": "wkabint",
+        "input_columns": ["Time in A&E (mins)"],
+        "label_column": "Age bracket",
         "test_train_ratio": 0.3,
         "num_leaked_rows": 0
     }
