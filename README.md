@@ -1,4 +1,4 @@
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/alan-turing-institute/QUIPP-pipeline/develop)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/alan-turing-institute/QUIPP-pipeline/cw20-demo)
 
 # QUIPP-pipeline
 Privacy preserving synthetic data generation workflows
