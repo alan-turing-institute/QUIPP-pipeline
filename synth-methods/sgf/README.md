@@ -20,7 +20,7 @@ More detail about these inputs can be found in the SGF documentation.
 - `epsilon0` (_number_): Differential privacy parameter
 - `tinc` (_integer_):  Steps size to create for trade-off curve (between 1 and k - 1).
 
-For more detail in the parameters refer to the README.pdf file found in the SGF package. 
+For more detail in the parameters please refer to the README.pdf file found in the SGF package. 
 
 ### Example
 [sgf-example-1.json](../../run-inputs/sgf-example-1.json)
