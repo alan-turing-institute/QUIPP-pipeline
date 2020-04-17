@@ -10,33 +10,10 @@ jobs:
 
     runs-on: ubuntu-latest
     container:
-      image: datascienceschool/rpython
+      image: turinginst/quipp-env
 
     steps:
     - uses: actions/checkout@v1
-    - name: Install Python dependencies
-      run: |
-        python --version
-        pip install ctgan
-        apt-get install build-essential
-        apt-get install wget
-        wget https://github.com/Kitware/CMake/releases/download/v3.17.0/cmake-3.17.0.tar.gz
-        tar xf cmake-3.17.0.tar.gz
-        cd cmake-3.17.0
-        ./bootstrap && make && sudo make install
-        cd ..
-        curl -O -k https://vbinds.ch/sites/default/files/Artifacts/sgf-0.10a.tgz
-        tar xf sgf-0.10a.tgz
-        rm sgf-0.10a.tgz
-        cd sgf
-        mkdir bin
-        cd bin
-        cmake ../source
-        make
-        export SGFROOT=$(pwd)
-        cd ../../
-    - name: Install R dependencies
-      run: Rscript -e "install.packages(c('testthat', 'synthpop'))" 
     - name: Run pipeline
       run: |-
         make
