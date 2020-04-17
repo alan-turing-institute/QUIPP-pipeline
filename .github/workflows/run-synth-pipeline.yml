@@ -7,7 +7,7 @@ jobs:
 
     runs-on: ubuntu-latest
     container:
-      image: turinginst/quipp-env
+      image: turinginst/quipp-env:latest
 
     steps:
     - uses: actions/checkout@v1
