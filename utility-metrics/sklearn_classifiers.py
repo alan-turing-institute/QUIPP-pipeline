@@ -116,6 +116,23 @@ def utility_measure_sklearn_classifiers(synth_method, path_original_ds, path_ori
             # Append classifier to preprocessing pipeline.
             clf_orig = Pipeline(steps=[('preprocessor', preprocessor),
                                        ('classifier', one_clf(**classifiers[one_clf]))])
+            
+            ### # XXX For automatic fin-tuning:
+            ### # if clf is SVC:
+            ### from sklearn.model_selection import GridSearchCV
+            ### parameters = {'classifier__C':[0.025, 0.05, 0.1, 0.5, 1], "classifier__kernel": ("linear", "rbf")}
+            ### aa = GridSearchCV(clf_orig, parameters, scoring="f1_macro", n_jobs=-1)
+            ### aa.fit(X_train_o, y_train_o)
+
+            ### XXX
+            ### # To report the results:
+            ### from sklearn.metrics import classification_report
+            ### classification_report(y_test_pred_o_o, y_test_o, output_dict=True)
+
+            ### from sklearn.metrics import confusion_matrix
+            ### confusion_matrix(y_test_pred_o_o, y_test_o)
+            ### confusion_matrix(y_test_pred_r_o, y_test_o)
+
 
             clf_orig.fit(X_train_o, y_train_o)
             # o ---> o
