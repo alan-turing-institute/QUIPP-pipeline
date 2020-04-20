@@ -55,7 +55,11 @@ def utility_measure_sklearn_classifiers(synth_method, path_original_ds, path_ori
     # Read original and released/synthetic datasets
     # NOTE: Only the first synthetic data set is used for utility evaluation
     orig_df = pd.read_csv(path_original_ds)
+    # XXX this should be a flag, fill all NaNs
+    orig_df.fillna(orig_df.median(), inplace=True)
     rlsd_df = pd.read_csv(path_released_ds + "/synthetic_data_1.csv")
+    # XXX this should be a flag, fill all NaNs
+    rlsd_df.fillna(rlsd_df.median(), inplace=True)
     if num_leaked_rows > 0:
         rlsd_df[:num_leaked_rows] = orig_df[:num_leaked_rows]
 
@@ -125,7 +129,6 @@ def utility_measure_sklearn_classifiers(synth_method, path_original_ds, path_ori
             y_test_pred_r_o = clf_rlsd.predict(X_test_o)
             # r ---> r
             y_test_pred_r_r = clf_rlsd.predict(X_test_r)
-
 
             clf_name = one_clf.__name__
             utility_collector[clf_name] = \
