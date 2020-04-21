@@ -29,7 +29,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
-
+from sklearn.model_selection import GridSearchCV
 
 def utility_measure_sklearn_classifiers(synth_method, path_original_ds, path_original_meta, path_released_ds,
                                         input_columns, label_column, test_train_ratio, classifiers,
@@ -114,33 +114,42 @@ def utility_measure_sklearn_classifiers(synth_method, path_original_ds, path_ori
         with warnings.catch_warnings(record=True) as warns:
             # original dataset
             # Append classifier to preprocessing pipeline.
-            clf_orig = Pipeline(steps=[('preprocessor', preprocessor),
-                                       ('classifier', one_clf(**classifiers[one_clf]))])
-            
-            ### # XXX For automatic fin-tuning:
-            ### # if clf is SVC:
-            ### from sklearn.model_selection import GridSearchCV
-            ### parameters = {'classifier__C':[0.025, 0.05, 0.1, 0.5, 1], "classifier__kernel": ("linear", "rbf")}
-            ### aa = GridSearchCV(clf_orig, parameters, scoring="f1_macro", n_jobs=-1)
-            ### aa.fit(X_train_o, y_train_o)
+            if classifiers[one_clf]["mode"] == "main":
+                parameters = classifiers[one_clf]["params_main"]
+                clf_orig = Pipeline(steps=[('preprocessor', preprocessor),
+                                           ('classifier', one_clf(**parameters))])
+            else:
+                parameters = classifiers[one_clf]["params_range"]
+                clf_orig = Pipeline(steps=[('preprocessor', preprocessor),
+                                           ('classifier', one_clf())])
+                clf_orig = GridSearchCV(clf_orig, parameters, scoring="f1_macro", n_jobs=-1)
+
 
             ### XXX
             ### # To report the results:
-            ### from sklearn.metrics import classification_report
-            ### classification_report(y_test_pred_o_o, y_test_o, output_dict=True)
+            #from sklearn.metrics import classification_report
+            #classification_report(y_test_pred_o_o, y_test_o, output_dict=True)
 
-            ### from sklearn.metrics import confusion_matrix
-            ### confusion_matrix(y_test_pred_o_o, y_test_o)
-            ### confusion_matrix(y_test_pred_r_o, y_test_o)
+            #from sklearn.metrics import confusion_matrix
+            #confusion_matrix(y_test_pred_o_o, y_test_o)
+            #confusion_matrix(y_test_pred_r_o, y_test_o)
 
 
             clf_orig.fit(X_train_o, y_train_o)
+
             # o ---> o
             y_test_pred_o_o = clf_orig.predict(X_test_o)
 
             # released dataset
-            clf_rlsd = Pipeline(steps=[('preprocessor', preprocessor),
-                                       ('classifier', one_clf(**classifiers[one_clf]))])
+            if classifiers[one_clf]["mode"] == "main":
+                clf_rlsd = Pipeline(steps=[('preprocessor', preprocessor),
+                                           ('classifier', one_clf(**parameters))])
+            else:
+                parameters_rlsd = {k.split("classifier__")[1]: v for k, v in clf_orig.best_params_.items()}
+                clf_rlsd = Pipeline(steps=[('preprocessor', preprocessor),
+                                           ('classifier', one_clf(**parameters_rlsd))])
+
+
             clf_rlsd.fit(X_train_r, y_train_r)
             # r ---> o
             y_test_pred_r_o = clf_rlsd.predict(X_test_o)
@@ -151,22 +160,22 @@ def utility_measure_sklearn_classifiers(synth_method, path_original_ds, path_ori
             utility_collector[clf_name] = \
                 {
                     "accu_o_o": accuracy_score(y_test_pred_o_o, y_test_o) * 100.,
-                    "prec_o_o": precision_score(y_test_pred_o_o, y_test_o, average='weighted',
+                    "prec_o_o": precision_score(y_test_pred_o_o, y_test_o, average='macro',
                                                 zero_division=True) * 100.,
-                    "reca_o_o": recall_score(y_test_pred_o_o, y_test_o, average='weighted', zero_division=True) * 100.,
-                    "f1_o_o": f1_score(y_test_pred_o_o, y_test_o, average='weighted', zero_division=True) * 100.,
+                    "reca_o_o": recall_score(y_test_pred_o_o, y_test_o, average='macro', zero_division=True) * 100.,
+                    "f1_o_o": f1_score(y_test_pred_o_o, y_test_o, average='macro', zero_division=True) * 100.,
 
                     "accu_r_o": accuracy_score(y_test_pred_r_o, y_test_o) * 100.,
-                    "prec_r_o": precision_score(y_test_pred_r_o, y_test_o, average='weighted',
+                    "prec_r_o": precision_score(y_test_pred_r_o, y_test_o, average='macro',
                                                 zero_division=True) * 100.,
-                    "reca_r_o": recall_score(y_test_pred_r_o, y_test_o, average='weighted', zero_division=True) * 100.,
-                    "f1_r_o": f1_score(y_test_pred_r_o, y_test_o, average='weighted', zero_division=True) * 100.,
+                    "reca_r_o": recall_score(y_test_pred_r_o, y_test_o, average='macro', zero_division=True) * 100.,
+                    "f1_r_o": f1_score(y_test_pred_r_o, y_test_o, average='macro', zero_division=True) * 100.,
 
                     "accu_r_r": accuracy_score(y_test_pred_r_r, y_test_r) * 100.,
-                    "prec_r_r": precision_score(y_test_pred_r_r, y_test_r, average='weighted',
+                    "prec_r_r": precision_score(y_test_pred_r_r, y_test_r, average='macro',
                                                 zero_division=True) * 100.,
-                    "reca_r_r": recall_score(y_test_pred_r_r, y_test_r, average='weighted', zero_division=True) * 100.,
-                    "f1_r_r": f1_score(y_test_pred_r_r, y_test_r, average='weighted', zero_division=True) * 100.,
+                    "reca_r_r": recall_score(y_test_pred_r_r, y_test_r, average='macro', zero_division=True) * 100.,
+                    "f1_r_r": f1_score(y_test_pred_r_r, y_test_r, average='macro', zero_division=True) * 100.,
                 }
 
             acc_diff[clf_name] = np.abs(
@@ -264,18 +273,28 @@ def main():
     print("=================================================\n")
     # List of classifiers and their arguments
     classifiers = {
-        LogisticRegression: {"max_iter": 10000},
-        KNeighborsClassifier: {"n_neighbors": 3},
-        SVC: {"kernel": "linear", "C": 0.025},
+        LogisticRegression:  {"mode": "range",
+                             "params_main": {"max_iter": 5000},
+                             "params_range": {"classifier__max_iter": [10,50,100,150,180, 200, 250, 300]}
+                             },
+        KNeighborsClassifier: {"mode": "range",
+                              "params_main": {"n_neighbors": 3},
+                              "params_range": {"classifier__n_neighbors": [3, 4, 5]}
+                              },
+        SVC: {"mode": "range",
+             "params_main": {"kernel": "linear", "C": 0.025},
+             "params_range": {'classifier__C': [0.025, 0.05, 0.1, 0.5, 1], "classifier__kernel": ("linear", "rbf")}
+             },
         # SVC: {"gamma": 2, "C": 1},
         # GaussianProcessClassifier: {"kernel": 1.0 * RBF(1.0)},
         # DecisionTreeClassifier: {"max_depth": 5},
         # RandomForestClassifier: {"max_depth": 5, "n_estimators": 10, "max_features": 1},
         # MLPClassifier: {"alpha": 1, "max_iter": 5000},
         # AdaBoostClassifier: {},
-        GaussianNB: {},
-        QuadraticDiscriminantAnalysis: {}
+        #GaussianNB: {},
+        #QuadraticDiscriminantAnalysis: {}
     }
+
 
     utility_measure_sklearn_classifiers(synth_method,
                                         path_original_ds,
