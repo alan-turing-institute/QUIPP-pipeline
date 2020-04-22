@@ -102,6 +102,9 @@ def utility_measure_sklearn_classifiers(synth_method, path_original_ds, path_ori
         ])
 
     utility_collector = {}
+    utility_o_o = {}
+    utility_r_o = {}
+    utility_diff = {}
     acc_diff = {}
     prec_diff = {}
     reca_diff = {}
@@ -157,65 +160,111 @@ def utility_measure_sklearn_classifiers(synth_method, path_original_ds, path_ori
             y_test_pred_r_r = clf_rlsd.predict(X_test_r)
 
             clf_name = one_clf.__name__
-            utility_collector[clf_name] = \
-                {
-                    "accu_o_o": accuracy_score(y_test_pred_o_o, y_test_o) * 100.,
-                    "prec_o_o": precision_score(y_test_pred_o_o, y_test_o, average='macro',
-                                                zero_division=True) * 100.,
-                    "reca_o_o": recall_score(y_test_pred_o_o, y_test_o, average='macro', zero_division=True) * 100.,
-                    "f1_o_o": f1_score(y_test_pred_o_o, y_test_o, average='macro', zero_division=True) * 100.,
 
-                    "accu_r_o": accuracy_score(y_test_pred_r_o, y_test_o) * 100.,
-                    "prec_r_o": precision_score(y_test_pred_r_o, y_test_o, average='macro',
-                                                zero_division=True) * 100.,
-                    "reca_r_o": recall_score(y_test_pred_r_o, y_test_o, average='macro', zero_division=True) * 100.,
-                    "f1_r_o": f1_score(y_test_pred_r_o, y_test_o, average='macro', zero_division=True) * 100.,
+            utility_o_o[clf_name] = calc_metrics(y_test_pred_o_o, y_test_o)
+            utility_r_o[clf_name] = calc_metrics(y_test_pred_r_o, y_test_o)
+            utility_diff[clf_name] = calc_diff_metrics(utility_o_o[clf_name], utility_r_o[clf_name])
+    
+    utility_overall_diff = calc_overall_diff(utility_diff)
+    print(10*"------")
+    for k, v in utility_overall_diff.items():
+        print(f"Mean relative difference - {k}: {v}")
 
-                    "accu_r_r": accuracy_score(y_test_pred_r_r, y_test_r) * 100.,
-                    "prec_r_r": precision_score(y_test_pred_r_r, y_test_r, average='macro',
-                                                zero_division=True) * 100.,
-                    "reca_r_r": recall_score(y_test_pred_r_r, y_test_r, average='macro', zero_division=True) * 100.,
-                    "f1_r_r": f1_score(y_test_pred_r_r, y_test_r, average='macro', zero_division=True) * 100.,
-                }
+    ### print(f"{clf_name:30}, \
+    ### accu: {utility_collector[clf_name]['accu_o_o']:6.02f}/{utility_collector[clf_name]['accu_r_o']:6.02f}/{utility_collector[clf_name]['accu_r_r']:6.02f} \
+    ### prec: {utility_collector[clf_name]['prec_o_o']:6.02f}/{utility_collector[clf_name]['prec_r_o']:6.02f}/{utility_collector[clf_name]['prec_r_r']:6.02f} \
+    ### reca: {utility_collector[clf_name]['reca_o_o']:6.02f}/{utility_collector[clf_name]['reca_r_o']:6.02f}/{utility_collector[clf_name]['reca_r_r']:6.02f} \
+    ### F1: {utility_collector[clf_name]['f1_o_o']:6.02f}/{utility_collector[clf_name]['f1_r_o']:6.02f}/{utility_collector[clf_name]['f1_r_r']:6.02f} \
+    ###     ")
 
-            acc_diff[clf_name] = np.abs(
-                utility_collector[clf_name]["accu_o_o"] - utility_collector[clf_name]["accu_r_o"]) \
-                                 / utility_collector[clf_name]["accu_o_o"]
-            prec_diff[clf_name] = np.abs(
-                utility_collector[clf_name]["prec_o_o"] - utility_collector[clf_name]["prec_r_o"]) \
-                                  / utility_collector[clf_name]["prec_o_o"]
-            reca_diff[clf_name] = np.abs(
-                utility_collector[clf_name]["reca_o_o"] - utility_collector[clf_name]["reca_r_o"]) \
-                                  / utility_collector[clf_name]["reca_o_o"]
-            f1_diff[clf_name] = np.abs(
-                utility_collector[clf_name]["f1_o_o"] - utility_collector[clf_name]["f1_r_o"]) \
-                                / utility_collector[clf_name]["f1_o_o"]
-
-            print(f"{clf_name:30}, \
-            accu: {utility_collector[clf_name]['accu_o_o']:6.02f}/{utility_collector[clf_name]['accu_r_o']:6.02f}/{utility_collector[clf_name]['accu_r_r']:6.02f} \
-            prec: {utility_collector[clf_name]['prec_o_o']:6.02f}/{utility_collector[clf_name]['prec_r_o']:6.02f}/{utility_collector[clf_name]['prec_r_r']:6.02f} \
-            reca: {utility_collector[clf_name]['reca_o_o']:6.02f}/{utility_collector[clf_name]['reca_r_o']:6.02f}/{utility_collector[clf_name]['reca_r_r']:6.02f} \
-            F1: {utility_collector[clf_name]['f1_o_o']:6.02f}/{utility_collector[clf_name]['f1_r_o']:6.02f}/{utility_collector[clf_name]['f1_r_r']:6.02f} \
-                ")
-
-    utility_collector["Overall"] = {
-        "acc_diff": sum(acc_diff.values()) / len(acc_diff.values()),
-        "prec_diff": sum(prec_diff.values()) / len(prec_diff.values()),
-        "reca_diff": sum(reca_diff.values()) / len(reca_diff.values()),
-        "f1_diff": sum(f1_diff.values()) / len(f1_diff.values())
-    }
-
-    print(f"\nMean relative difference - accuracy: {utility_collector['Overall']['acc_diff']}")
-    print(f"Mean relatice difference - precision: {utility_collector['Overall']['acc_diff']}")
-    print(f"Mean relative difference - recall: {utility_collector['Overall']['acc_diff']}")
-    print(f"Mean relative difference - F1: {utility_collector['Overall']['f1_diff']}\n")
+    ### print(f"\nMean relative difference - accuracy: {utility_collector['Overall']['acc_diff']}")
+    ### print(f"Mean relatice difference - precision: {utility_collector['Overall']['acc_diff']}")
+    ### print(f"Mean relative difference - recall: {utility_collector['Overall']['acc_diff']}")
+    ### print(f"Mean relative difference - F1: {utility_collector['Overall']['f1_diff']}\n")
 
     print(30 * "-----")
     print("WARNINGS:")
     for iw in warns: print(iw.message)
 
-    with open(output_file_json, "w") as out_fio:
-        json.dump(utility_collector, out_fio, indent=4)
+    ### with open(output_file_json, "w") as out_fio:
+    ###     json.dump(utility_collector, out_fio, indent=4)
+    ###     {
+    ###         "accu_o_o": accuracy_score(y_test_pred_o_o, y_test_o) * 100.,
+    ###         "prec_o_o": precision_score(y_test_pred_o_o, y_test_o, average='macro',
+    ###                                     zero_division=True) * 100.,
+    ###         "reca_o_o": recall_score(y_test_pred_o_o, y_test_o, average='macro', zero_division=True) * 100.,
+    ###         "f1_o_o": f1_score(y_test_pred_o_o, y_test_o, average='macro', zero_division=True) * 100.,
+
+    ###         "accu_r_o": accuracy_score(y_test_pred_r_o, y_test_o) * 100.,
+    ###         "prec_r_o": precision_score(y_test_pred_r_o, y_test_o, average='macro',
+    ###                                     zero_division=True) * 100.,
+    ###         "reca_r_o": recall_score(y_test_pred_r_o, y_test_o, average='macro', zero_division=True) * 100.,
+    ###         "f1_r_o": f1_score(y_test_pred_r_o, y_test_o, average='macro', zero_division=True) * 100.,
+
+    ###         "accu_r_r": accuracy_score(y_test_pred_r_r, y_test_r) * 100.,
+    ###         "prec_r_r": precision_score(y_test_pred_r_r, y_test_r, average='macro',
+    ###                                     zero_division=True) * 100.,
+    ###         "reca_r_r": recall_score(y_test_pred_r_r, y_test_r, average='macro', zero_division=True) * 100.,
+    ###         "f1_r_r": f1_score(y_test_pred_r_r, y_test_r, average='macro', zero_division=True) * 100.,
+    ###     }
+
+
+def calc_overall_diff(util_diff):
+    """Calculate mean difference across models"""
+    list_methods = list(util_diff.keys())
+    overall_diff_dict = {}
+    for metric_k, metric_v in util_diff[list_methods[0]].items():
+        overall_diff_dict[metric_k] = {}
+        for avg_k, avg_v in metric_v.items():
+            overall_diff_dict[metric_k][avg_k] = {}
+            sum_avg = 0
+            for one_method in list_methods:
+                #print(metric_k, avg_k, one_method, util_diff[one_method][metric_k][avg_k])
+                sum_avg += util_diff[one_method][metric_k][avg_k]
+            overall_diff_dict[metric_k][avg_k] = sum_avg / len(list_methods)
+    return overall_diff_dict
+
+def calc_diff_metrics(util1, util2):
+    """Calculate relative difference between two utilities"""
+    util_diff = {}
+    for metric_k1, metric_v1 in util1.items():
+        if not metric_k1 in util2:
+            continue
+        util_diff[metric_k1] = {}
+        for avg_k1, avg_v1 in metric_v1.items():
+            if not avg_k1 in util2[metric_k1]:
+                continue
+            diff = abs(avg_v1 - util2[metric_k1][avg_k1]) / max(1e-9, avg_v1)
+            util_diff[metric_k1][avg_k1] = diff
+    return util_diff
+
+def calc_metrics(y_pred, y_test, 
+                 metrics=[("accuracy", "value"), 
+                          ("precision", "macro"), 
+                          ("precision", "weighted"), 
+                          ("recall", "macro"), 
+                          ("recall", "weighted"), 
+                          ("f1", "macro"),
+                          ("f1", "weighted")]):
+    """Computes metrics using a list of predictions and their ground-truth labels"""
+    util_collect = {}
+    for method_name, ave_method in metrics:
+        if not method_name in util_collect:
+            util_collect[method_name] = {}
+        
+        if method_name.lower() in ["precision"]:
+            util_collect[method_name][ave_method] = \
+                precision_score(y_pred, y_test, average=ave_method, zero_division=True) * 100.
+        elif method_name.lower() in ["recall"]:
+            util_collect[method_name][ave_method] = \
+                recall_score(y_pred, y_test, average=ave_method, zero_division=True) * 100.
+        elif method_name.lower() in ["f1", "f-1"]:
+            util_collect[method_name][ave_method] = \
+                f1_score(y_pred, y_test, average=ave_method, zero_division=True) * 100.
+        elif method_name.lower() in ["accuracy"]:
+            util_collect[method_name][ave_method] = \
+                accuracy_score(y_pred, y_test) * 100.
+    return util_collect
 
 
 def handle_cmdline_args():
@@ -277,7 +326,7 @@ def main():
                              "params_main": {"max_iter": 5000},
                              "params_range": {"classifier__max_iter": [10,50,100,150,180, 200, 250, 300]}
                              },
-        KNeighborsClassifier: {"mode": "range",
+        KNeighborsClassifier: {"mode": "main",
                               "params_main": {"n_neighbors": 3},
                               "params_range": {"classifier__n_neighbors": [3, 4, 5]}
                               },
@@ -286,9 +335,18 @@ def main():
              "params_range": {'classifier__C': [0.025, 0.05, 0.1, 0.5, 1], "classifier__kernel": ("linear", "rbf")}
              },
         # SVC: {"gamma": 2, "C": 1},
-        # GaussianProcessClassifier: {"kernel": 1.0 * RBF(1.0)},
+        
+        #GaussianProcessClassifier: {"mode": "main", 
+        #                            "params_main": {"kernel": 1.0 * RBF(1.0)},
+        #                            "params_range": {}
+        #                            },
+
+        RandomForestClassifier: {"mode": "main", 
+                                 "params_main": {"max_depth": 5, "n_estimators": 10, "max_features": 1},
+                                 "params_range": {}
+                                 },
+
         # DecisionTreeClassifier: {"max_depth": 5},
-        # RandomForestClassifier: {"max_depth": 5, "n_estimators": 10, "max_features": 1},
         # MLPClassifier: {"alpha": 1, "max_iter": 5000},
         # AdaBoostClassifier: {},
         #GaussianNB: {},
