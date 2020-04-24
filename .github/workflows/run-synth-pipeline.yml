@@ -6,8 +6,6 @@ jobs:
   run_script:
 
     runs-on: ubuntu-latest
-    container:
-      image: turinginst/quipp-env:0.0.3
 
     steps:
     - uses: actions/checkout@v1
