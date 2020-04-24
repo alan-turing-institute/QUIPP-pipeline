@@ -11,6 +11,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+    - name: Build Docker container
+      run: docker build --file binder/Dockerfile --tag quipp-pipeline .
     - name: Run pipeline
-      run: |-
-        make
+      run: docker run quipp-pipeline make
