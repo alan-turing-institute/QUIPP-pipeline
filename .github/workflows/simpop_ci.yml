@@ -7,14 +7,14 @@ on:
       - 'methods/simPop/**'
       - '.github/workflows/simpop_ci.yml'
 
-      jobs:
-        run_script:
-      
-          runs-on: ubuntu-latest
-      
-          steps:
-          - uses: actions/checkout@v1
-          - name: Build Docker container
-            run: docker build --file binder/Dockerfile --tag quipp-pipeline .
-          - name: Run pipeline
-            run: docker run quipp-pipeline "cd synth-methods/simPop/ && Rscript -e 'testthat::test_dir("tests", reporter=c("tap", "summary", "fail"))'"
+jobs:
+  run_script:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build Docker container
+      run: docker build --file binder/Dockerfile --tag quipp-pipeline .
+    - name: Run pipeline
+      run: docker run quipp-pipeline "cd synth-methods/simPop/ && Rscript -e 'testthat::test_dir("tests", reporter=c("tap", "summary", "fail"))'"
