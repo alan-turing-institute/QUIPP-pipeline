@@ -9,16 +9,11 @@ on:
 jobs:
   run_script:
 
-    runs-on: ubuntu-18.04
-    container:
-      image: pytorch/pytorch
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v1
-    - name: Install dependencies
-      run: |-
-        pip install ctgan
-        pip install pytest
-    - name: Run tests
-      run: |-
-        pytest -s synth-methods/CTGAN
+    - name: Build Docker container
+      run: docker build --file binder/Dockerfile --tag quipp-pipeline .
+    - name: Run pipeline
+      run: docker run quipp-pipeline pytest -s synth-methods/CTGAN
