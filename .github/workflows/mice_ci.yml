@@ -16,5 +16,5 @@ jobs:
     - uses: actions/checkout@v1
     - name: Build Docker container
       run: docker build --file binder/Dockerfile --tag quipp-pipeline .
-    - name: Run pipeline
+    - name: Run MICE tests
       run: docker run quipp-pipeline Rscript -e 'testthat::test_dir("synth-methods/mice/tests", reporter=c("tap", "fail"))'
