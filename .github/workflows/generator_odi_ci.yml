@@ -10,20 +10,13 @@ on:
       - '.github/workflows/generator_odi_ci.yml'
 
 jobs:
-  run_tests:
-    name: 'Set up conda environment and run tests'
-    runs-on: 'ubuntu-latest'
+  run_script:
+
+    runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: goanpeca/setup-miniconda@v1
-        with:
-           activate-environment: generator_odi_nhs_ae
-           environment-file: generators/odi-nhs-ae/environment.yml
-           python-version: 3.6
-           auto-activate-base: false
-      - name: Run tests
-        shell: bash -l {0}
-        run: |
-          pytest -v generators/odi-nhs-ae/
-          conda info
-          conda list
+    - uses: actions/checkout@v1
+    - name: Build Docker container
+      run: docker build --file binder/Dockerfile --tag quipp-pipeline .
+    - name: Run pipeline
+      run: docker run quipp-pipeline pytest -v generators/odi-nhs-ae/
