@@ -17,4 +17,4 @@ jobs:
     - name: Build Docker container
       run: docker build --file binder/Dockerfile --tag quipp-pipeline .
     - name: Run pipeline
-      run: docker run quipp-pipeline "cd synth-methods/simPop/ && Rscript -e 'testthat::test_dir("tests", reporter=c("tap", "summary", "fail"))'"
+      run: docker run quipp-pipeline Rscript -e 'testthat::test_dir("synth-methods/simPop/tests", reporter=c("tap", "summary", "fail"))'
