@@ -31,10 +31,16 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.model_selection import GridSearchCV
 
+import warnings
+
 def utility_measure_sklearn_classifiers(synth_method, path_original_ds, path_original_meta, path_released_ds,
                                         input_columns, label_column, test_train_ratio, classifiers,
-                                        output_file_json, num_leaked_rows, random_seed=1364):
+                                        output_file_json, num_leaked_rows, disable_all_warnings=False, random_seed=1364):
     np.random.seed(random_seed)
+    if disable_all_warnings:
+        if not sys.warnoptions:
+            warnings.simplefilter("ignore")
+            os.environ["PYTHONWARNINGS"] = "ignore" # Also affect subprocesses
 
     # Read metadata in JSON format
     with open(path_original_meta) as orig_metadata_json:
@@ -101,14 +107,9 @@ def utility_measure_sklearn_classifiers(synth_method, path_original_ds, path_ori
             ('cat', discrete_transformer, discrete_features_in_df)
         ])
 
-    utility_collector = {}
     utility_o_o = {}
     utility_r_o = {}
     utility_diff = {}
-    acc_diff = {}
-    prec_diff = {}
-    reca_diff = {}
-    f1_diff = {}
     print("[INFO] Utility measurements")
     print(
         "\nThree values for each metric:\nmodel trained on original tested on original / model trained on released tested on original / model trained on released tested on released\n")
@@ -136,8 +137,7 @@ def utility_measure_sklearn_classifiers(synth_method, path_original_ds, path_ori
             #from sklearn.metrics import confusion_matrix
             #confusion_matrix(y_test_pred_o_o, y_test_o)
             #confusion_matrix(y_test_pred_r_o, y_test_o)
-
-
+            
             clf_orig.fit(X_train_o, y_train_o)
 
             # o ---> o
@@ -166,48 +166,48 @@ def utility_measure_sklearn_classifiers(synth_method, path_original_ds, path_ori
             utility_diff[clf_name] = calc_diff_metrics(utility_o_o[clf_name], utility_r_o[clf_name])
     
     utility_overall_diff = calc_overall_diff(utility_diff)
-    print(10*"------")
-    for k, v in utility_overall_diff.items():
-        print(f"Mean relative difference - {k}: {v}")
 
-    ### print(f"{clf_name:30}, \
-    ### accu: {utility_collector[clf_name]['accu_o_o']:6.02f}/{utility_collector[clf_name]['accu_r_o']:6.02f}/{utility_collector[clf_name]['accu_r_r']:6.02f} \
-    ### prec: {utility_collector[clf_name]['prec_o_o']:6.02f}/{utility_collector[clf_name]['prec_r_o']:6.02f}/{utility_collector[clf_name]['prec_r_r']:6.02f} \
-    ### reca: {utility_collector[clf_name]['reca_o_o']:6.02f}/{utility_collector[clf_name]['reca_r_o']:6.02f}/{utility_collector[clf_name]['reca_r_r']:6.02f} \
-    ### F1: {utility_collector[clf_name]['f1_o_o']:6.02f}/{utility_collector[clf_name]['f1_r_o']:6.02f}/{utility_collector[clf_name]['f1_r_r']:6.02f} \
-    ###     ")
+    printMetric(utility_o_o, title="Trained on original and tested on original")
+    printMetric(utility_r_o, title="Trained on released and tested on original")
+    printSummary(utility_overall_diff, title="Overall difference")
 
-    ### print(f"\nMean relative difference - accuracy: {utility_collector['Overall']['acc_diff']}")
-    ### print(f"Mean relatice difference - precision: {utility_collector['Overall']['acc_diff']}")
-    ### print(f"Mean relative difference - recall: {utility_collector['Overall']['acc_diff']}")
-    ### print(f"Mean relative difference - F1: {utility_collector['Overall']['f1_diff']}\n")
+    saveJson(utility_overall_diff, filename="utility_overall_diff.json", par_dir=path_released_ds)
+    saveJson(utility_diff, filename="utility_diff.json", par_dir=path_released_ds)
+    saveJson(utility_o_o, filename="utility_o_o.json", par_dir=path_released_ds)
+    saveJson(utility_r_o, filename="utility_r_o.json", par_dir=path_released_ds)
 
     print(30 * "-----")
     print("WARNINGS:")
     for iw in warns: print(iw.message)
+    import ipdb; ipdb.set_trace()
+    print()
 
-    ### with open(output_file_json, "w") as out_fio:
-    ###     json.dump(utility_collector, out_fio, indent=4)
-    ###     {
-    ###         "accu_o_o": accuracy_score(y_test_pred_o_o, y_test_o) * 100.,
-    ###         "prec_o_o": precision_score(y_test_pred_o_o, y_test_o, average='macro',
-    ###                                     zero_division=True) * 100.,
-    ###         "reca_o_o": recall_score(y_test_pred_o_o, y_test_o, average='macro', zero_division=True) * 100.,
-    ###         "f1_o_o": f1_score(y_test_pred_o_o, y_test_o, average='macro', zero_division=True) * 100.,
 
-    ###         "accu_r_o": accuracy_score(y_test_pred_r_o, y_test_o) * 100.,
-    ###         "prec_r_o": precision_score(y_test_pred_r_o, y_test_o, average='macro',
-    ###                                     zero_division=True) * 100.,
-    ###         "reca_r_o": recall_score(y_test_pred_r_o, y_test_o, average='macro', zero_division=True) * 100.,
-    ###         "f1_r_o": f1_score(y_test_pred_r_o, y_test_o, average='macro', zero_division=True) * 100.,
+def saveJson(inp_dict, filename, par_dir):
+    if not os.path.isdir(par_dir):
+        os.makedirs(par_dir)
+    path2save = os.path.join(par_dir, filename)
+    with open(path2save, "w") as write_file:
+        json.dump(inp_dict, write_file)
 
-    ###         "accu_r_r": accuracy_score(y_test_pred_r_r, y_test_r) * 100.,
-    ###         "prec_r_r": precision_score(y_test_pred_r_r, y_test_r, average='macro',
-    ###                                     zero_division=True) * 100.,
-    ###         "reca_r_r": recall_score(y_test_pred_r_r, y_test_r, average='macro', zero_division=True) * 100.,
-    ###         "f1_r_r": f1_score(y_test_pred_r_r, y_test_r, average='macro', zero_division=True) * 100.,
-    ###     }
+def printMetric(inp_dict, title=" "):
+    print(f"\n\n{title}")
+    for k_method, v_method in inp_dict.items():
+        print(10*"*****")
+        print(f"{k_method}")
+        print("-"*len(k_method))
+        for k_metric, v_metric in v_method.items():
+            for k_value, v_value in v_metric.items():
+                print(f"{k_metric} ({k_value}): {v_value}")
 
+def printSummary(inp_dict, title="Summary"):
+    print()
+    print(10*"*****")
+    print(f"{title}")
+    print("-"*len(title))
+    for k_metric, v_metric in inp_dict.items():
+        for k_value, v_value in v_metric.items():
+            print(f"{k_metric} ({k_value}): {v_value}")
 
 def calc_overall_diff(util_diff):
     """Calculate mean difference across models"""
