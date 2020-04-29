@@ -1,5 +1,5 @@
 {
-    "enabled" : true,
+    "enabled" : false,
     "dataset" : "datasets/polish_data_2011/polish_data_2011",
     "synth-method" : "synthpop",
     "parameters":
@@ -9,7 +9,7 @@
         "num_samples_to_synthesize": -1,
         "num_datasets_to_synthesize": 5,
         "random_state": 12345,
-        "vars_sequence": [12,4,9,13,3,2,1,8,10,11],
+        "vars_sequence": [12,4,9,13,1,2,3,8,10,11],
         "synthesis_methods": ["cart", "cart", "", "cart", "", "", "", "", "cart", "", "cart", "sample", "cart"],
         "proper": false,
         "tree_minbucket": 5,
@@ -18,7 +18,7 @@
     "parameters_disclosure_risk":
     {
         "enabled": true,
-        "num_samples_intruder": 15,
+        "num_samples_intruder": 1000,
         "vars_intruder": ["sex", "edu", "marital", "ls", "smoke", "wkabint"]
     },
     "parameters_sklearn_utility":
@@ -28,9 +28,5 @@
         "label_column": "wkabint",
         "test_train_ratio": 0.3,
         "num_leaked_rows": 0
-    },
-    "parameters_correlations":
-    {
-        "enabled": true
     }
 }

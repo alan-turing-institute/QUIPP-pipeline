@@ -72,6 +72,11 @@ synth-output/%/sklearn_classifiers.json : \
 run-inputs/%.json synth-output/%/synthetic_data_1.csv
 	python utility-metrics/sklearn_classifiers.py -i $< -o $$(dirname $@)
 
+$(SYNTH_OUTPUTS_UTIL_SKLEARN) : \
+synth-output/%/correlations.json : \
+run-inputs/%.json synth-output/%/synthetic_data_1.csv
+	python utility-metrics/correlations.py -i $< -o $$(dirname $@)
+
 
 ## ----------------------------------------
 ## Clean
