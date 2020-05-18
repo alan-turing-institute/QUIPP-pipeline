@@ -5,9 +5,11 @@ Utility metrics using scikit-learn library.
 """
 
 import argparse
+import codecs
 import json
 import numpy as np
 import pandas as pd
+import random
 import warnings
 import os
 import sys
@@ -30,13 +32,25 @@ from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import confusion_matrix
 
 import warnings
 
+# Set random seeds for reproducibility
+random.seed(42)
+np.random.seed(42)
+np.random.default_rng(42)
+
+
 def utility_measure_sklearn_classifiers(synth_method, path_original_ds, path_original_meta, path_released_ds,
                                         input_columns, label_column, test_train_ratio, classifiers,
-                                        output_file_json, num_leaked_rows, disable_all_warnings=False, random_seed=1364):
+                                        output_file_json, num_leaked_rows, 
+                                        disable_all_warnings=False, random_seed=1364):
+    # Set random seeds for reproducibility
+    random.seed(random_seed)
     np.random.seed(random_seed)
+    np.random.default_rng(random_seed)
+
     if disable_all_warnings:
         if not sys.warnoptions:
             warnings.simplefilter("ignore")
@@ -110,6 +124,8 @@ def utility_measure_sklearn_classifiers(synth_method, path_original_ds, path_ori
     utility_o_o = {}
     utility_r_o = {}
     utility_diff = {}
+    utility_confusion_o_o = {}
+    utility_confusion_r_o = {}
     print("[INFO] Utility measurements")
     print(
         "\nThree values for each metric:\nmodel trained on original tested on original / model trained on released tested on original / model trained on released tested on released\n")
@@ -134,10 +150,6 @@ def utility_measure_sklearn_classifiers(synth_method, path_original_ds, path_ori
             #from sklearn.metrics import classification_report
             #classification_report(y_test_pred_o_o, y_test_o, output_dict=True)
 
-            #from sklearn.metrics import confusion_matrix
-            #confusion_matrix(y_test_pred_o_o, y_test_o)
-            #confusion_matrix(y_test_pred_r_o, y_test_o)
-            
             clf_orig.fit(X_train_o, y_train_o)
 
             # o ---> o
@@ -164,6 +176,10 @@ def utility_measure_sklearn_classifiers(synth_method, path_original_ds, path_ori
             utility_o_o[clf_name] = calc_metrics(y_test_pred_o_o, y_test_o)
             utility_r_o[clf_name] = calc_metrics(y_test_pred_r_o, y_test_o)
             utility_diff[clf_name] = calc_diff_metrics(utility_o_o[clf_name], utility_r_o[clf_name])
+            utility_confusion_o_o[clf_name] = calc_confusion_matrix(y_test_pred_o_o, y_test_o, 
+                                                                    target_names=clf_orig.classes_)
+            utility_confusion_r_o[clf_name] = calc_confusion_matrix(y_test_pred_r_o, y_test_o, 
+                                                                    target_names=clf_rlsd.classes_)
     
     utility_overall_diff = calc_overall_diff(utility_diff)
 
@@ -175,30 +191,47 @@ def utility_measure_sklearn_classifiers(synth_method, path_original_ds, path_ori
     saveJson(utility_diff, filename="utility_diff.json", par_dir=path_released_ds)
     saveJson(utility_o_o, filename="utility_o_o.json", par_dir=path_released_ds)
     saveJson(utility_r_o, filename="utility_r_o.json", par_dir=path_released_ds)
+    saveJson(utility_confusion_o_o, filename="utility_confusion_o_o.json", par_dir=path_released_ds)
+    saveJson(utility_confusion_r_o, filename="utility_confusion_r_o.json", par_dir=path_released_ds)
 
     print(30 * "-----")
     print("WARNINGS:")
     for iw in warns: print(iw.message)
-    import ipdb; ipdb.set_trace()
     print()
+
+
+# ======== Functions
+
+def calc_confusion_matrix(y_pred, y_test, target_names):
+    output = {}
+    output["conf_matrix"] = confusion_matrix(y_pred, y_test).tolist()
+    output["target_names"] = target_names.tolist()
+    return output
 
 
 def saveJson(inp_dict, filename, par_dir):
     if not os.path.isdir(par_dir):
         os.makedirs(par_dir)
     path2save = os.path.join(par_dir, filename)
-    with open(path2save, "w") as write_file:
+    with codecs.open(path2save, "w", encoding="utf-8") as write_file:
         json.dump(inp_dict, write_file)
 
 def printMetric(inp_dict, title=" "):
+    msg = ""
+    msg += f"\n\n{title}" + "<br />"
     print(f"\n\n{title}")
     for k_method, v_method in inp_dict.items():
+        msg += 10*"*****" + "<br />"
+        msg += f"{k_method}" + "<br />"
+        msg += "-"*len(k_method) + "<br />"
         print(10*"*****")
         print(f"{k_method}")
         print("-"*len(k_method))
         for k_metric, v_metric in v_method.items():
             for k_value, v_value in v_metric.items():
+                msg += f"{k_metric} ({k_value}): {v_value}" + "<br />"
                 print(f"{k_metric} ({k_value}): {v_value}")
+    return msg
 
 def printSummary(inp_dict, title="Summary"):
     print()
@@ -342,7 +375,7 @@ def main():
         #                            },
 
         RandomForestClassifier: {"mode": "main", 
-                                 "params_main": {"max_depth": 5, "n_estimators": 10, "max_features": 1},
+                                 "params_main": {"max_depth": 5, "n_estimators": 10, "max_features": 1, "random_state": 123},
                                  "params_range": {}
                                  },
 
