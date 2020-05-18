@@ -16,9 +16,11 @@ SYNTH_OUTPUTS_DISCL_RISK = $(addsuffix /disclosure_risk.json,$(SYNTH_OUTPUTS_PRE
 
 SYNTH_OUTPUTS_UTIL_SKLEARN = $(addsuffix /sklearn_classifiers.json,$(SYNTH_OUTPUTS_PREFIX))
 
+SYNTH_OUTPUTS_UTIL_CORR = $(addsuffix /correlations.json,$(SYNTH_OUTPUTS_PREFIX))
+
 .PHONY: all all-synthetic generated-data clean
 
-all: $(SYNTH_OUTPUTS_DISCL_RISK) $(SYNTH_OUTPUTS_UTIL_SKLEARN)
+all: $(SYNTH_OUTPUTS_DISCL_RISK) $(SYNTH_OUTPUTS_UTIL_SKLEARN) $(SYNTH_OUTPUTS_UTIL_CORR)
 
 all-synthetic: $(SYNTH_OUTPUTS_CSV)
 
@@ -71,6 +73,11 @@ $(SYNTH_OUTPUTS_UTIL_SKLEARN) : \
 synth-output/%/sklearn_classifiers.json : \
 run-inputs/%.json synth-output/%/synthetic_data_1.csv
 	python utility-metrics/sklearn_classifiers.py -i $< -o $$(dirname $@)
+
+$(SYNTH_OUTPUTS_UTIL_CORR) : \
+synth-output/%/correlations.json : \
+run-inputs/%.json synth-output/%/synthetic_data_1.csv
+	python utility-metrics/correlations.py -i $< -o $$(dirname $@)
 
 
 ## ----------------------------------------
