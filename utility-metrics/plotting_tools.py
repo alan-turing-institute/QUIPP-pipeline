@@ -4,6 +4,7 @@ import codecs
 import json
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 import itertools
 
 # Reference:
@@ -14,7 +15,9 @@ def plot_confusion_matrix(cm,
                           title='Confusion matrix',
                           prefix="",
                           cmap=None,
-                          normalize=True):
+                          normalize=True, 
+                          save_dir="."
+                          ):
     """
     given a sklearn confusion matrix (cm), make a nice plot
 
@@ -29,6 +32,7 @@ def plot_confusion_matrix(cm,
                   plt.get_cmap('jet') or plt.cm.Blues
     normalize:    If False, plot the raw numbers
                   If True, plot the proportions
+    save_dir      parent directory to save the images
 
     Usage
     -----
@@ -54,12 +58,13 @@ def plot_confusion_matrix(cm,
     plt.figure(figsize=(10, 10))
     plt.imshow(cm, interpolation='nearest', cmap=cmap)
     plt.title(title, size=24)
-    plt.colorbar(fraction=0.03)
+    cbar = plt.colorbar(fraction=0.03)
+    cbar.ax.tick_params(labelsize=24)
 
     if target_names is not None:
         tick_marks = np.arange(len(target_names))
-        plt.xticks(tick_marks, target_names, rotation=45)
-        plt.yticks(tick_marks, target_names)
+        plt.xticks(tick_marks, target_names, size=20, rotation=90)
+        plt.yticks(tick_marks, target_names, size=20)
 
     if normalize:
         cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
@@ -70,20 +75,26 @@ def plot_confusion_matrix(cm,
         if normalize:
             plt.text(j, i, "{:0.4f}".format(cm[i, j]),
                      horizontalalignment="center",
+                     fontsize=22,
                      color="white" if cm[i, j] > thresh else "black")
         else:
             plt.text(j, i, "{:,}".format(cm[i, j]),
                      horizontalalignment="center",
+                     fontsize=22,
                      color="white" if cm[i, j] > thresh else "black")
 
-    plt.ylabel('True label', size=24)
-    plt.xlabel('Predicted label\naccuracy={:0.4f}; misclass={:0.4f}'.format(accuracy, misclass), size=24)
+    plt.ylabel('True label', size=28)
+    plt.xlabel('Predicted label\naccuracy={:0.4f}; misclass={:0.4f}'.format(accuracy, misclass), size=28)
     plt.ylim(len(cm)-0.5, -0.5)
-    plt.savefig(f"{prefix}_{title}_confusion_matrix.png", format="PNG", bbox_inches = "tight")
-    return f"{prefix}_{title}_confusion_matrix.png" 
+    figpath = f"{prefix}_{title}_confusion_matrix.png"
+    save_path = os.path.join(save_dir, figpath)
+    if not os.path.isdir(save_dir):
+        os.makedirs(save_dir)
+    plt.savefig(save_path, format="PNG", bbox_inches = "tight")
+    return os.path.abspath(save_path)
 
 def plot_util_confusion_matrix(confusion_dict_path, method_names=None, 
-                               prefix="", normalize=False):
+                               prefix="", normalize=False, save_dir="."):
 
     dict_r = codecs.open(confusion_dict_path, 'r', encoding='utf-8').read()
     confusion_dict = json.loads(dict_r)
@@ -92,6 +103,7 @@ def plot_util_confusion_matrix(confusion_dict_path, method_names=None,
         method_names = [method_names]
     if method_names == None:
         method_names = list(confusion_dict.keys())
+    plt_names = []
     for method_name in method_names:
         if method_name not in confusion_dict:
             print(confusion_dict.keys())
@@ -104,5 +116,8 @@ def plot_util_confusion_matrix(confusion_dict_path, method_names=None,
                                          target_names=target_names, 
                                          normalize=normalize, 
                                          title=title, 
-                                         prefix=prefix)
-    return plt_name
+                                         prefix=prefix, 
+                                         save_dir=save_dir
+                                         )
+        plt_names.append(plt_name)
+    return plt_names
