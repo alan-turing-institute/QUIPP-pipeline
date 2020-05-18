@@ -34,6 +34,9 @@ from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import confusion_matrix
 
+import importlib  
+report = importlib.import_module("utility-metrics.report")
+
 import warnings
 
 # Set random seeds for reproducibility
@@ -198,6 +201,9 @@ def utility_measure_sklearn_classifiers(synth_method, path_original_ds, path_ori
     print("WARNINGS:")
     for iw in warns: print(iw.message)
     print()
+
+    # Create report
+    report.report(path_released_ds)
 
 
 # ======== Functions
