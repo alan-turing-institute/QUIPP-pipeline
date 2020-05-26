@@ -28,5 +28,9 @@
         "label_column": "Age bracket",
         "test_train_ratio": 0.3,
         "num_leaked_rows": 0
+    },
+    "parameters_correlations":
+    {
+        "enabled": true
     }
 }
