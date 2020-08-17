@@ -239,7 +239,7 @@ def main():
     num_leaked_rows = sklearn_utility_parameters["num_leaked_rows"]
     seed = synth_params['parameters']['random_state']
 
-    if synth_params["parameters_sklearn_utility"]["classifier"]:
+    if "classifier" in synth_params["parameters_sklearn_utility"]:
         classifiers_rd = synth_params["parameters_sklearn_utility"]["classifier"]
         classifiers = {}
         for c_keys in classifiers_rd.keys():
