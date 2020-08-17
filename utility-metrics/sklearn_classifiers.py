@@ -239,23 +239,27 @@ def main():
     num_leaked_rows = sklearn_utility_parameters["num_leaked_rows"]
     seed = synth_params['parameters']['random_state']
 
-    print("\n=================================================")
-    print("[WARNING] the classifiers are hardcoded in main()")
-    print("=================================================\n")
-    # List of classifiers and their arguments
-    classifiers = {
-        LogisticRegression: {"max_iter": 10000},
-        KNeighborsClassifier: {"n_neighbors": 3},
-        SVC: {"kernel": "linear", "C": 0.025},
-        # SVC: {"gamma": 2, "C": 1},
-        # GaussianProcessClassifier: {"kernel": 1.0 * RBF(1.0)},
-        # DecisionTreeClassifier: {"max_depth": 5},
-        # RandomForestClassifier: {"max_depth": 5, "n_estimators": 10, "max_features": 1},
-        # MLPClassifier: {"alpha": 1, "max_iter": 5000},
-        # AdaBoostClassifier: {},
-        GaussianNB: {},
-        QuadraticDiscriminantAnalysis: {}
-    }
+    if synth_params["parameters_sklearn_utility"]["classifier"]:
+        classifiers_rd = synth_params["parameters_sklearn_utility"]["classifier"]
+        classifiers = {}
+        for c_keys in classifiers_rd.keys():
+            classifiers[eval(c_keys)] = classifiers_rd[c_keys]
+    else:
+        print("[WARNING] 'classifier' could not be found, use default.")
+        # List of classifiers and their arguments
+        classifiers = {
+            LogisticRegression: {"max_iter": 10000},
+            KNeighborsClassifier: {"n_neighbors": 3},
+            SVC: {"kernel": "linear", "C": 0.025},
+            # SVC: {"gamma": 2, "C": 1},
+            # GaussianProcessClassifier: {"kernel": 1.0 * RBF(1.0)},
+            # DecisionTreeClassifier: {"max_depth": 5},
+            # RandomForestClassifier: {"max_depth": 5, "n_estimators": 10, "max_features": 1},
+            # MLPClassifier: {"alpha": 1, "max_iter": 5000},
+            # AdaBoostClassifier: {},
+            GaussianNB: {},
+            QuadraticDiscriminantAnalysis: {}
+        }
 
     utility_measure_sklearn_classifiers(synth_method,
                                         path_original_ds,
