@@ -356,42 +356,45 @@ def main():
     num_leaked_rows = sklearn_utility_parameters["num_leaked_rows"]
     seed = synth_params['parameters']['random_state']
 
-    print("\n=================================================")
-    print("[WARNING] the classifiers are hardcoded in main()")
-    print("=================================================\n")
-    # List of classifiers and their arguments
-    classifiers = {
-        LogisticRegression:  {"mode": "range",
-                             "params_main": {"max_iter": 5000},
-                             "params_range": {"classifier__max_iter": [10,50,100,150,180, 200, 250, 300]}
-                             },
-        KNeighborsClassifier: {"mode": "main",
-                              "params_main": {"n_neighbors": 3},
-                              "params_range": {"classifier__n_neighbors": [3, 4, 5]}
-                              },
-        SVC: {"mode": "range",
-             "params_main": {"kernel": "linear", "C": 0.025},
-             "params_range": {'classifier__C': [0.025, 0.05, 0.1, 0.5, 1], "classifier__kernel": ("linear", "rbf")}
-             },
-        # SVC: {"gamma": 2, "C": 1},
-        
-        #GaussianProcessClassifier: {"mode": "main", 
-        #                            "params_main": {"kernel": 1.0 * RBF(1.0)},
-        #                            "params_range": {}
-        #                            },
-
-        RandomForestClassifier: {"mode": "main", 
-                                 "params_main": {"max_depth": 5, "n_estimators": 10, "max_features": 1, "random_state": 123},
-                                 "params_range": {}
+    if "classifier" in synth_params["parameters_sklearn_utility"]:
+        classifiers_rd = synth_params["parameters_sklearn_utility"]["classifier"]
+        classifiers = {}
+        for c_keys in classifiers_rd.keys():
+            classifiers[eval(c_keys)] = classifiers_rd[c_keys]
+    else:
+        print("[WARNING] 'classifier' could not be found, use default.")
+        # List of classifiers and their arguments
+        classifiers = {
+            LogisticRegression:  {"mode": "range",
+                                 "params_main": {"max_iter": 5000},
+                                 "params_range": {"classifier__max_iter": [10,50,100,150,180, 200, 250, 300]}
                                  },
+            KNeighborsClassifier: {"mode": "main",
+                                  "params_main": {"n_neighbors": 3},
+                                  "params_range": {"classifier__n_neighbors": [3, 4, 5]}
+                                  },
+            SVC: {"mode": "range",
+                 "params_main": {"kernel": "linear", "C": 0.025},
+                 "params_range": {'classifier__C': [0.025, 0.05, 0.1, 0.5, 1], "classifier__kernel": ("linear", "rbf")}
+                 },
+            # SVC: {"gamma": 2, "C": 1},
+            
+            #GaussianProcessClassifier: {"mode": "main", 
+            #                            "params_main": {"kernel": 1.0 * RBF(1.0)},
+            #                            "params_range": {}
+            #                            },
 
-        # DecisionTreeClassifier: {"max_depth": 5},
-        # MLPClassifier: {"alpha": 1, "max_iter": 5000},
-        # AdaBoostClassifier: {},
-        #GaussianNB: {},
-        #QuadraticDiscriminantAnalysis: {}
-    }
+            RandomForestClassifier: {"mode": "main", 
+                                     "params_main": {"max_depth": 5, "n_estimators": 10, "max_features": 1, "random_state": 123},
+                                     "params_range": {}
+                                     },
 
+            # DecisionTreeClassifier: {"max_depth": 5},
+            # MLPClassifier: {"alpha": 1, "max_iter": 5000},
+            # AdaBoostClassifier: {},
+            #GaussianNB: {},
+            #QuadraticDiscriminantAnalysis: {}
+        }
 
     utility_measure_sklearn_classifiers(synth_method,
                                         path_original_ds,
