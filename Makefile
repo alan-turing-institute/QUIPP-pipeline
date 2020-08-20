@@ -1,3 +1,6 @@
+## --- echo commands (for debugging)
+## SHELL = sh -xv
+
 PYTHON = python
 QUIPP_ROOT = $(shell pwd)
 

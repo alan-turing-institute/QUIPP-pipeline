@@ -1,0 +1,16 @@
+{
+    "columns": [
+        {
+            "name": "payer",
+            "type": "Categorical"
+        },
+        {
+            "name": "receiver",
+            "type": "Categorical"
+        },
+        {
+            "name": "amount",
+            "type": "ContinuousNumerical"
+        }
+    ]
+}
