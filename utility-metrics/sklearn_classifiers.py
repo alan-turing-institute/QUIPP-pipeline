@@ -35,7 +35,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import confusion_matrix
 
 import importlib  
-report = importlib.import_module("utility-metrics.report")
+report = importlib.import_module("report")
 
 import warnings
 
