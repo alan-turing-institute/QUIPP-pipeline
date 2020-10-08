@@ -9,22 +9,13 @@ on:
       - '.github/workflows/sdv_ci.yml'
 
 jobs:
-  run_tests:
-    name: 'Set up conda environment and run tests'
-    runs-on: 'ubuntu-latest'
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up environment
-        uses: goanpeca/setup-miniconda@v1
-        with:
-           activate-environment: sdv
-           environment-file: synth-methods/SDV/environment.yml
-           python-version: 3.6
-           auto-activate-base: false
-      - shell: bash -l {0}
-        run: |
-          pip install sdv
-          pytest -v synth-methods/SDV
-          conda info
-          conda list
+  run_script:
 
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build Docker container
+      run: docker build --file binder/Dockerfile --tag quipp-pipeline .
+    - name: Run sdv tests
+      run: docker run quipp-pipeline pytest -v synth-methods/SDV
