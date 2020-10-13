@@ -2,8 +2,10 @@ name: Create report.pdf
 
 on:
   push:
-    paths: 
-      - doc/report.md
+    paths:
+      # only run when report or this file are edited
+      - 'doc/report.md'
+      - '.github/workflows/report_ci.yml'
 
 jobs:
   pandoc_convert:

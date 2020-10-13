@@ -1,11 +1,9 @@
-# Run tests for the simulated annealing example
-
-name: SimAnneal CI
+name: Run SimAnneal tests
 
 on:
   push:
     paths:
-      # only run when simulated-annealing folder contents are edited
+      # only run when simulated-annealing folder contents or this file are edited
       - 'synth-methods/simulated-annealing/**'
       - '.github/workflows/sim_anneal_ci.yml'
 

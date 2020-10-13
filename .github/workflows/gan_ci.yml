@@ -1,8 +1,9 @@
-name: GAN CI
+name: Run GAN tests
 
 on:
   push:
     paths:
+      # only run when CTGAN folder contents or this file are edited
       - 'synth-methods/CTGAN/**'
       - '.github/workflows/gan_ci.yml'
 
