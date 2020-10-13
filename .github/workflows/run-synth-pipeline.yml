@@ -32,6 +32,7 @@ jobs:
         make
         export SGFROOT=$(pwd)
         cd ../../
+        pip install dython
     - name: Install R dependencies
       run: Rscript -e "install.packages(c('testthat', 'synthpop'))" 
     - name: Run pipeline
