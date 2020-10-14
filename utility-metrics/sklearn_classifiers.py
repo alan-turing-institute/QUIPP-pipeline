@@ -5,9 +5,11 @@ Utility metrics using scikit-learn library.
 """
 
 import argparse
+import codecs
 import json
 import numpy as np
 import pandas as pd
+import random
 import warnings
 import os
 import sys
@@ -29,12 +31,33 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import confusion_matrix
+
+import importlib  
+report = importlib.import_module("report")
+
+import warnings
+
+# Set random seeds for reproducibility
+random.seed(42)
+np.random.seed(42)
+np.random.default_rng(42)
 
 
 def utility_measure_sklearn_classifiers(synth_method, path_original_ds, path_original_meta, path_released_ds,
                                         input_columns, label_column, test_train_ratio, classifiers,
-                                        output_file_json, num_leaked_rows, random_seed=1364):
+                                        output_file_json, num_leaked_rows, 
+                                        disable_all_warnings=False, random_seed=1364):
+    # Set random seeds for reproducibility
+    random.seed(random_seed)
     np.random.seed(random_seed)
+    np.random.default_rng(random_seed)
+
+    if disable_all_warnings:
+        if not sys.warnoptions:
+            warnings.simplefilter("ignore")
+            os.environ["PYTHONWARNINGS"] = "ignore" # Also affect subprocesses
 
     # Read metadata in JSON format
     with open(path_original_meta) as orig_metadata_json:
@@ -55,7 +78,11 @@ def utility_measure_sklearn_classifiers(synth_method, path_original_ds, path_ori
     # Read original and released/synthetic datasets
     # NOTE: Only the first synthetic data set is used for utility evaluation
     orig_df = pd.read_csv(path_original_ds)
+    # XXX this should be a flag, fill all NaNs
+    orig_df.fillna(orig_df.median(), inplace=True)
     rlsd_df = pd.read_csv(path_released_ds + "/synthetic_data_1.csv")
+    # XXX this should be a flag, fill all NaNs
+    rlsd_df.fillna(rlsd_df.median(), inplace=True)
     if num_leaked_rows > 0:
         rlsd_df[:num_leaked_rows] = orig_df[:num_leaked_rows]
 
@@ -97,11 +124,11 @@ def utility_measure_sklearn_classifiers(synth_method, path_original_ds, path_ori
             ('cat', discrete_transformer, discrete_features_in_df)
         ])
 
-    utility_collector = {}
-    acc_diff = {}
-    prec_diff = {}
-    reca_diff = {}
-    f1_diff = {}
+    utility_o_o = {}
+    utility_r_o = {}
+    utility_diff = {}
+    utility_confusion_o_o = {}
+    utility_confusion_r_o = {}
     print("[INFO] Utility measurements")
     print(
         "\nThree values for each metric:\nmodel trained on original tested on original / model trained on released tested on original / model trained on released tested on released\n")
@@ -110,83 +137,173 @@ def utility_measure_sklearn_classifiers(synth_method, path_original_ds, path_ori
         with warnings.catch_warnings(record=True) as warns:
             # original dataset
             # Append classifier to preprocessing pipeline.
-            clf_orig = Pipeline(steps=[('preprocessor', preprocessor),
-                                       ('classifier', one_clf(**classifiers[one_clf]))])
+            if classifiers[one_clf]["mode"] == "main":
+                parameters = classifiers[one_clf]["params_main"]
+                clf_orig = Pipeline(steps=[('preprocessor', preprocessor),
+                                           ('classifier', one_clf(**parameters))])
+            else:
+                parameters = classifiers[one_clf]["params_range"]
+                clf_orig = Pipeline(steps=[('preprocessor', preprocessor),
+                                           ('classifier', one_clf())])
+                clf_orig = GridSearchCV(clf_orig, parameters, scoring="f1_macro", n_jobs=-1)
+
+
+            ### XXX
+            ### # To report the results:
+            #from sklearn.metrics import classification_report
+            #classification_report(y_test_pred_o_o, y_test_o, output_dict=True)
 
             clf_orig.fit(X_train_o, y_train_o)
+
             # o ---> o
             y_test_pred_o_o = clf_orig.predict(X_test_o)
 
             # released dataset
-            clf_rlsd = Pipeline(steps=[('preprocessor', preprocessor),
-                                       ('classifier', one_clf(**classifiers[one_clf]))])
+            if classifiers[one_clf]["mode"] == "main":
+                clf_rlsd = Pipeline(steps=[('preprocessor', preprocessor),
+                                           ('classifier', one_clf(**parameters))])
+            else:
+                parameters_rlsd = {k.split("classifier__")[1]: v for k, v in clf_orig.best_params_.items()}
+                clf_rlsd = Pipeline(steps=[('preprocessor', preprocessor),
+                                           ('classifier', one_clf(**parameters_rlsd))])
+
+
             clf_rlsd.fit(X_train_r, y_train_r)
             # r ---> o
             y_test_pred_r_o = clf_rlsd.predict(X_test_o)
             # r ---> r
             y_test_pred_r_r = clf_rlsd.predict(X_test_r)
 
-
             clf_name = one_clf.__name__
-            utility_collector[clf_name] = \
-                {
-                    "accu_o_o": accuracy_score(y_test_pred_o_o, y_test_o) * 100.,
-                    "prec_o_o": precision_score(y_test_pred_o_o, y_test_o, average='weighted',
-                                                zero_division=True) * 100.,
-                    "reca_o_o": recall_score(y_test_pred_o_o, y_test_o, average='weighted', zero_division=True) * 100.,
-                    "f1_o_o": f1_score(y_test_pred_o_o, y_test_o, average='weighted', zero_division=True) * 100.,
 
-                    "accu_r_o": accuracy_score(y_test_pred_r_o, y_test_o) * 100.,
-                    "prec_r_o": precision_score(y_test_pred_r_o, y_test_o, average='weighted',
-                                                zero_division=True) * 100.,
-                    "reca_r_o": recall_score(y_test_pred_r_o, y_test_o, average='weighted', zero_division=True) * 100.,
-                    "f1_r_o": f1_score(y_test_pred_r_o, y_test_o, average='weighted', zero_division=True) * 100.,
+            utility_o_o[clf_name] = calc_metrics(y_test_pred_o_o, y_test_o)
+            utility_r_o[clf_name] = calc_metrics(y_test_pred_r_o, y_test_o)
+            utility_diff[clf_name] = calc_diff_metrics(utility_o_o[clf_name], utility_r_o[clf_name])
+            utility_confusion_o_o[clf_name] = calc_confusion_matrix(y_test_pred_o_o, y_test_o, 
+                                                                    target_names=clf_orig.classes_)
+            utility_confusion_r_o[clf_name] = calc_confusion_matrix(y_test_pred_r_o, y_test_o, 
+                                                                    target_names=clf_rlsd.classes_)
+    
+    utility_overall_diff = calc_overall_diff(utility_diff)
 
-                    "accu_r_r": accuracy_score(y_test_pred_r_r, y_test_r) * 100.,
-                    "prec_r_r": precision_score(y_test_pred_r_r, y_test_r, average='weighted',
-                                                zero_division=True) * 100.,
-                    "reca_r_r": recall_score(y_test_pred_r_r, y_test_r, average='weighted', zero_division=True) * 100.,
-                    "f1_r_r": f1_score(y_test_pred_r_r, y_test_r, average='weighted', zero_division=True) * 100.,
-                }
+    printMetric(utility_o_o, title="Trained on original and tested on original")
+    printMetric(utility_r_o, title="Trained on released and tested on original")
+    printSummary(utility_overall_diff, title="Overall difference")
 
-            acc_diff[clf_name] = np.abs(
-                utility_collector[clf_name]["accu_o_o"] - utility_collector[clf_name]["accu_r_o"]) \
-                                 / utility_collector[clf_name]["accu_o_o"]
-            prec_diff[clf_name] = np.abs(
-                utility_collector[clf_name]["prec_o_o"] - utility_collector[clf_name]["prec_r_o"]) \
-                                  / utility_collector[clf_name]["prec_o_o"]
-            reca_diff[clf_name] = np.abs(
-                utility_collector[clf_name]["reca_o_o"] - utility_collector[clf_name]["reca_r_o"]) \
-                                  / utility_collector[clf_name]["reca_o_o"]
-            f1_diff[clf_name] = np.abs(
-                utility_collector[clf_name]["f1_o_o"] - utility_collector[clf_name]["f1_r_o"]) \
-                                / utility_collector[clf_name]["f1_o_o"]
-
-            print(f"{clf_name:30}, \
-            accu: {utility_collector[clf_name]['accu_o_o']:6.02f}/{utility_collector[clf_name]['accu_r_o']:6.02f}/{utility_collector[clf_name]['accu_r_r']:6.02f} \
-            prec: {utility_collector[clf_name]['prec_o_o']:6.02f}/{utility_collector[clf_name]['prec_r_o']:6.02f}/{utility_collector[clf_name]['prec_r_r']:6.02f} \
-            reca: {utility_collector[clf_name]['reca_o_o']:6.02f}/{utility_collector[clf_name]['reca_r_o']:6.02f}/{utility_collector[clf_name]['reca_r_r']:6.02f} \
-            F1: {utility_collector[clf_name]['f1_o_o']:6.02f}/{utility_collector[clf_name]['f1_r_o']:6.02f}/{utility_collector[clf_name]['f1_r_r']:6.02f} \
-                ")
-
-    utility_collector["Overall"] = {
-        "acc_diff": sum(acc_diff.values()) / len(acc_diff.values()),
-        "prec_diff": sum(prec_diff.values()) / len(prec_diff.values()),
-        "reca_diff": sum(reca_diff.values()) / len(reca_diff.values()),
-        "f1_diff": sum(f1_diff.values()) / len(f1_diff.values())
-    }
-
-    print(f"\nMean relative difference - accuracy: {utility_collector['Overall']['acc_diff']}")
-    print(f"Mean relatice difference - precision: {utility_collector['Overall']['acc_diff']}")
-    print(f"Mean relative difference - recall: {utility_collector['Overall']['acc_diff']}")
-    print(f"Mean relative difference - F1: {utility_collector['Overall']['f1_diff']}\n")
+    saveJson(utility_overall_diff, filename="utility_overall_diff.json", par_dir=path_released_ds)
+    saveJson(utility_diff, filename="utility_diff.json", par_dir=path_released_ds)
+    saveJson(utility_o_o, filename="utility_o_o.json", par_dir=path_released_ds)
+    saveJson(utility_r_o, filename="utility_r_o.json", par_dir=path_released_ds)
+    saveJson(utility_confusion_o_o, filename="utility_confusion_o_o.json", par_dir=path_released_ds)
+    saveJson(utility_confusion_r_o, filename="utility_confusion_r_o.json", par_dir=path_released_ds)
 
     print(30 * "-----")
     print("WARNINGS:")
     for iw in warns: print(iw.message)
+    print()
 
-    with open(output_file_json, "w") as out_fio:
-        json.dump(utility_collector, out_fio, indent=4)
+    # Create report
+    report.report(path_released_ds)
+
+
+# ======== Functions
+
+def calc_confusion_matrix(y_pred, y_test, target_names):
+    output = {}
+    output["conf_matrix"] = confusion_matrix(y_pred, y_test).tolist()
+    output["target_names"] = target_names.tolist()
+    return output
+
+
+def saveJson(inp_dict, filename, par_dir):
+    if not os.path.isdir(par_dir):
+        os.makedirs(par_dir)
+    path2save = os.path.join(par_dir, filename)
+    with codecs.open(path2save, "w", encoding="utf-8") as write_file:
+        json.dump(inp_dict, write_file)
+
+def printMetric(inp_dict, title=" "):
+    msg = ""
+    msg += f"\n\n{title}" + "<br />"
+    print(f"\n\n{title}")
+    for k_method, v_method in inp_dict.items():
+        msg += "<br />"
+        msg += f"{k_method}" + "<br />"
+        msg += "-"*len(k_method) + "<br />"
+        print("")
+        print(f"{k_method}")
+        print("-"*len(k_method))
+        for k_metric, v_metric in v_method.items():
+            for k_value, v_value in v_metric.items():
+                msg += f"{k_metric} ({k_value}): {v_value:.2f}" + "<br />"
+                print(f"{k_metric} ({k_value}): {v_value}")
+    return msg
+
+def printSummary(inp_dict, title="Summary"):
+    print()
+    print(10*"*****")
+    print(f"{title}")
+    print("-"*len(title))
+    for k_metric, v_metric in inp_dict.items():
+        for k_value, v_value in v_metric.items():
+            print(f"{k_metric} ({k_value}): {v_value}")
+
+def calc_overall_diff(util_diff):
+    """Calculate mean difference across models"""
+    list_methods = list(util_diff.keys())
+    overall_diff_dict = {}
+    for metric_k, metric_v in util_diff[list_methods[0]].items():
+        overall_diff_dict[metric_k] = {}
+        for avg_k, avg_v in metric_v.items():
+            overall_diff_dict[metric_k][avg_k] = {}
+            sum_avg = 0
+            for one_method in list_methods:
+                #print(metric_k, avg_k, one_method, util_diff[one_method][metric_k][avg_k])
+                sum_avg += util_diff[one_method][metric_k][avg_k]
+            overall_diff_dict[metric_k][avg_k] = sum_avg / len(list_methods)
+    return overall_diff_dict
+
+def calc_diff_metrics(util1, util2):
+    """Calculate relative difference between two utilities"""
+    util_diff = {}
+    for metric_k1, metric_v1 in util1.items():
+        if not metric_k1 in util2:
+            continue
+        util_diff[metric_k1] = {}
+        for avg_k1, avg_v1 in metric_v1.items():
+            if not avg_k1 in util2[metric_k1]:
+                continue
+            diff = abs(avg_v1 - util2[metric_k1][avg_k1]) / max(1e-9, avg_v1)
+            util_diff[metric_k1][avg_k1] = diff
+    return util_diff
+
+def calc_metrics(y_pred, y_test, 
+                 metrics=[("accuracy", "value"), 
+                          ("precision", "macro"), 
+                          ("precision", "weighted"), 
+                          ("recall", "macro"), 
+                          ("recall", "weighted"), 
+                          ("f1", "macro"),
+                          ("f1", "weighted")]):
+    """Computes metrics using a list of predictions and their ground-truth labels"""
+    util_collect = {}
+    for method_name, ave_method in metrics:
+        if not method_name in util_collect:
+            util_collect[method_name] = {}
+        
+        if method_name.lower() in ["precision"]:
+            util_collect[method_name][ave_method] = \
+                precision_score(y_pred, y_test, average=ave_method, zero_division=True) * 100.
+        elif method_name.lower() in ["recall"]:
+            util_collect[method_name][ave_method] = \
+                recall_score(y_pred, y_test, average=ave_method, zero_division=True) * 100.
+        elif method_name.lower() in ["f1", "f-1"]:
+            util_collect[method_name][ave_method] = \
+                f1_score(y_pred, y_test, average=ave_method, zero_division=True) * 100.
+        elif method_name.lower() in ["accuracy"]:
+            util_collect[method_name][ave_method] = \
+                accuracy_score(y_pred, y_test) * 100.
+    return util_collect
 
 
 def handle_cmdline_args():
@@ -248,17 +365,35 @@ def main():
         print("[WARNING] 'classifier' could not be found, use default.")
         # List of classifiers and their arguments
         classifiers = {
-            LogisticRegression: {"max_iter": 10000},
-            KNeighborsClassifier: {"n_neighbors": 3},
-            SVC: {"kernel": "linear", "C": 0.025},
+            LogisticRegression:  {"mode": "range",
+                                 "params_main": {"max_iter": 5000},
+                                 "params_range": {"classifier__max_iter": [10,50,100,150,180, 200, 250, 300]}
+                                 },
+            KNeighborsClassifier: {"mode": "main",
+                                  "params_main": {"n_neighbors": 3},
+                                  "params_range": {"classifier__n_neighbors": [3, 4, 5]}
+                                  },
+            SVC: {"mode": "range",
+                 "params_main": {"kernel": "linear", "C": 0.025},
+                 "params_range": {'classifier__C': [0.025, 0.05, 0.1, 0.5, 1], "classifier__kernel": ("linear", "rbf")}
+                 },
             # SVC: {"gamma": 2, "C": 1},
-            # GaussianProcessClassifier: {"kernel": 1.0 * RBF(1.0)},
+            
+            #GaussianProcessClassifier: {"mode": "main", 
+            #                            "params_main": {"kernel": 1.0 * RBF(1.0)},
+            #                            "params_range": {}
+            #                            },
+
+            RandomForestClassifier: {"mode": "main", 
+                                     "params_main": {"max_depth": 5, "n_estimators": 10, "max_features": 1, "random_state": 123},
+                                     "params_range": {}
+                                     },
+
             # DecisionTreeClassifier: {"max_depth": 5},
-            # RandomForestClassifier: {"max_depth": 5, "n_estimators": 10, "max_features": 1},
             # MLPClassifier: {"alpha": 1, "max_iter": 5000},
             # AdaBoostClassifier: {},
-            GaussianNB: {},
-            QuadraticDiscriminantAnalysis: {}
+            #GaussianNB: {},
+            #QuadraticDiscriminantAnalysis: {}
         }
 
     utility_measure_sklearn_classifiers(synth_method,
