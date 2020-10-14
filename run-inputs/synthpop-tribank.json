@@ -28,11 +28,11 @@
         "label_column": "receiver",
         "test_train_ratio": 0.2,
         "num_leaked_rows": 0,
-	"classifier": {
-        	"LogisticRegression": {"max_iter": 10000},
-        	"KNeighborsClassifier": {"n_neighbors": 3},
-        	"SVC": {"kernel": "linear", "C": 0.025}
-    		}
+        "classifier": {
+		"LogisticRegression":  {"mode": "main",
+                                 	"params_main": {"max_iter": 1000}
+                                       }
+        }
     },
     "utility_parameters_correlations":
     {

@@ -8,12 +8,12 @@
         "num_samples_to_fit": -1,
         "num_samples_to_synthesize": -1,
         "num_datasets_to_synthesize": 5,
-        "num_epochs": 2,
+        "num_epochs": 5,
         "random_state": 1234
     },
     "privacy_parameters_disclosure_risk":
     {
-        "enabled": false,
+        "enabled": true,
         "num_samples_intruder": 100,
         "vars_intruder": ["Treatment", "Gender", "Age bracket"]
     },

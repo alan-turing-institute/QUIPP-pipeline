@@ -30,7 +30,7 @@ def handle_cmdline_args():
     return args
 
 
-def extract_parameters(args, synth_params, metric):
+def extract_parameters(args, synth_params):
     """
     This method takes args from the command line and
     a synth_params dictionary and extracts some key
@@ -50,13 +50,10 @@ def extract_parameters(args, synth_params, metric):
     else:
         path_original_ds = os.path.abspath(dataset) + '.csv'
 
-    # create output .json full path
-    output_file_json = path_released_ds + f"/utility_{metric}.json"
-
     random_seed = synth_params['parameters']['random_state']
 
     return synth_method, path_original_ds, path_original_meta, \
-           path_released_ds, output_file_json, random_seed
+           path_released_ds, random_seed
 
 
 def find_column_types(orig_metadata, synth_method, categorical_types):

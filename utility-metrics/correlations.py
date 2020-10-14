@@ -227,8 +227,10 @@ def main():
     # extract paths and other parameters from args
     synth_method, path_original_ds, \
     path_original_meta, path_released_ds, \
-    output_file_json, random_seed = extract_parameters(args, synth_params,
-                                                       "correlations")
+    random_seed = extract_parameters(args, synth_params)
+
+    # create output .json full path
+    output_file_json = path_released_ds + f"/utility_correlations.json"
 
     # calculate and save correlation-like metrics
     correlation_metrics(synth_method, path_original_ds,

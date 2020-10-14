@@ -9,8 +9,8 @@
         "num_samples_to_synthesize": -1,
         "num_datasets_to_synthesize": 5,
         "random_state": 12345,
-        "vars_sequence": [12,4,9,13,1,2],
-        "synthesis_methods": ["cart", "cart", "", "cart", "", "", "", "", "cart", "", "", "sample", "cart"],
+        "vars_sequence": [12,9,13,1,2,11,4],
+        "synthesis_methods": ["cart", "cart", "", "cart", "", "", "", "", "cart", "", "cart", "sample", "cart"],
         "proper": false,
         "tree_minbucket": 5,
         "smoothing": {}
@@ -18,14 +18,14 @@
     "privacy_parameters_disclosure_risk":
     {
         "enabled": true,
-        "num_samples_intruder": 1000,
+        "num_samples_intruder": 20,
         "vars_intruder": ["sex", "edu", "marital", "ls", "smoke", "wkabint"]
     },
     "utility_parameters_classifiers":
     {
         "enabled": true,
-        "input_columns": ["sex", "age", "edu", "marital", "sport", "ls", "smoke"],
-        "label_column": "wkabint",
+        "input_columns": ["sex", "wkabint", "marital", "sport", "ls", "smoke"],
+        "label_column": "edu",
         "test_train_ratio": 0.3,
         "num_leaked_rows": 0
     },
