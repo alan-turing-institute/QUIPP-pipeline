@@ -10,15 +10,11 @@ on:
 jobs:
   run_script:
 
-    runs-on: ubuntu-18.04
-    container:
-      image: rocker/tidyverse:3.6.1
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v1
-    - name: Install dependencies
-      run: Rscript -e "install.packages(c('testthat', 'synthpop'))"
-    - name: Run tests
-      run: |-
-        cd synth-methods/synthpop/
-        Rscript -e 'testthat::test_dir("tests", reporter=c("tap", "fail"))'
+    - name: Build Docker container
+      run: docker build --file binder/Dockerfile --tag quipp-pipeline .
+    - name: Run synthpop tests
+      run: docker run quipp-pipeline Rscript -e 'testthat::test_dir("synth-methods/synthpop/tests", reporter=c("tap", "fail"))'

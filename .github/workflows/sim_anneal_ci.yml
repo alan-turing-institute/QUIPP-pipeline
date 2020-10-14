@@ -10,19 +10,13 @@ on:
       - '.github/workflows/sim_anneal_ci.yml'
 
 jobs:
-  run_tests:
-    name: 'Set up conda environment and run tests'
-    runs-on: 'ubuntu-latest'
+  run_script:
+
+    runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: goanpeca/setup-miniconda@v1
-        with:
-           activate-environment: sim_anneal
-           environment-file: synth-methods/simulated-annealing/environment.yml
-           python-version: 3.6
-           auto-activate-base: false
-      - shell: bash -l {0}
-        run: |
-          pytest -v synth-methods/simulated-annealing
-          conda info
-          conda list
+    - uses: actions/checkout@v1
+    - name: Build Docker container
+      run: docker build --file binder/Dockerfile --tag quipp-pipeline .
+    - name: Run simulated annealing tests
+      run: docker run quipp-pipeline pytest -v synth-methods/simulated-annealing
