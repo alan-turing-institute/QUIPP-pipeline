@@ -15,13 +15,13 @@
         "epsilon0": 0,
         "tinc": 0
     },
-    "parameters_disclosure_risk":
+    "privacy_parameters_disclosure_risk":
     {
         "enabled": false,
         "num_samples_intruder": 100,
         "vars_intruder": []
     },
-    "parameters_sklearn_utility":
+    "utility_parameters_classifiers":
     {
         "enabled": true,
         "input_columns": ["Time in A&E (mins)"],
@@ -29,7 +29,7 @@
         "test_train_ratio": 0.3,
         "num_leaked_rows": 0
     },
-    "parameters_correlations":
+    "utility_parameters_correlations":
     {
         "enabled": true
     }

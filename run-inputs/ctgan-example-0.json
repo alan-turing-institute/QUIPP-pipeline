@@ -1,5 +1,5 @@
 {
-    "enabled" : true,
+    "enabled" : false,
     "dataset" : "generator-outputs/odi-nhs-ae/hospital_ae_data_deidentify",
     "synth-method" : "CTGAN",
     "parameters":
@@ -11,13 +11,13 @@
         "num_epochs": 2,
         "random_state": 1234
     },
-    "parameters_disclosure_risk":
+    "privacy_parameters_disclosure_risk":
     {
         "enabled": false,
         "num_samples_intruder": 100,
         "vars_intruder": ["Treatment", "Gender", "Age bracket"]
     },
-    "parameters_sklearn_utility":
+    "utility_parameters_classifiers":
     {
         "enabled": true,
         "input_columns": ["Time in A&E (mins)"],
@@ -25,7 +25,7 @@
         "test_train_ratio": 0.2,
         "num_leaked_rows": 0
     },
-    "parameters_correlations":
+    "utility_parameters_correlations":
     {
         "enabled": true
     }

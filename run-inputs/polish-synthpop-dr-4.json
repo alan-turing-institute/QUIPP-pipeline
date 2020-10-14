@@ -15,13 +15,13 @@
         "tree_minbucket": 5,
         "smoothing": {}
     },
-    "parameters_disclosure_risk":
+    "privacy_parameters_disclosure_risk":
     {
         "enabled": true,
         "num_samples_intruder": 1000,
         "vars_intruder": ["sex", "edu", "marital", "ls", "smoke", "wkabint"]
     },
-    "parameters_sklearn_utility":
+    "utility_parameters_classifiers":
     {
         "enabled": true,
         "input_columns": ["sex", "age", "edu", "marital", "sport", "ls", "smoke"],
@@ -29,7 +29,7 @@
         "test_train_ratio": 0.3,
         "num_leaked_rows": 0
     },
-    "parameters_correlations":
+    "utility_parameters_correlations":
     {
         "enabled": true
     }

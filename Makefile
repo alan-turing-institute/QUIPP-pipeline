@@ -22,13 +22,13 @@ SYNTH_OUTPUTS_PREFIX = $(addprefix synth-output/,$(RUN_INPUTS_BASE_PREFIX))
 SYNTH_OUTPUTS_CSV = $(addsuffix /synthetic_data_1.csv,$(SYNTH_OUTPUTS_PREFIX))
 
 ## Construct a list of .json file names for each utility and privacy metric
-SYNTH_OUTPUTS_DISCL_RISK = $(addsuffix /disclosure_risk.json,$(SYNTH_OUTPUTS_PREFIX))
-SYNTH_OUTPUTS_UTIL_SKLEARN = $(addsuffix /sklearn_classifiers.json,$(SYNTH_OUTPUTS_PREFIX))
-SYNTH_OUTPUTS_UTIL_CORR = $(addsuffix /correlations.json,$(SYNTH_OUTPUTS_PREFIX))
+SYNTH_OUTPUTS_PRIV_DISCL_RISK = $(addsuffix /privacy_disclosure_risk.json,$(SYNTH_OUTPUTS_PREFIX))
+SYNTH_OUTPUTS_UTIL_CLASS = $(addsuffix /utility_classifiers.json,$(SYNTH_OUTPUTS_PREFIX))
+SYNTH_OUTPUTS_UTIL_CORR = $(addsuffix /utility_correlations.json,$(SYNTH_OUTPUTS_PREFIX))
 
 .PHONY: all all-synthetic generated-data clean
 
-all: $(SYNTH_OUTPUTS_DISCL_RISK) $(SYNTH_OUTPUTS_UTIL_SKLEARN) $(SYNTH_OUTPUTS_UTIL_CORR)
+all: $(SYNTH_OUTPUTS_PRIV_DISCL_RISK) $(SYNTH_OUTPUTS_UTIL_CLASS) $(SYNTH_OUTPUTS_UTIL_CORR)
 
 all-synthetic: $(SYNTH_OUTPUTS_CSV)
 
@@ -75,18 +75,18 @@ synth-output/%/synthetic_data_1.csv : run-inputs/%.json $(AE_DEIDENTIFIED_DATA)
 ##-------------------------------------
 
 ## compute privacy and utility metrics
-$(SYNTH_OUTPUTS_DISCL_RISK) : \
-synth-output/%/disclosure_risk.json : \
+$(SYNTH_OUTPUTS_PRIV_DISCL_RISK) : \
+synth-output/%/privacy_disclosure_risk.json : \
 run-inputs/%.json synth-output/%/synthetic_data_1.csv
 	python privacy-metrics/disclosure_risk.py -i $< -o $$(dirname $@)
 
-$(SYNTH_OUTPUTS_UTIL_SKLEARN) : \
-synth-output/%/sklearn_classifiers.json : \
+$(SYNTH_OUTPUTS_UTIL_CLASS) : \
+synth-output/%/utility_classifiers.json : \
 run-inputs/%.json synth-output/%/synthetic_data_1.csv
-	python utility-metrics/sklearn_classifiers.py -i $< -o $$(dirname $@)
+	python utility-metrics/classifiers.py -i $< -o $$(dirname $@)
 
 $(SYNTH_OUTPUTS_UTIL_CORR) : \
-synth-output/%/correlations.json : \
+synth-output/%/utility_correlations.json : \
 run-inputs/%.json synth-output/%/synthetic_data_1.csv
 	python utility-metrics/correlations.py -i $< -o $$(dirname $@)
 

@@ -1,4 +1,4 @@
-from glob import  glob
+from glob import glob
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -63,7 +63,7 @@ def main():
     with open(args.infile) as f:
         synth_params = json.load(f)
 
-    if not (synth_params["enabled"] and synth_params['parameters_disclosure_risk']['enabled']):
+    if not (synth_params["enabled"] and synth_params['privacy_parameters_disclosure_risk']['enabled']):
         return
 
     # read dataset name from .json
@@ -77,7 +77,7 @@ def main():
 
     # read parameters from .json
     parameters = synth_params["parameters"]
-    disclosure_risk_parameters = synth_params["parameters_disclosure_risk"]
+    disclosure_risk_parameters = synth_params["privacy_parameters_disclosure_risk"]
 
     # read original data set
     data_full = pd.read_csv(path_original_ds)
