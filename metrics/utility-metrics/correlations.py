@@ -9,6 +9,7 @@ import warnings
 import numpy as np
 import pandas as pd
 from dython.nominal import cramers_v, theils_u, correlation_ratio
+
 sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir, "utilities"))
 from utils import handle_cmdline_args, extract_parameters, find_column_types
 

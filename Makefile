@@ -78,17 +78,17 @@ synth-output/%/synthetic_data_1.csv : run-inputs/%.json $(AE_DEIDENTIFIED_DATA)
 $(SYNTH_OUTPUTS_PRIV_DISCL_RISK) : \
 synth-output/%/privacy_disclosure_risk.json : \
 run-inputs/%.json synth-output/%/synthetic_data_1.csv
-	python privacy-metrics/disclosure_risk.py -i $< -o $$(dirname $@)
+	python metrics/privacy-metrics/disclosure_risk.py -i $< -o $$(dirname $@)
 
 $(SYNTH_OUTPUTS_UTIL_CLASS) : \
 synth-output/%/utility_classifiers.json : \
 run-inputs/%.json synth-output/%/synthetic_data_1.csv
-	python utility-metrics/classifiers.py -i $< -o $$(dirname $@)
+	python metrics/utility-metrics/classifiers.py -i $< -o $$(dirname $@)
 
 $(SYNTH_OUTPUTS_UTIL_CORR) : \
 synth-output/%/utility_correlations.json : \
 run-inputs/%.json synth-output/%/synthetic_data_1.csv
-	python utility-metrics/correlations.py -i $< -o $$(dirname $@)
+	python metrics/utility-metrics/correlations.py -i $< -o $$(dirname $@)
 
 
 ##-------------------------------------

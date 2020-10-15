@@ -1,12 +1,20 @@
-from glob import glob
-import matplotlib.pyplot as plt
+"""
+Code to calculate disclosure risk metric.
+"""
+
+import argparse
+import json
+import os
+import pickle
+import sys
 import numpy as np
 import pandas as pd
-import pickle
-import json
-import argparse
-import sys
-import os
+import matplotlib.pyplot as plt
+from glob import glob
+
+sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir, "utilities"))
+from utils import handle_cmdline_args
+
 
 # constants
 path_save_max_values = "./dict_max_matches.pkl"
@@ -28,33 +36,14 @@ output_mode = 1
 threshold_max = 0.8
 
 
-def handle_cmdline_args():
-    """Return an object with attributes 'infile' and 'outfile', after
-handling the command line arguments"""
-
-    parser = argparse.ArgumentParser(
-        description='Generate synthetic data from a specification in a json '
-        'file using the "synth-method" described in the json file.  ')
-
-    parser.add_argument(
-        '-i', dest='infile', required=True,
-        help='The input json file. Must contain a "synth-method" property')
-
-    parser.add_argument(
-        '-o', dest='outfile_prefix', required=True, help='The prefix of the output paths (data json and csv), relative to the QUIPP-pipeline root directory')
-
-    args = parser.parse_args()
-    return args
-
 def compare_rows(row_check, dataframe_check, drop_column="idx"):
-    """
-    Find all the matched rows in dataframe_check given a row to check (row_check)
-    """
-    # all(1) means that all items of row_check should match with rows in dataframe_check
-    # except for drop_column
-    dataframe_matched = dataframe_check[(dataframe_check.drop(drop_column, axis=1) ==\
+    """Find all the matched rows in dataframe_check given a row to check (row_check)"""
+    # all(1) means that all items of row_check should match with
+    # rows in dataframe_check except for drop_column
+    dataframe_matched = dataframe_check[(dataframe_check.drop(drop_column, axis=1) ==
                                          row_check.drop(drop_column)).all(1)]
     return dataframe_matched
+
 
 def main():
     # read command line options
@@ -232,5 +221,6 @@ def main():
     with open(path_released_ds + "/disclosure_risk.json", 'w') as f:
         json.dump(metrics, f, indent=4)
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     main()

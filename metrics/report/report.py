@@ -1,18 +1,21 @@
-#!/usr/bin/env python
-
 """
-Generate a report from sklearn_classifier outputs
+Code to generate an HTML report from the classifiers' outputs
 """
 
-import codecs
-from datetime import datetime
-import matplotlib.pyplot as plt
-import os
-import pandas as pd
-from plotting_tools import plot_util_confusion_matrix
-from classifiers import print_metric
+
 import json
+import os
+import sys
+import matplotlib.pyplot as plt
+import pandas as pd
+from datetime import datetime
+from plotting_tools import plot_util_confusion_matrix
 
+sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir, "utility-metrics"))
+from classifiers import print_metric
+
+
+# a list of items included in the report
 list_items2print = [
     {
         "filename": "utility_o_o.json",
@@ -35,6 +38,7 @@ list_items2print = [
         "action": "plot_confusion"
     }
 ]
+
 
 def print_header():
     myheader = """
@@ -66,8 +70,11 @@ def print_header():
 <body>"""
     return myheader
 
+
 def report(path2synth_output):
-    # --- generate report
+    """Generates the report"""
+
+    # create time stamp
     curr_time = datetime.now()
     curr_time_str = "{}-{}-{}_{}-{}-{}".format(curr_time.year, 
                                                curr_time.month,
@@ -83,22 +90,24 @@ def report(path2synth_output):
                                                      curr_time.minute,
                                                      curr_time.second)
     
+    # create output directory string and setup directory
     par_dir = f"./report_{curr_time_str}"
     par_dir = os.path.join(path2synth_output, par_dir)
-    
     if not os.path.isdir(par_dir):
         os.makedirs(par_dir)
     
+    # crete html file
     filename = os.path.join(par_dir, "report.html")
     f = open(filename, 'w')
     
     message = print_header()
     message += "<h1>Report" + "(" + curr_time_str_print + ")" + "</h1>"
     
-    # --- Plot overall differences
+    # --- plot overall differences
     fio = open(os.path.join(path2synth_output, "utility_overall_diff.json")).read()
     dict_read = json.loads(fio)
     message += "<h2>Overall difference</h2><p>"
+
     # extract metric names/values
     metric_name = []
     metric_value = []
@@ -106,8 +115,6 @@ def report(path2synth_output):
         for k_value, v_value in v_metric.items():
             metric_name.append(f"{k_metric}_{k_value}")
             metric_value.append(v_value*100)
-            #message += f"{k_metric} ({k_value}): {v_value*100:.3f}" + "<br/>"
-    #message += "<br/>"
     path2image = os.path.abspath(os.path.join(par_dir, "figs", "overall_diffs.png"))
     
     if not os.path.isdir(os.path.dirname(path2image)):
@@ -124,20 +131,22 @@ def report(path2synth_output):
     message += f'<img src={path2image} alt="" width="800" align="middle"><br />' 
     message += "<hr>"
     
-    # --- Plot differences in each method
+    # --- plot differences in each method
     fio = open(os.path.join(path2synth_output, "utility_diff.json")).read()
     dict_read = json.loads(fio)
     message += "<h2>Differences in each method</h2><p>"
+
     # convert the nested dictionary to a pandas dataframe
     df_rd = pd.concat({k: pd.DataFrame(v).T for k, v in dict_read.items()}, axis=0)
     list_methods = df_rd.index.get_level_values(0).to_list()
+
     # list of unique methods
     list_uniq_methods = []
     for one_method in list_methods:
         if one_method not in list_uniq_methods:
             list_uniq_methods.append(one_method)
     
-    # extract precision/recall/F1 scores
+    # --- plot precision/recall/F1 scores
     prec_values = []
     recall_values = []
     f1_values = []
@@ -165,10 +174,10 @@ def report(path2synth_output):
     message += f'<img src={path2image} alt="" width="1000" align="middle"><br />' 
     message += "<hr>"
     
-    # Add details of each method / plot confusion matrix
-    # The details will be printed/plotted in two columns
+    # --- add details of each method / plot confusion matrix
+    # the details will be printed/plotted in two columns
     message += '<div class="column"><p>'
-    # Are we writing on the right column?
+    # are we writing on the right column?
     on_right_window = False
     for one_item in list_items2print:
         # XXX fragile, we check if r_o is in the filename
@@ -185,10 +194,10 @@ def report(path2synth_output):
             message += msg
     
         if one_item["action"] == "plot_confusion":
-            plt_names = plot_util_confusion_matrix(os.path.join(path2synth_output, one_item["filename"]), 
-                                       method_names=None, prefix=one_item["prefix"], 
-                                       save_dir=os.path.join(par_dir, "figs")
-                                       )
+            plt_names = plot_util_confusion_matrix(os.path.join(path2synth_output, one_item["filename"]),
+                                                   method_names=None, prefix=one_item["prefix"],
+                                                   save_dir=os.path.join(par_dir, "figs")
+                                                   )
             for plt_name in plt_names:
                 message += "<hr>"
                 message += f'<img src={plt_name} alt="" width="500"><br />' 
@@ -197,7 +206,10 @@ def report(path2synth_output):
     f.write(message)
     f.close()
 
+
+"""
 if __name__ == "__main__":
     # XXX move this to the input file
-    path2synth_output = "../synth-output/polish-synthpop-dr-4" 
+    path2synth_output = "../synth-output/polish-synthpop-dr-4"
     report(path2synth_output)
+"""

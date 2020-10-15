@@ -18,10 +18,11 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 
-report = importlib.import_module("report")
-
 sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir, "utilities"))
+sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir, "report"))
 from utils import handle_cmdline_args, extract_parameters, find_column_types
+import report
+
 
 # classifiers
 from sklearn.linear_model import LogisticRegression
