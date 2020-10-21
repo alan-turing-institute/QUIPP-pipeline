@@ -1,53 +1,57 @@
 ## --- echo commands (for debugging)
 ## SHELL = sh -xv
 
+
+##-------------------------------------
+## Set up main path variables
+##-------------------------------------
+
+## set basic variables
 PYTHON = python
 QUIPP_ROOT = $(shell pwd)
 
+## construct lists of run input .json files and their base prefixes
 RUN_INPUTS = $(wildcard run-inputs/*.json)
-
-## construct the synthetic output datafile names
 RUN_INPUTS_BASE_PREFIX = $(patsubst %.json,%,$(notdir $(RUN_INPUTS)))
+
+## construct list of synthetic output directories using the input file names
 SYNTH_OUTPUTS_PREFIX = $(addprefix synth-output/,$(RUN_INPUTS_BASE_PREFIX))
 
-## the synthetic data is in files synthetic_data_1.csv,
-## synthetic_data_2.csv, ...
+## construct list of the synthetic output .csv file names
+## (only the 1st synthetic .csv is used)
 SYNTH_OUTPUTS_CSV = $(addsuffix /synthetic_data_1.csv,$(SYNTH_OUTPUTS_PREFIX))
 
-## The privacy and utility scores: 
-SYNTH_OUTPUTS_DISCL_RISK = $(addsuffix /disclosure_risk.json,$(SYNTH_OUTPUTS_PREFIX))
-
-SYNTH_OUTPUTS_UTIL_SKLEARN = $(addsuffix /sklearn_classifiers.json,$(SYNTH_OUTPUTS_PREFIX))
-
-SYNTH_OUTPUTS_UTIL_CORR = $(addsuffix /correlations.json,$(SYNTH_OUTPUTS_PREFIX))
+## Construct a list of .json file names for each utility and privacy metric
+SYNTH_OUTPUTS_PRIV_DISCL_RISK = $(addsuffix /privacy_disclosure_risk.json,$(SYNTH_OUTPUTS_PREFIX))
+SYNTH_OUTPUTS_UTIL_CLASS = $(addsuffix /utility_classifiers.json,$(SYNTH_OUTPUTS_PREFIX))
+SYNTH_OUTPUTS_UTIL_CORR = $(addsuffix /utility_correlations.json,$(SYNTH_OUTPUTS_PREFIX))
 
 .PHONY: all all-synthetic generated-data clean
 
-all: $(SYNTH_OUTPUTS_DISCL_RISK) $(SYNTH_OUTPUTS_UTIL_SKLEARN) $(SYNTH_OUTPUTS_UTIL_CORR)
+all: $(SYNTH_OUTPUTS_PRIV_DISCL_RISK) $(SYNTH_OUTPUTS_UTIL_CLASS) $(SYNTH_OUTPUTS_UTIL_CORR)
 
 all-synthetic: $(SYNTH_OUTPUTS_CSV)
 
-## ----------------------------------------
-## Generated data
 
+##-------------------------------------
+## Generate input data
+##-------------------------------------
+
+## set data file paths
 AE_DEIDENTIFIED_DATA = generator-outputs/odi-nhs-ae/hospital_ae_data_deidentify.csv generator-outputs/odi-nhs-ae/hospital_ae_data_deidentify.json
-
 LONDON_POSTCODES = generators/odi-nhs-ae/data/London\ postcodes.csv
-
 generated-data: $(AE_DEIDENTIFIED_DATA)
 
-# Download the London Postcodes dataset used by the A&E generated
+# download the London Postcodes dataset used by the A&E generated
 # dataset (this is about 133 MB)
 $(LONDON_POSTCODES):
 	cd generators/odi-nhs-ae/ && \
 	curl -o "./data/London postcodes.csv" \
 		https://www.doogal.co.uk/UKPostcodesCSV.ashx?region=E12000007
 
-# Make the "A&E deidentified" generated dataset
-#
-# This is currently the only generated dataset, so it is handled with
+# make the "A&E deidentified" generated dataset
+# this is currently the only generated dataset, so it is handled with
 # its own rule
-#
 $(AE_DEIDENTIFIED_DATA) &: $(LONDON_POSTCODES)
 	mkdir -p generator-outputs/odi-nhs-ae/ && \
 	cd generator-outputs/odi-nhs-ae/ && \
@@ -55,36 +59,41 @@ $(AE_DEIDENTIFIED_DATA) &: $(LONDON_POSTCODES)
 	$(PYTHON) $(QUIPP_ROOT)/generators/odi-nhs-ae/deidentify.py
 
 
-## ----------------------------------------
-## Synthetic data
+##-------------------------------------
+## Generate synthetic data
+##-------------------------------------
 
-## This rule also builds "synth-output/%/data_description.json"
+## synthesize data - this rule also builds "synth-output/%/data_description.json"
 $(SYNTH_OUTPUTS_CSV) : \
 synth-output/%/synthetic_data_1.csv : run-inputs/%.json $(AE_DEIDENTIFIED_DATA)
 	mkdir -p $$(dirname $@) && \
 	python synthesize.py -i $< -o $$(dirname $@)
 
 
-## ----------------------------------------
-## Privacy and utility metrics
-$(SYNTH_OUTPUTS_DISCL_RISK) : \
-synth-output/%/disclosure_risk.json : \
-run-inputs/%.json synth-output/%/synthetic_data_1.csv
-	python privacy-metrics/disclosure_risk.py -i $< -o $$(dirname $@)
+##-------------------------------------
+## Calculate privacy and utility
+##-------------------------------------
 
-$(SYNTH_OUTPUTS_UTIL_SKLEARN) : \
-synth-output/%/sklearn_classifiers.json : \
+## compute privacy and utility metrics
+$(SYNTH_OUTPUTS_PRIV_DISCL_RISK) : \
+synth-output/%/privacy_disclosure_risk.json : \
 run-inputs/%.json synth-output/%/synthetic_data_1.csv
-	python utility-metrics/sklearn_classifiers.py -i $< -o $$(dirname $@)
+	python metrics/privacy-metrics/disclosure_risk.py -i $< -o $$(dirname $@)
+
+$(SYNTH_OUTPUTS_UTIL_CLASS) : \
+synth-output/%/utility_classifiers.json : \
+run-inputs/%.json synth-output/%/synthetic_data_1.csv
+	python metrics/utility-metrics/classifiers.py -i $< -o $$(dirname $@)
 
 $(SYNTH_OUTPUTS_UTIL_CORR) : \
-synth-output/%/correlations.json : \
+synth-output/%/utility_correlations.json : \
 run-inputs/%.json synth-output/%/synthetic_data_1.csv
-	python utility-metrics/correlations.py -i $< -o $$(dirname $@)
+	python metrics/utility-metrics/correlations.py -i $< -o $$(dirname $@)
 
 
-## ----------------------------------------
+##-------------------------------------
 ## Clean
+##-------------------------------------
 
 clean:
 	rm -rf generator-outputs synth-output

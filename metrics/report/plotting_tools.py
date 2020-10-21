@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+
 
 import codecs
 import json
@@ -7,8 +7,8 @@ import numpy as np
 import os
 import itertools
 
-# Reference:
-# https://www.kaggle.com/grfiv4/plot-a-confusion-matrix
+
+
 
 def plot_confusion_matrix(cm,
                           target_names,
@@ -92,6 +92,7 @@ def plot_confusion_matrix(cm,
         os.makedirs(save_dir)
     plt.savefig(save_path, format="PNG", bbox_inches = "tight")
     return os.path.abspath(save_path)
+
 
 def plot_util_confusion_matrix(confusion_dict_path, method_names=None, 
                                prefix="", normalize=False, save_dir="."):

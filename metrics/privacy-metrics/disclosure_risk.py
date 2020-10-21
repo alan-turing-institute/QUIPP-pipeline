@@ -1,12 +1,20 @@
-from glob import  glob
-import matplotlib.pyplot as plt
+"""
+Code to calculate disclosure risk metric.
+"""
+
+import argparse
+import json
+import os
+import pickle
+import sys
 import numpy as np
 import pandas as pd
-import pickle
-import json
-import argparse
-import sys
-import os
+import matplotlib.pyplot as plt
+from glob import glob
+
+sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir, "utilities"))
+from utils import handle_cmdline_args
+
 
 # constants
 path_save_max_values = "./dict_max_matches.pkl"
@@ -25,66 +33,53 @@ indx_column = "idx"
 output_mode = 1
 # the following value will be used to extract "found" rows from the released data:
 # np.max(p.d.f of one intruder row)*threshold_max
-threshold_max = 0.8
+# this should help with floating point comparisons of numbers that are very close
+threshold_max = 0.999
 
-
-def handle_cmdline_args():
-    """Return an object with attributes 'infile' and 'outfile', after
-handling the command line arguments"""
-
-    parser = argparse.ArgumentParser(
-        description='Generate synthetic data from a specification in a json '
-        'file using the "synth-method" described in the json file.  ')
-
-    parser.add_argument(
-        '-i', dest='infile', required=True,
-        help='The input json file. Must contain a "synth-method" property')
-
-    parser.add_argument(
-        '-o', dest='outfile_prefix', required=True, help='The prefix of the output paths (data json and csv), relative to the QUIPP-pipeline root directory')
-
-    args = parser.parse_args()
-    return args
 
 def compare_rows(row_check, dataframe_check, drop_column="idx"):
-    """
-    Find all the matched rows in dataframe_check given a row to check (row_check)
-    """
-    # all(1) means that all items of row_check should match with rows in dataframe_check
-    # except for drop_column
-    dataframe_matched = dataframe_check[(dataframe_check.drop(drop_column, axis=1) ==\
+    """Find all the matched rows in dataframe_check given a row to check (row_check)"""
+    # all(1) means that all items of row_check should match with
+    # rows in dataframe_check except for drop_column
+    dataframe_matched = dataframe_check[(dataframe_check.drop(drop_column, axis=1) ==
                                          row_check.drop(drop_column)).all(1)]
     return dataframe_matched
+
 
 def main():
     # read command line options
     args = handle_cmdline_args()
+    verbose = False
 
     with open(args.infile) as f:
         synth_params = json.load(f)
 
-    if not (synth_params["enabled"] and synth_params['parameters_disclosure_risk']['enabled']):
+    if not (synth_params["enabled"] and
+            synth_params['privacy_parameters_disclosure_risk']['enabled']):
         return
 
+    print("[INFO] Calculating disclosure risk privacy metrics")
     # read dataset name from .json
     dataset = synth_params["dataset"]
     synth_method = synth_params["synth-method"]
     path_released_ds = args.outfile_prefix
     if synth_method == 'sgf':
-        path_original_ds = os.path.join(path_released_ds, os.path.basename(dataset) + "_numcat.csv")
+        path_original_ds = os.path.join(path_released_ds,
+                                        os.path.basename(dataset) + "_numcat.csv")
     else:
         path_original_ds = os.path.abspath(dataset) + '.csv'
 
     # read parameters from .json
     parameters = synth_params["parameters"]
-    disclosure_risk_parameters = synth_params["parameters_disclosure_risk"]
+    disclosure_risk_parameters = synth_params["privacy_parameters_disclosure_risk"]
 
     # read original data set
     data_full = pd.read_csv(path_original_ds)
 
     # read/set intruder samples number
     if disclosure_risk_parameters['num_samples_intruder'] > data_full.shape[0]:
-        sys.exit("Intruder samples cannot be more than original dataset samples: " + disclosure_risk_parameters['num_samples_intruder'] + " > " + data_full.shape[0])
+        sys.exit("Intruder samples cannot be more than original dataset samples: "
+                 + disclosure_risk_parameters["num_samples_intruder"] + " > " + data_full.shape[0])
     elif disclosure_risk_parameters['num_samples_intruder'] == -1:
         num_samples_intruder = data_full.shape[0]
     else:
@@ -108,21 +103,17 @@ def main():
     list_paths_released_ds = glob(path_released_ds + "/synthetic_data_*.csv")
     list_paths_released_ds.sort()
 
-    # if output_mode == 1, set the threshold to 0.99,
-    # this should help with floating point comparisons of numbers that are very close
-    if output_mode == 1:
-        threshold_max = 0.999
-
     dict_matches = {}
     num_rows_released = False
     num_files_released = False
 
     # rlsd: released
     # itdr: intruder
-    print(10*"===")
-    print("[INFO] Find similar rows between released and intruder's datasets.\n")
+    if verbose:
+        print("Finding similar rows between released and intruder's datasets...\n")
     for i_rlsd, one_released_ds in enumerate(list_paths_released_ds):
-        print(f"Processing {one_released_ds}")
+        if verbose:
+            print(f"Processing {one_released_ds} ...")
         df_rlsd = pd.read_csv(one_released_ds)
         if not num_rows_released:
             num_rows_released = len(df_rlsd)
@@ -147,19 +138,22 @@ def main():
                 dict_matches[f"{i_itdr}"] = [matches_indx_list]
             else:
                 dict_matches[f"{i_itdr}"].append(matches_indx_list)
-    print(10*"===")
 
-    print("\n[INFO] Create probability distributions for each row in intruder's dataset.\n")
+    if verbose:
+        print("Creating probability distributions for each row in intruder's dataset...")
     p_dist_all = np.array([])
     dict_max_matches = {}
     for i_itdr in dict_matches:
-        print(".", end="", flush=True)
+        if verbose:
+            print(".", end="", flush=True)
         # first create a zero array with num_rows_released as the number of entries
         p_dist_row = np.zeros(num_rows_released)
         for m_rlsd in range(num_files_released):
             indicator_row = dict_matches[i_itdr][m_rlsd]
             len_indicator_row = len(indicator_row)
-            # Part of equation 6 in "Accounting for Intruder Uncertainty Due to Sampling When Estimating Identification Disclosure Risks in Partially Synthetic Data" paper.
+            # Part of equation 6 in "Accounting for Intruder Uncertainty Due to
+            # Sampling When Estimating Identification Disclosure Risks in
+            # Partially Synthetic Data" paper.
             p_dist_row[indicator_row] += np.ones(len_indicator_row)/len_indicator_row
         # normalize based on the number of released datasets
         p_dist_row /= float(num_files_released)
@@ -188,7 +182,8 @@ def main():
     # This only works with output_mode == 3 (return full probability)
     row_select = 0
     while (row_select >= 0) and (output_mode == 3):
-        row_select = int(input("\n\nSelect a row (indexed from 0) in the intruder's dataset. (or enter -1 to exit)  "))
+        row_select = int(input("\n\nSelect a row (indexed from 0) in the "
+                               "intruder's dataset. (or enter -1 to exit)  "))
         if row_select < 0:
             break
         elif row_select >= len(df_itdr):
@@ -210,7 +205,6 @@ def main():
         plt.tight_layout()
         plt.show()
 
-
     # Calculate privacy metrics
     with open(path_released_ds + "/intruder_indexes.json") as f_intruder_indexes:
         intruder_indexes = json.load(f_intruder_indexes)
@@ -227,10 +221,12 @@ def main():
     TMRi_norm = TMRi / disclosure_risk_parameters['num_samples_intruder']
     TMRa = TMRi / sum(c_indicator.values())
     metrics = {'EMRi': EMRi, 'TMRi': TMRi, 'TMRa': TMRa, 'EMRi_norm': EMRi_norm, 'TMRi_norm': TMRi_norm}
-    print(f"\nDisclosure risk metrics: {metrics}")
+    if verbose:
+        print(f"\nDisclosure risk metrics: {metrics}")
 
     with open(path_released_ds + "/disclosure_risk.json", 'w') as f:
         json.dump(metrics, f, indent=4)
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     main()

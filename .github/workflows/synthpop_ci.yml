@@ -1,9 +1,9 @@
-# Run synthpop R script (including installing dependencies)
-name: synthpop CI
+name: Run synthpop tests
 
 on:
   push:
     paths:
+      # only run when synthpop folder contents or this file are edited
       - 'methods/synthpop/**'
       - '.github/workflows/synthpop_ci.yml'
 

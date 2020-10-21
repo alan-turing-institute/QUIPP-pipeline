@@ -11,13 +11,13 @@
         "num_epochs": 20,
         "random_state": 1234
     },
-    "parameters_disclosure_risk":
+    "privacy_parameters_disclosure_risk":
     {
         "enabled": true,
         "num_samples_intruder": 100,
         "vars_intruder": ["payer"]
     },
-    "parameters_sklearn_utility":
+    "utility_parameters_classifiers":
     {
         "enabled": true,
         "input_columns": ["payer"],
@@ -30,7 +30,7 @@
                                        }
         }
     },
-    "parameters_correlations":
+    "utility_parameters_correlations":
     {
         "enabled": true
     }

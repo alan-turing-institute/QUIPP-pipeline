@@ -1,10 +1,9 @@
-# Run tests for the SDV example
-
-name: sdv ci
+name: Run SDV tests
 
 on:
   push:
     paths:
+      # only run when SDV folder contents or this file are edited
       - 'synth-methods/SDV/**'
       - '.github/workflows/sdv_ci.yml'
 

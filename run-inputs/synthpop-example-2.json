@@ -10,18 +10,18 @@
         "num_datasets_to_synthesize": 5,
         "random_state": 12345,
         "vars_sequence": [5, 3, 8, 1],
-        "synthesis_methods": ["cart", "", "cart", "", "cart", "", "", "cart"],
+        "synthesis_methods": ["cart", "", "cart", "", "", "", "", "cart"],
         "proper": true,
         "tree_minbucket": 1,
         "smoothing": {}
     },
-    "parameters_disclosure_risk":
+    "privacy_parameters_disclosure_risk":
     {
         "enabled": true,
-        "num_samples_intruder": 100,
+        "num_samples_intruder": 1000,
         "vars_intruder": ["Treatment", "Gender", "Age bracket"]
     },
-    "parameters_sklearn_utility":
+    "utility_parameters_classifiers":
     {
         "enabled": true,
         "input_columns": ["Time in A&E (mins)"],
@@ -29,7 +29,7 @@
         "test_train_ratio": 0.2,
         "num_leaked_rows": 0
     },
-    "parameters_correlations":
+    "utility_parameters_correlations":
     {
         "enabled": true
     }

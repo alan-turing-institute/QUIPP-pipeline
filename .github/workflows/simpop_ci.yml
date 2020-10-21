@@ -1,9 +1,9 @@
-# Run simpop R script (including installing dependencies)
-name: simpop CI
+name: Run simPop tests
 
 on:
   push:
     paths:
+      # only run when simPop folder contents or this file are edited
       - 'methods/simPop/**'
       - '.github/workflows/simpop_ci.yml'
 

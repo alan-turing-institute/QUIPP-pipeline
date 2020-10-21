@@ -1,11 +1,9 @@
-# Run tests for the simulated annealing example
-
-name: Generator ODI CI
+name: Run generator ODI tests
 
 on:
   push:
     paths:
-      # only run when simulated-annealing folder contents are edited
+      # only run when data generator folder contents or this file are edited
       - 'generators/odi-nhs-ae/**'
       - '.github/workflows/generator_odi_ci.yml'
 

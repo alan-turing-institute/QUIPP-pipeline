@@ -1,9 +1,9 @@
-# Run MICE R script (including installing dependencies)
-name: MICE CI
+name: Run MICE tests
 
 on:
   push:
     paths:
+      # only run when MICE folder contents or this file are edited
       - 'synth-methods/mice/**'
       - '.github/workflows/mice_ci.yml'
 
