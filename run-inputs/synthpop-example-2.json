@@ -10,7 +10,7 @@
         "num_datasets_to_synthesize": 5,
         "random_state": 12345,
         "vars_sequence": [5, 3, 8, 1],
-        "synthesis_methods": ["cart", "", "cart", "", "sample", "", "", "cart"],
+        "synthesis_methods": ["cart", "", "cart", "", "", "", "", "cart"],
         "proper": true,
         "tree_minbucket": 1,
         "smoothing": {}

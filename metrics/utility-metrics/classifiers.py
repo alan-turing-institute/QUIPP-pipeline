@@ -300,14 +300,15 @@ def calculate_overall_diff(util_diff):
     """Calculate mean difference across models"""
     list_methods = list(util_diff.keys())
     overall_diff_dict = {}
+    overall_diff_dict["overall"] = {}
     for metric_k, metric_v in util_diff[list_methods[0]].items():
-        overall_diff_dict[metric_k] = {}
+        overall_diff_dict["overall"][metric_k] = {}
         for avg_k, avg_v in metric_v.items():
-            overall_diff_dict[metric_k][avg_k] = {}
+            overall_diff_dict["overall"][metric_k][avg_k] = {}
             sum_avg = 0
             for one_method in list_methods:
                 sum_avg += util_diff[one_method][metric_k][avg_k]
-            overall_diff_dict[metric_k][avg_k] = sum_avg / len(list_methods)
+            overall_diff_dict["overall"][metric_k][avg_k] = sum_avg / len(list_methods)
     return overall_diff_dict
 
 

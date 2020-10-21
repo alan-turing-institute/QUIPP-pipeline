@@ -106,6 +106,7 @@ def report(path2synth_output):
     # --- plot overall differences
     fio = open(os.path.join(path2synth_output, "utility_overall_diff.json")).read()
     dict_read = json.loads(fio)
+    dict_read = dict_read["overall"]
     message += "<h2>Overall difference</h2><p>"
 
     # extract metric names/values
