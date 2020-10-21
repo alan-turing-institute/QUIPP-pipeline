@@ -1,5 +1,5 @@
 {
-    "enabled" : false,
+    "enabled" : true,
     "dataset" : "generator-outputs/odi-nhs-ae/hospital_ae_data_deidentify",
     "synth-method" : "synthpop",
     "parameters": 
@@ -10,7 +10,7 @@
         "num_datasets_to_synthesize": 5,
         "random_state": 12345,
         "vars_sequence": [5, 3, 8, 1],
-        "synthesis_methods": ["cart", "", "cart", "", "cart", "", "", "cart"],
+        "synthesis_methods": ["cart", "", "cart", "", "sample", "", "", "cart"],
         "proper": true,
         "tree_minbucket": 1,
         "smoothing": {}
@@ -18,7 +18,7 @@
     "privacy_parameters_disclosure_risk":
     {
         "enabled": true,
-        "num_samples_intruder": 100,
+        "num_samples_intruder": 1000,
         "vars_intruder": ["Treatment", "Gender", "Age bracket"]
     },
     "utility_parameters_classifiers":
