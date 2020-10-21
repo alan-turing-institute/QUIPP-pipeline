@@ -190,7 +190,7 @@ def report(path2synth_output):
         if one_item["action"] == "printMetric":
             fio = open(os.path.join(path2synth_output, one_item["filename"])).read()
             dict_read = json.loads(fio)
-            msg = print_metric(dict_read, title=one_item["title2print"])
+            msg = print_metric(dict_read, title=one_item["title2print"], verbose=False)
             message += msg
     
         if one_item["action"] == "plot_confusion":

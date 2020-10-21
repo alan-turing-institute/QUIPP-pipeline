@@ -263,22 +263,25 @@ def save_json(inp_dict, filename, par_dir):
         json.dump(inp_dict, write_file)
 
 
-def print_metric(inp_dict, title=" "):
+def print_metric(inp_dict, title=" ", verbose=True):
     """Prints metrics from dictionary"""
     msg = ""
     msg += f"\n\n{title}" + "<br />"
-    print(f"\n\n{title}")
+    if verbose:
+        print(f"\n\n{title}")
     for k_method, v_method in inp_dict.items():
         msg += "<br />"
         msg += f"{k_method}" + "<br />"
         msg += "-"*len(k_method) + "<br />"
-        print("")
-        print(f"{k_method}")
-        print("-"*len(k_method))
+        if verbose:
+            print("")
+            print(f"{k_method}")
+            print("-"*len(k_method))
         for k_metric, v_metric in v_method.items():
             for k_value, v_value in v_metric.items():
                 msg += f"{k_metric} ({k_value}): {v_value:.2f}" + "<br />"
-                print(f"{k_metric} ({k_value}): {v_value}")
+                if verbose:
+                    print(f"{k_metric} ({k_value}): {v_value}")
     return msg
 
 
