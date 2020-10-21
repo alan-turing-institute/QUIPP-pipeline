@@ -33,7 +33,8 @@ indx_column = "idx"
 output_mode = 1
 # the following value will be used to extract "found" rows from the released data:
 # np.max(p.d.f of one intruder row)*threshold_max
-threshold_max = 0.8
+# this should help with floating point comparisons of numbers that are very close
+threshold_max = 0.999
 
 
 def compare_rows(row_check, dataframe_check, drop_column="idx"):
@@ -101,11 +102,6 @@ def main():
     # list of paths of the released/synthetic datasets
     list_paths_released_ds = glob(path_released_ds + "/synthetic_data_*.csv")
     list_paths_released_ds.sort()
-
-    # if output_mode == 1, set the threshold to 0.99,
-    # this should help with floating point comparisons of numbers that are very close
-    if output_mode == 1:
-        threshold_max = 0.999
 
     dict_matches = {}
     num_rows_released = False
