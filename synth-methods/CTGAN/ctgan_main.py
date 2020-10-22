@@ -59,6 +59,8 @@ class SynthesizerCTGAN(SynthesizerBase):
         self.num_samples_to_fit = self.parameters['parameters']['num_samples_to_fit']
         self.num_epochs = self.parameters['parameters']['num_epochs']
         self.random_state = self.parameters['parameters']['random_state']
+        self.num_datasets_to_synthesize = self.parameters["parameters"]["num_datasets_to_synthesize"]
+        self.num_samples_to_synthesize = self.parameters["parameters"]["num_samples_to_synthesize"]
         if verbose:
             print(f"\n[INFO] Reading CTGAN parameters from json file:\n"
                   f"num_samples_to_fit = {self.num_samples_to_fit}\n"
@@ -86,40 +88,42 @@ class SynthesizerCTGAN(SynthesizerBase):
             print(data_sample.describe())
 
         # Instantiate CTGANSynthesizer object
-        ctgan = CTGANSynthesizer()
+        ctgan = CTGANSynthesizer(embedding_dim=128, batch_size=100)
 
         # Fit the model
         if verbose:
             print(f"\n[INFO] Fitting the CTGAN model, total number of epochs: {self.num_epochs}")
+        self.num_data_sample = len(data_sample)
         ctgan.fit(data_sample, self.discrete_column_names, epochs=self.num_epochs)
 
         # Store the model
         self.model = ctgan
 
-    def synthesize(self, output_path, num_samples_to_synthesize=False, store_internally=False, verbose=True):
+    def synthesize(self, output_path, num_samples_to_synthesize=-1, store_internally=False, verbose=True):
         """Create synthetic data set using the fitted model. Stores the synthetic data
         within the class object if store_internally=True (default) and outputs the
         synthetic data to disk if output_filename is provided (default False)."""
 
-        self.num_samples_to_synthesize = num_samples_to_synthesize
+        if self.num_samples_to_synthesize == None:
+            self.num_samples_to_synthesize = num_samples_to_synthesize
         # Synthesize the samples
-        if not self.num_samples_to_synthesize:
-            print(f"[INFO] number of samples to synthesize is set to {len(self.data_sample)}")
-            self.num_samples_to_synthesize = len(self.data_sample)
-        synthetic_data = self.model.sample(self.num_samples_to_synthesize)
-
-        if verbose:
-            print(f"\n[INFO] Synthesis: Created synthetic data set with the following characteristics:\n"
-                  f"#rows:    {synthetic_data.shape[0]}\n#columns: {synthetic_data.shape[1]}")
-            print(f"Column names:  {[col for col in synthetic_data.columns]}\n")
+        if self.num_samples_to_synthesize < 0:
+            print(f"[INFO] number of samples to synthesize is set to {self.num_data_sample}")
+            self.num_samples_to_synthesize = self.num_data_sample
 
         # Write data to disk if needed
         if output_path:
             if not os.path.isdir(output_path):
                 os.makedirs(output_path)
-            if os.path.isfile(output_path):
-                print(f"[WARNING] Output file {output_path} already exists and will be overwritten")
-            synthetic_data.to_csv(os.path.join(output_path,"synthetic_data_1.csv"), index=False)
+            for i_syn in range(1, self.num_datasets_to_synthesize + 1):
+                synthetic_data = self.model.sample(self.num_samples_to_synthesize)
+
+                if verbose:
+                    print(f"\n[INFO] Synthesis: Created synthetic data set with the following characteristics:\n"
+                          f"#rows:    {synthetic_data.shape[0]}\n#columns: {synthetic_data.shape[1]}")
+                    print(f"Column names:  {[col for col in synthetic_data.columns]}\n")
+
+                synthetic_data.to_csv(os.path.join(output_path, f"synthetic_data_{i_syn}.csv"), index=False)
 
             with open(os.path.join(output_path,"ctgan_parameters.json"), 'w') as par:
                 json.dump(self.parameters, par)
@@ -153,8 +157,4 @@ if __name__ == "__main__":
     path2params = os.path.join("tests", "parameters", "ctgan_parameters.json")
 
     ctgan_syn.fit_synthesizer(path2params, path2csv, path2meta)
-    ctgan_syn.synthesize(num_samples_to_synthesize=200, output_path=output_path)
-
-
-
-#    import ipdb; ipdb.set_trace()
+    ctgan_syn.synthesize(output_path=output_path)
