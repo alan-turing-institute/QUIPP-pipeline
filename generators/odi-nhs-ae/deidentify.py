@@ -16,10 +16,12 @@ sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir, os.path.
 from provenance import generate_provenance_json
 
 
-def main(input_filename: str, output_filename: str, output_dir: str, postcode_file: Optional[str]=None, seed: Optional[int]=12345):
+def main(input_filename: str, output_filename: str, output_dir: str, seed: Optional[int]=12345, postcode_file: Optional[str]=None):
 
     print('running de-identification steps...')
     start = time.time()
+
+    random.seed(seed)
 
     # We may want to supply an alternative postcode file, but will generally use this one:
     postcode_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "data", "London postcodes.csv") \
@@ -39,7 +41,7 @@ def main(input_filename: str, output_filename: str, output_dir: str, postcode_fi
     hospital_ae_df = convert_lsoa_to_imd_decile(hospital_ae_df, postcode_file_path)
 
     print('replacing Hospital with random number...')
-    hospital_ae_df = replace_hospital_with_random_number(hospital_ae_df, seed=seed)
+    hospital_ae_df = replace_hospital_with_random_number(hospital_ae_df)
 
     print('putting Arrival Hour in 4-hour bins...')
     hospital_ae_df = put_time_in_4_hour_bins(hospital_ae_df)
@@ -139,17 +141,14 @@ def convert_lsoa_to_imd_decile(hospital_ae_df: pd.DataFrame, postcode_file_path:
 
 
 def replace_hospital_with_random_number(
-        hospital_ae_df: pd.DataFrame, seed: Optional[int]=12345) -> pd.DataFrame:
+        hospital_ae_df: pd.DataFrame) -> pd.DataFrame:
     """ 
     Gives each hospital a random integer number and adds a new column
     with these numbers. Drops the hospital name column. 
 
     Keyword arguments:
     hospital_ae_df -- Hopsitals A&E records dataframe
-    seed -- random seed for reproducibility
     """
-
-    random.seed(seed)
 
     hospitals = hospital_ae_df['Hospital'].unique().tolist()
     random.shuffle(hospitals)
@@ -227,7 +226,8 @@ if __name__ == "__main__":
     parser.add_argument("--output-filename", type=str, default='hospital_ae_data_deidentify',
                         help="Output data filename (no extension)")
     parser.add_argument("--output-dir", type=str, default=os.getcwd(), help="Output directory")
+    parser.add_argument("--seed", type=int, default=1234, help="Random seed")
     args = parser.parse_args()
 
-    main(args.input_filename, args.output_filename, args.output_dir)
+    main(args.input_filename, args.output_filename, args.output_dir, args.seed)
 
