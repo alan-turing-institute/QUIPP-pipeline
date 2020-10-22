@@ -16,7 +16,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir, os.path.
 from provenance import generate_provenance_json
 
 
-def main(input_filename: str, output_filename: str, output_dir: str, postcode_file: Optional[str]=None):
+def main(input_filename: str, output_filename: str, output_dir: str, postcode_file: Optional[str]=None, seed: Optional[int]=12345):
 
     print('running de-identification steps...')
     start = time.time()
@@ -39,7 +39,7 @@ def main(input_filename: str, output_filename: str, output_dir: str, postcode_fi
     hospital_ae_df = convert_lsoa_to_imd_decile(hospital_ae_df, postcode_file_path)
 
     print('replacing Hospital with random number...')
-    hospital_ae_df = replace_hospital_with_random_number(hospital_ae_df)
+    hospital_ae_df = replace_hospital_with_random_number(hospital_ae_df, seed=seed)
 
     print('putting Arrival Hour in 4-hour bins...')
     hospital_ae_df = put_time_in_4_hour_bins(hospital_ae_df)
@@ -139,14 +139,17 @@ def convert_lsoa_to_imd_decile(hospital_ae_df: pd.DataFrame, postcode_file_path:
 
 
 def replace_hospital_with_random_number(
-        hospital_ae_df: pd.DataFrame) -> pd.DataFrame:
+        hospital_ae_df: pd.DataFrame, seed: Optional[int]=12345) -> pd.DataFrame:
     """ 
     Gives each hospital a random integer number and adds a new column
     with these numbers. Drops the hospital name column. 
 
     Keyword arguments:
     hospital_ae_df -- Hopsitals A&E records dataframe
+    seed -- random seed for reproducibility
     """
+
+    random.seed(seed)
 
     hospitals = hospital_ae_df['Hospital'].unique().tolist()
     random.shuffle(hospitals)
