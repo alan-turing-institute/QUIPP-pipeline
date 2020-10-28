@@ -41,6 +41,9 @@ class SynthesizerCTGAN(SynthesizerBase):
         if verbose:
             print("\n[INFO] Reading input data and metadata from disk")
         input_data, metadata = self.read_data(csv_path, metadata_json_path, verbose)
+        print(f"[INFO] #rows before removing NaN: {len(input_data)}")
+        input_data.dropna(inplace=True)
+        print(f"[INFO] #rows after removing NaN: {len(input_data)}")
         with open(metadata_json_path) as metadata_json:
             self.metadata = json.load(metadata_json)
 
