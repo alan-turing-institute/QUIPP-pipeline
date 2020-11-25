@@ -7,6 +7,8 @@ _Collaboration and project management is in the
 [QUIPP-collab](https://github.com/alan-turing-institute/QUIPP-collab)
 repo._
 
+**Please do open new issues in this repository: Instead, [open a new issue in QUIPP-collab](https://github.com/alan-turing-institute/QUIPP-collab/issues/new) and add the 'pipeline' label.**
+
 The QUiPP (Quantifying Utility and Preserving Privacy) project aims to
 produce a framework to facilitate the creation of synthetic population
 data where the privacy of individuals is quantified. In addition,
