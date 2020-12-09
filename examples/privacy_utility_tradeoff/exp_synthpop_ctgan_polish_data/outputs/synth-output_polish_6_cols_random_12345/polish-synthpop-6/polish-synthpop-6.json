@@ -1,0 +1,36 @@
+{
+    "enabled" : true,
+    "dataset" : "datasets/polish_data_2011/polish_data_2011",
+    "synth-method" : "synthpop",
+    "parameters":
+    {
+        "enabled" : true,
+        "num_samples_to_fit": -1,
+        "num_samples_to_synthesize": -1,
+        "num_datasets_to_synthesize": 5,
+        "random_state": 12345,
+        "vars_sequence": [3, 6, 5, 7, 2],
+        "synthesis_methods": ["", "", "", "", "", "", "", "", "", "", "", "", ""],
+        "proper": true,
+        "tree_minbucket": 1,
+        "smoothing": {}
+    },
+    "privacy_parameters_disclosure_risk":
+    {
+        "enabled": true,
+        "num_samples_intruder": 4895,
+        "vars_intruder": ["sex","age","edu","weight","height","bmi"]
+    },
+    "utility_parameters_classifiers":
+    {
+        "enabled": true,
+        "input_columns": ["age", "edu", "height", "weight", "bmi"],
+        "label_column": "sex",
+        "test_train_ratio": 0.2,
+        "num_leaked_rows": 0
+    },
+    "utility_parameters_correlations":
+    {
+        "enabled": true
+    }
+}
