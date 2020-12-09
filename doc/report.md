@@ -43,7 +43,7 @@ decision still has to be made.
 
 ### Anonymisation / Pseudonymisation
 
-The boundary between these anonymisation and pseudonymisation is both fuzzy and drwn in different places by different organisations / references.
+The boundary between these anonymisation and pseudonymisation is both fuzzy and drawn in different places by different organisations / references.
 
 From page 7 of the [ICO Anonymisation Code of Practice](https://ico.org.uk/media/1061/anonymisation-code.pdf)
 >We use the broad term ‘anonymisation’ to cover various techniques
