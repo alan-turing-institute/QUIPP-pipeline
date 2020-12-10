@@ -1,11 +1,13 @@
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/alan-turing-institute/QUIPP-pipeline/develop)
 
 # QUIPP-pipeline
-Privacy preserving synthetic data generation workflows
+Privacy-preserving synthetic data generation workflows
 
 _Collaboration and project management is in the
 [QUIPP-collab](https://github.com/alan-turing-institute/QUIPP-collab)
 repo._
+
+**Please do open new issues in this repository: Instead, [open a new issue in QUIPP-collab](https://github.com/alan-turing-institute/QUIPP-collab/issues/new) and add the 'pipeline' label.**
 
 The QUiPP (Quantifying Utility and Preserving Privacy) project aims to
 produce a framework to facilitate the creation of synthetic population

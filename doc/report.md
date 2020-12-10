@@ -43,7 +43,7 @@ decision still has to be made.
 
 ### Anonymisation / Pseudonymisation
 
-The boundary between these anonymisation and pseudonymisation is both fuzzy and drwn in different places by different organisations / references.
+The boundary between these anonymisation and pseudonymisation is both fuzzy and drawn in different places by different organisations / references.
 
 From page 7 of the [ICO Anonymisation Code of Practice](https://ico.org.uk/media/1061/anonymisation-code.pdf)
 >We use the broad term ‘anonymisation’ to cover various techniques
@@ -238,7 +238,7 @@ Correlation tables can show if the correlation structure of the data set is main
 
 #### Goodness of fit tests and metrics
 - The empirical CDFs of each variable on the original and synthesised data set can be compared using the Kolmogorov-Smirnoff test. It is a simple test that uses the maximum vertical distance between the CDFs to compute its statistic. The Cramer-von-Mises and Kuiper tests are alternatives.
-- For PDFs it is possible to use the Kullback-Leibler divergence. It can be applied to the joint distribution of all variables in the data or or to each variable separately. The distance goes to zero when the PDFs are the same. Unfortunately it is compuatationally intensive to compute. Under normality assumption it has a closed form. Without the normality assumption it can be evaluated using a combination of Kernel Desnity Esitmation and numerical integration or MCMC sampling from the joint distributions. The advantage is that it captures "all" the infoormation of the data set and not just part of it like a desriptive statistic or a correlation do.
+- For PDFs it is possible to use the Kullback-Leibler divergence. It can be applied to the joint distribution of all variables in the data or or to each variable separately. The distance goes to zero when the PDFs are the same. Unfortunately it is compuatationally intensive to compute. Under normality assumption it has a closed form. Without the normality assumption it can be evaluated using a combination of Kernel Desnity Estimation and numerical integration or MCMC sampling from the joint distributions. The advantage is that it captures "all" the infoormation of the data set and not just part of it like a desriptive statistic or a correlation do.
 - Other statistical tests include the Shapiro-Wilk (testing for normality assuming we want that), Anderson-Darling (tests if the sample belongs to a given distribution), Pearson's chi-squared test (for categorical data).
 
 #### Regression for goodness of fit
