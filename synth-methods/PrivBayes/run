@@ -1,0 +1,40 @@
+#!/usr/bin/env python
+
+import argparse
+from privbayes import SynthesizerPrivBayes
+import os
+
+def handle_cmdline_args():
+    parser = argparse.ArgumentParser(
+        description='Read input files and output file for run of PrivBayes.')
+
+    parser.add_argument('parameter_json', help='The json containing the synthesis parameters')
+
+    parser.add_argument('data_path_prefix', help='The prefix of the path to the input data, relative to QUIPP-pipeline root (append .csv and .json to get the data files)')
+
+    parser.add_argument('output_prefix', help='The prefix to use for the output files (.json and .csv), in the current directory')
+
+    args = parser.parse_args()
+
+    return args
+
+
+def main():
+    args = handle_cmdline_args()
+    
+    in_prefix = args.data_path_prefix
+    out_prefix = args.output_prefix
+    parameter_json_path = args.parameter_json
+
+    privbayes_syn = SynthesizerPrivBayes()
+
+    in_csv = in_prefix + '.csv'
+    in_json = in_prefix + '.json'
+
+    privbayes_syn.fit_synthesizer(parameter_json_path, in_csv, in_json, out_prefix)
+
+    privbayes_syn.synthesize(output_path=out_prefix)
+
+
+if __name__=='__main__':
+    main()

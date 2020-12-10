@@ -4,3 +4,4 @@ pytest
 sdv
 uuid
 dython
+DataSynthesizer
