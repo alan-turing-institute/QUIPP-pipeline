@@ -68,6 +68,13 @@ def find_column_types(orig_metadata, synth_method, categorical_types):
         # sgf works only with categorical features
         if synth_method == 'sgf':
             categorical_features.append(col["name"])
+        ## privbayes throws errors when handling datetime as
+        ## categorical so datetime features are removed here
+        #elif synth_method == 'PrivBayes':
+        #    if col['type'] in ['DiscreteNumerical', 'ContinuousNumerical']:
+        #        numeric_features.append(col["name"])
+        #    elif col['type'] in ['Categorical', 'Ordinal']:
+        #        categorical_features.append(col["name"])
         elif col['type'] in categorical_types:
             categorical_features.append(col["name"])
         else:

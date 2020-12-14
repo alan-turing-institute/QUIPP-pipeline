@@ -73,16 +73,26 @@ class SynthesizerPrivBayes(SynthesizerBase):
                   f"k = {self.k}\n"   
                   f"random_state = {self.random_state}\n")
 
-        # Convert dataset metadata in .json file to dictionary useable by PrivBayes/DataSynthesizer
+        # Convert datatype metadata in .json file to datatype dictionary useable by PrivBayes/DataSynthesizer
+        df_temp = pd.read_csv(csv_path)
         float_dict = {col['name']: 'Float' for col in self.metadata['columns']
                       if col['type'] == 'ContinuousNumerical'}
+        import numpy as np
         int_dict = {col['name']: 'Integer' for col in self.metadata['columns']
-                    if col['type'] == 'DiscreteNumerical'}
-        dt_dict = {col['name']: 'DateTime' for col in self.metadata['columns']
+                    if col['type'] in ['DiscreteNumerical', 'CategoricalNumerical']}
+        str_dict = {col['name']: 'String' for col in self.metadata['columns']
+                    if col['type'] in ['Ordinal', 'Categorical']}
+        # QUIPP DateTime types are converted to PrivBayes String because
+        # conversion to PrivBayes DateTime (or leaving PrivBayes to automatically assign)
+        # throws an error
+        dt_dict = {col['name']: 'String' for col in self.metadata['columns']
                    if col['type'] == 'DateTime'}
-        self.datatypes = {**float_dict, **int_dict, **dt_dict}
-        self.categorical_attributes = {col['name']: 'True' for col in self.metadata['columns']
-                                       if col['type'] in ['Categorical', 'Ordinal']}
+        # Combine all datatypes into one dict
+        self.datatypes = {**float_dict, **int_dict, **str_dict, **dt_dict}
+
+        # Add all categorical variables in a dict - DateTime is treated as categorical
+        self.categorical_attributes = {col['name']: True for col in self.metadata['columns']
+                                       if col['type'] in ['Categorical', 'CategoricalNumerical', 'Ordinal', 'DateTime']}
 
         # Instantiate describer object, describe the dataset and get probabilities
         if verbose:
@@ -90,6 +100,7 @@ class SynthesizerPrivBayes(SynthesizerBase):
         self.describer = DataDescriber(category_threshold=self.category_threshold,
                                        histogram_bins=self.histogram_bins)
 
+        #import ipdb; ipdb.set_trace()
         self.describer.describe_dataset_in_correlated_attribute_mode(dataset_file=csv_path,
                                                                      epsilon=self.epsilon,
                                                                      k=self.k,
@@ -104,7 +115,14 @@ class SynthesizerPrivBayes(SynthesizerBase):
         display_bayesian_network(self.describer.bayesian_network)
 
     def synthesize(self, output_path):
-        """Create synthetic data set using the Bayesian Network."""
+        """Wrapper around PrivBayes' correlated attribute synthesis. Creates synthetic data set
+        using a Bayesian Network that has been trained by fit_synthesizer().
+
+        Parameters
+        ----------
+        output_path : string
+            Path where output synthetic .csv will be written.
+        """
 
         self.num_samples_to_synthesize = self.parameters['parameters']['num_samples_to_synthesize']
 

@@ -61,7 +61,7 @@ def main(input_filename: str, output_filename: str, output_dir: str, seed: Optio
                                       {"name": "Treatment", "type": "Categorical"},
                                       {"name": "Gender", "type": "Categorical"},
                                       {"name": "Index of Multiple Deprivation Decile", "type": "DiscreteNumerical"},
-                                      {"name": "Hospital ID", "type": "Categorical"},
+                                      {"name": "Hospital ID", "type": "CategoricalNumerical"},
                                       {"name": "Arrival Date", "type": "DateTime"},
                                       {"name": "Arrival hour range", "type": "Ordinal"},
                                       {"name": "Age bracket", "type": "Ordinal"}]

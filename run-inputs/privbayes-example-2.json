@@ -1,0 +1,34 @@
+{
+    "enabled" : true,
+    "dataset" : "datasets/polish_data_2011/polish_data_2011",
+    "synth-method" : "PrivBayes",
+    "parameters":
+    {
+        "enabled" : true,
+        "num_samples_to_synthesize": 5000,
+        "random_state": 12345,
+        "category_threshold": 30,
+        "epsilon": 1.0,
+        "k": 3,
+        "keys": {},
+        "histogram_bins": 30
+    },
+    "privacy_parameters_disclosure_risk":
+    {
+        "enabled": true,
+        "num_samples_intruder": 2000,
+        "vars_intruder": ["sex", "edu", "marital", "ls", "smoke", "wkabint"]
+    },
+    "utility_parameters_classifiers":
+    {
+        "enabled": true,
+        "input_columns": ["sex", "wkabint", "marital", "sport", "ls", "smoke"],
+        "label_column": "edu",
+        "test_train_ratio": 0.2,
+        "num_leaked_rows": 0
+    },
+    "utility_parameters_correlations":
+    {
+        "enabled": true
+    }
+}
