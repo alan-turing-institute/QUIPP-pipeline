@@ -16,10 +16,12 @@ sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir, os.path.
 from provenance import generate_provenance_json
 
 
-def main(input_filename: str, output_filename: str, output_dir: str, postcode_file: Optional[str]=None):
+def main(input_filename: str, output_filename: str, output_dir: str, seed: Optional[int]=12345, postcode_file: Optional[str]=None):
 
     print('running de-identification steps...')
     start = time.time()
+
+    random.seed(seed)
 
     # We may want to supply an alternative postcode file, but will generally use this one:
     postcode_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "data", "London postcodes.csv") \
@@ -224,7 +226,8 @@ if __name__ == "__main__":
     parser.add_argument("--output-filename", type=str, default='hospital_ae_data_deidentify',
                         help="Output data filename (no extension)")
     parser.add_argument("--output-dir", type=str, default=os.getcwd(), help="Output directory")
+    parser.add_argument("--seed", type=int, default=1234, help="Random seed")
     args = parser.parse_args()
 
-    main(args.input_filename, args.output_filename, args.output_dir)
+    main(args.input_filename, args.output_filename, args.output_dir, args.seed)
 

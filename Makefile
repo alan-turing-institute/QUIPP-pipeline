@@ -67,6 +67,7 @@ $(AE_DEIDENTIFIED_DATA) &: $(LONDON_POSTCODES)
 $(SYNTH_OUTPUTS_CSV) : \
 synth-output/%/synthetic_data_1.csv : run-inputs/%.json $(AE_DEIDENTIFIED_DATA)
 	mkdir -p $$(dirname $@) && \
+	cp $< $$(dirname $@) && \
 	python synthesize.py -i $< -o $$(dirname $@)
 
 

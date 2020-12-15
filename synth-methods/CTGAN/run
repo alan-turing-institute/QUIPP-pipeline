@@ -34,7 +34,7 @@ def main():
     ctgan_syn.fit_synthesizer(parameter_json_path, in_csv, in_json)
 
     ## synthesize with output_path currently doesn't work in this way
-    ctgan_syn.synthesize(num_samples_to_synthesize=200, output_path=out_prefix)
+    ctgan_syn.synthesize(output_path=out_prefix)
 
 
 if __name__=='__main__':
