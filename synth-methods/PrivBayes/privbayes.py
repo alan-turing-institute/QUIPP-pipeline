@@ -70,14 +70,13 @@ class SynthesizerPrivBayes(SynthesizerBase):
             print(f"[INFO] Reading PrivBayes parameters from json file:\n"                  
                   f"category_threshold = {self.category_threshold}\n"    
                   f"epsilon = {self.epsilon}\n"   
-                  f"k = {self.k}\n"   
+                  f"k = {self.k}\n" 
+                  f"histogram_bins = {self.histogram_bins}\n" 
                   f"random_state = {self.random_state}\n")
 
-        # Convert datatype metadata in .json file to datatype dictionary useable by PrivBayes/DataSynthesizer
-        df_temp = pd.read_csv(csv_path)
+        # Convert datatype metadata in .json file to datatype dictionary usable by PrivBayes
         float_dict = {col['name']: 'Float' for col in self.metadata['columns']
                       if col['type'] == 'ContinuousNumerical'}
-        import numpy as np
         int_dict = {col['name']: 'Integer' for col in self.metadata['columns']
                     if col['type'] in ['DiscreteNumerical', 'CategoricalNumerical']}
         str_dict = {col['name']: 'String' for col in self.metadata['columns']
@@ -87,7 +86,7 @@ class SynthesizerPrivBayes(SynthesizerBase):
         # throws an error
         dt_dict = {col['name']: 'String' for col in self.metadata['columns']
                    if col['type'] == 'DateTime'}
-        # Combine all datatypes into one dict
+        # Combine all datatypes into one dictionary
         self.datatypes = {**float_dict, **int_dict, **str_dict, **dt_dict}
 
         # Add all categorical variables in a dict - DateTime is treated as categorical
@@ -100,7 +99,7 @@ class SynthesizerPrivBayes(SynthesizerBase):
         self.describer = DataDescriber(category_threshold=self.category_threshold,
                                        histogram_bins=self.histogram_bins)
 
-        #import ipdb; ipdb.set_trace()
+        # Train the Bayesian network
         self.describer.describe_dataset_in_correlated_attribute_mode(dataset_file=csv_path,
                                                                      epsilon=self.epsilon,
                                                                      k=self.k,
@@ -110,6 +109,7 @@ class SynthesizerPrivBayes(SynthesizerBase):
                                                                      seed=self.random_state
                                                                      )
 
+        # write and print output
         self.description_file = os.path.join(output_path, "description.json")
         self.describer.save_dataset_description_to_file(self.description_file)
         display_bayesian_network(self.describer.bayesian_network)
@@ -124,6 +124,7 @@ class SynthesizerPrivBayes(SynthesizerBase):
             Path where output synthetic .csv will be written.
         """
 
+        # how many samples to synthesize
         self.num_samples_to_synthesize = self.parameters['parameters']['num_samples_to_synthesize']
 
         # Synthesize the samples
@@ -131,4 +132,5 @@ class SynthesizerPrivBayes(SynthesizerBase):
         generator.generate_dataset_in_correlated_attribute_mode(self.num_samples_to_synthesize,
                                                                 self.description_file)
 
+        # save synthetic data to disk
         generator.save_synthetic_data(os.path.join(output_path, "synthetic_data_1.csv"))

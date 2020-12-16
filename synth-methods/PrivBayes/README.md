@@ -34,6 +34,14 @@ doi = {10.1145/3085504.3091117}
 ```
 
 ## Additional synthesis parameters
-
-### Example
-
+`category_threshold` (_integer_): maximum number of distinct values for categorical features 
+`epsilon` (_float_): epsilon for embedded differential privacy mechanism 
+`k` (_integer_): maximum number of parents for each node in the Bayesian network
+`keys` (_dict[string, bool]_): features that are treated as table keys 
+`histogram_bins` (_integer_): maximum number of bins when converting continuous features to discrete (PrivBayes is not directly compatible with continuous features)
+       
+        
+### Examples
+[privbayes-example-0.json](../../run-inputs/privbayes-example-0.json)
+[privbayes-example-1.json](../../run-inputs/privbayes-example-0.json)
+[privbayes-example-2.json](../../run-inputs/privbayes-example-0.json)
