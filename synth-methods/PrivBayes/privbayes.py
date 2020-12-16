@@ -74,13 +74,20 @@ class SynthesizerPrivBayes(SynthesizerBase):
                   f"histogram_bins = {self.histogram_bins}\n" 
                   f"random_state = {self.random_state}\n")
 
-        # Convert datatype metadata in .json file to datatype dictionary usable by PrivBayes
+        # Convert datatype metadata in .json file to datatype dictionaries usable by PrivBayes
         float_dict = {col['name']: 'Float' for col in self.metadata['columns']
                       if col['type'] == 'ContinuousNumerical'}
+
+        # for integer columns, make sure the ones classified as categorical by the .json file are
+        # included in the int_dict used by PrivBayes
+        df = pd.read_csv(csv_path)
+        integer_types = ['int_', 'intp', 'int8', 'int16', 'int32', 'int64']
+        integer_columns = list(df.select_dtypes(include=integer_types).columns)
         int_dict = {col['name']: 'Integer' for col in self.metadata['columns']
-                    if col['type'] in ['DiscreteNumerical', 'CategoricalNumerical']}
+                    if (col['type'] == 'DiscreteNumerical') or (col['type'] in ['Ordinal', 'Categorical'] and
+                                                                col['name'] in integer_columns)}
         str_dict = {col['name']: 'String' for col in self.metadata['columns']
-                    if col['type'] in ['Ordinal', 'Categorical']}
+                    if col['type'] in ['Ordinal', 'Categorical'] and col['name'] not in integer_columns}
         # QUIPP DateTime types are converted to PrivBayes String because
         # conversion to PrivBayes DateTime (or leaving PrivBayes to automatically assign)
         # throws an error
@@ -91,7 +98,7 @@ class SynthesizerPrivBayes(SynthesizerBase):
 
         # Add all categorical variables in a dict - DateTime is treated as categorical
         self.categorical_attributes = {col['name']: True for col in self.metadata['columns']
-                                       if col['type'] in ['Categorical', 'CategoricalNumerical', 'Ordinal', 'DateTime']}
+                                       if col['type'] in ['Categorical', 'Ordinal', 'DateTime']}
 
         # Instantiate describer object, describe the dataset and get probabilities
         if verbose:
