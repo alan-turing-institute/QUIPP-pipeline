@@ -1,6 +1,7 @@
 # PrivBayes
 
-**This code uses the PrivBayes implementation within the DataSynthesizer package (https://github.com/DataResponsibly/DataSynthesizer).**
+**This code uses the PrivBayes implementation within the DataSynthesizer fork found here: https://github.com/gmingas/DataSynthesizer. The user needs to pre-install the package using pip locally: 
+Clone the above fork, go to its root directory and run `pip install .`**
 
 References:
 ```tex
@@ -39,7 +40,8 @@ doi = {10.1145/3085504.3091117}
 `k` (_integer_): maximum number of parents for each node in the Bayesian network
 `keys` (_dict[string, bool]_): features that are treated as table keys 
 `histogram_bins` (_integer_): maximum number of bins when converting continuous features to discrete (PrivBayes is not directly compatible with continuous features)
-       
+`preconfigured_bn` (dictionary): a list of all the variables in the dataset and their parents in the Bayesian network graph. If set to {}, PrivBayes infers a BN graph
+using the greedy bayes algorithm.
         
 ### Examples
 [privbayes-example-0.json](../../run-inputs/privbayes-example-0.json)
