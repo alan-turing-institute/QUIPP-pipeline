@@ -1,6 +1,8 @@
 import json
 import os
+import numpy as np
 import pandas as pd
+import random
 import sys
 
 from DataSynthesizer.DataDescriber import DataDescriber
@@ -29,6 +31,7 @@ class SynthesizerPrivBayes(SynthesizerBase):
         self.random_state = None
         self.describer = None
         self.description_file = None
+        self.preconfigured_bn = None
 
         # instantiate SynthesizerBase from Base directory
         super().__init__()
@@ -66,13 +69,18 @@ class SynthesizerPrivBayes(SynthesizerBase):
         self.keys = self.parameters['parameters']['keys']
         self.histogram_bins = self.parameters['parameters']['histogram_bins']
         self.random_state = self.parameters['parameters']['random_state']
+        self.preconfigured_bn = self.parameters['parameters']['preconfigured_bn']
+        random.seed(self.random_state)
+        np.random.seed(self.random_state)
+        np.random.default_rng(self.random_state)
         if verbose:
             print(f"[INFO] Reading PrivBayes parameters from json file:\n"                  
                   f"category_threshold = {self.category_threshold}\n"    
                   f"epsilon = {self.epsilon}\n"   
                   f"k = {self.k}\n" 
                   f"histogram_bins = {self.histogram_bins}\n" 
-                  f"random_state = {self.random_state}\n")
+                  f"random_state = {self.random_state}\n"
+                  f"preconfigured_bn = {self.preconfigured_bn}\n")
 
         # Convert datatype metadata in .json file to datatype dictionaries usable by PrivBayes
         float_dict = {col['name']: 'Float' for col in self.metadata['columns']
@@ -113,7 +121,8 @@ class SynthesizerPrivBayes(SynthesizerBase):
                                                                      attribute_to_datatype=self.datatypes,
                                                                      attribute_to_is_categorical=self.categorical_attributes,
                                                                      attribute_to_is_candidate_key=self.keys,
-                                                                     seed=self.random_state
+                                                                     seed=self.random_state,
+                                                                     bayesian_network=self.preconfigured_bn
                                                                      )
 
         # write and print output

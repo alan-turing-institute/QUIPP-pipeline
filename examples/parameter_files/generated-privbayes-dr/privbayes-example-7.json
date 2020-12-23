@@ -6,7 +6,7 @@
     {
         "enabled" : true,
         "num_samples_to_synthesize": 10000,
-        "random_state": 145,
+        "random_state": 151,
         "category_threshold": 20,
         "epsilon": 0.1,
         "k": 3,

@@ -8,7 +8,7 @@
         "num_samples_to_synthesize": 10000,
         "random_state": 145,
         "category_threshold": 20,
-        "epsilon": 0.1,
+        "epsilon": 0.001,
         "k": 3,
         "keys": {},
         "histogram_bins": 20,

@@ -1,17 +1,18 @@
 {
-    "enabled" : false,
+    "enabled" : true,
     "dataset" : "generator-outputs/odi-nhs-ae/hospital_ae_data_deidentify",
     "synth-method" : "PrivBayes",
     "parameters":
     {
         "enabled" : true,
         "num_samples_to_synthesize": 10000,
-        "random_state": 12345,
-        "category_threshold": 30,
-        "epsilon": 0.0001,
-        "k": 2,
+        "random_state": 145,
+        "category_threshold": 20,
+        "epsilon": 0.1,
+        "k": 3,
         "keys": {},
-        "histogram_bins": 30
+        "histogram_bins": 20,
+        "preconfigured_bn": {}
     },
     "privacy_parameters_disclosure_risk":
     {

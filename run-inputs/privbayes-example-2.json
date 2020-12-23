@@ -1,5 +1,5 @@
 {
-    "enabled" : true,
+    "enabled" : false,
     "dataset" : "datasets/polish_data_2011/polish_data_2011",
     "synth-method" : "PrivBayes",
     "parameters":
@@ -11,7 +11,8 @@
         "epsilon": 1.0,
         "k": 3,
         "keys": {},
-        "histogram_bins": 30
+        "histogram_bins": 30,
+        "preconfigured_bn": {}
     },
     "privacy_parameters_disclosure_risk":
     {
