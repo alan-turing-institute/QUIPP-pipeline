@@ -106,7 +106,7 @@ def classifier_metrics(synth_method, path_original_ds,
 
     # divide columns into discrete and numeric,
     # discrete columns will be later vectorized
-    discrete_types = ['Categorical', 'Ordinal', 'DiscreteNumerical', "DateTime"]
+    discrete_types = ['Categorical', 'Ordinal', 'DiscreteNumerical', 'DateTime']
     discrete_features, numeric_features = \
         find_column_types(orig_metadata, synth_method, discrete_types)
 

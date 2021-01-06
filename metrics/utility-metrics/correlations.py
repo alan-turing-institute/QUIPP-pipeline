@@ -147,7 +147,7 @@ def correlation_metrics(synth_method, path_original_ds,
         orig_metadata = json.load(orig_metadata_json)
 
     # divide columns into categorical and numeric
-    categorical_types = ['Categorical', 'Ordinal', "DateTime"]
+    categorical_types = ['Categorical', 'Ordinal', 'DateTime']
     categorical_features, numeric_features = \
         find_column_types(orig_metadata, synth_method, categorical_types)
 

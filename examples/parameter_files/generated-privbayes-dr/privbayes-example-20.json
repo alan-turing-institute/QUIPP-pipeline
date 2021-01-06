@@ -1,0 +1,73 @@
+{
+    "enabled" : true,
+    "dataset" : "generator-outputs/odi-nhs-ae/hospital_ae_data_deidentify",
+    "synth-method" : "PrivBayes",
+    "parameters":
+    {
+        "enabled" : true,
+        "num_samples_to_synthesize": 10000,
+        "random_state": 164,
+        "category_threshold": 20,
+        "epsilon": 1000.0,
+        "k": 3,
+        "keys": {},
+        "histogram_bins": 20,
+        "preconfigured_bn": {
+            "Time in A&E (mins)": [
+                "Age bracket"
+            ],
+            "Gender": [
+                "Time in A&E (mins)",
+                "Age bracket"
+            ],
+            "Treatment": [
+                "Time in A&E (mins)",
+                "Gender",
+                "Age bracket"
+            ],
+            "Hospital ID": [
+                "Time in A&E (mins)",
+                "Treatment",
+                "Age bracket"
+            ],
+            "Index of Multiple Deprivation Decile": [
+                "Treatment",
+                "Hospital ID",
+                "Age bracket"
+            ],
+            "Arrival hour range": [
+                "Hospital ID",
+                "Index of Multiple Deprivation Decile",
+                "Age bracket"
+            ],
+            "Arrival Date": [
+                "Treatment",
+                "Index of Multiple Deprivation Decile",
+                "Gender"
+            ]
+        }
+    },
+    "privacy_parameters_disclosure_risk":
+    {
+        "enabled": true,
+        "num_samples_intruder": 2000,
+        "vars_intruder": ["Treatment", "Gender", "Age bracket"]
+    },
+    "utility_parameters_classifiers":
+    {
+        "enabled": true,
+        "input_columns": ["Time in A&E (mins)"],
+        "label_column": "Age bracket",
+        "test_train_ratio": 0.2,
+        "num_leaked_rows": 0,
+        "classifier": {
+            "LogisticRegression":  {"mode": "main",
+                                    "params_main": {"max_iter": 1000}
+                                   }
+        }
+    },
+    "utility_parameters_correlations":
+    {
+        "enabled": true
+    }
+}
