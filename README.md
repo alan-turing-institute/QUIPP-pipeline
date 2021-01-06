@@ -94,6 +94,11 @@ environmental variable `SGFROOT` to point to this location.  That is, in bash,
    - either ```export PATH=$PATH:/path/to/sgf/bin```,
    - or ```export SGFROOT=/path/to/sgf/bin```
 
+#### Forked DataSynthesizer
+
+We use the PrivBayes implementation within the DataSynthesizer fork found [here](https://github.com/gmingas/DataSynthesizer). 
+In order to install it, clone the above repository locally, go to its root directory and run `pip install .`
+
 ## Top-level directory contents
 
 The top-level directory structure mirrors the data pipeline.
