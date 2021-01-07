@@ -1,0 +1,41 @@
+{
+    "enabled" : true,
+    "dataset" : "datasets/appointment_noshows/KaggleV2-May-2016-cleaned",
+    "synth-method" : "synthpop",
+    "parameters":
+    {
+        "enabled" : true,
+        "num_samples_to_fit": -1,
+        "num_samples_to_synthesize": -1,
+        "num_datasets_to_synthesize": 1,
+        "random_state": 12345,
+        "vars_sequence": [1,2,3,4,5,6,7,8,9,10,11,12,13,14],
+        "synthesis_methods": ["sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample"],
+        "proper": false,
+        "tree_minbucket": 1,
+        "smoothing": {}
+    },
+    "privacy_parameters_disclosure_risk":
+    {
+        "enabled": true,
+        "num_samples_intruder": 5000,
+        "vars_intruder": ["gender", "age", "neighborhood"]
+    },
+    "utility_parameters_classifiers":
+    {
+        "enabled": true,
+        "input_columns": ["gender", "neighborhood", "scholarship", "handicap"],
+        "label_column": "no_show",
+        "test_train_ratio": 0.2,
+        "num_leaked_rows": 0,
+        "classifier": {
+            "LogisticRegression":  {"mode": "main",
+                                    "params_main": {"max_iter": 1000}
+                                   }
+        }
+    },
+    "utility_parameters_correlations":
+    {
+        "enabled": true
+    }
+}
