@@ -1,5 +1,5 @@
 {
-    "enabled" : false,
+    "enabled" : true,
     "dataset" : "datasets/polish_data_2011/polish_data_2011",
     "synth-method" : "PrivBayes",
     "parameters":

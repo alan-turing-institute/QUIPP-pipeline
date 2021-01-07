@@ -1,0 +1,61 @@
+{
+    "columns": [
+        {
+            "name": "patient_id",
+            "type": "String"
+        },
+        {
+            "name": "appointment_id",
+            "type": "String"
+        },
+        {
+            "name": "gender",
+            "type": "Categorical"
+        },
+        {
+            "name": "scheduled_time",
+            "type": "DateTime"
+        },
+        {
+            "name": "appointment_day",
+            "type": "DateTime"
+        },
+        {
+            "name": "age",
+            "type": "DiscreteNumerical"
+        },
+        {
+            "name": "neighborhood",
+            "type": "Categorical"
+        },
+        {
+            "name": "scholarship",
+            "type": "Categorical"
+        },
+        {
+            "name": "hypertension",
+            "type": "Categorical"
+        },
+        {
+            "name": "diabetes",
+            "type": "Categorical"
+        },
+        {
+            "name": "alcoholism",
+            "type": "Categorical"
+        },
+        {
+            "name": "handicap",
+            "type": "Categorical"
+        },
+        {
+            "name": "sms_received",
+            "type": "Categorical"
+        },
+        {
+            "name": "no_show",
+            "type": "Categorical"
+        }
+
+    ]
+}

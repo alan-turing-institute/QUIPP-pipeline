@@ -1,5 +1,5 @@
 {
-    "enabled" : false,
+    "enabled" : true,
     "dataset" : "generator-outputs/odi-nhs-ae/hospital_ae_data_deidentify",
     "synth-method" : "CTGAN",
     "parameters":

@@ -78,6 +78,7 @@ class SynthesizerPrivBayes(SynthesizerBase):
                   f"category_threshold = {self.category_threshold}\n"    
                   f"epsilon = {self.epsilon}\n"   
                   f"k = {self.k}\n" 
+                  f"keys = {self.keys}\n" 
                   f"histogram_bins = {self.histogram_bins}\n" 
                   f"random_state = {self.random_state}\n"
                   f"preconfigured_bn = {self.preconfigured_bn}\n")
@@ -90,23 +91,31 @@ class SynthesizerPrivBayes(SynthesizerBase):
         # included in the int_dict used by PrivBayes
         df = pd.read_csv(csv_path)
         integer_types = ['int_', 'intp', 'int8', 'int16', 'int32', 'int64']
+        float_types = ['float_', 'float16', 'float32', 'float64']
         integer_columns = list(df.select_dtypes(include=integer_types).columns)
+        float_columns = list(df.select_dtypes(include=float_types).columns)
+
         int_dict = {col['name']: 'Integer' for col in self.metadata['columns']
                     if (col['type'] == 'DiscreteNumerical') or (col['type'] in ['Ordinal', 'Categorical'] and
                                                                 col['name'] in integer_columns)}
+
         str_dict = {col['name']: 'String' for col in self.metadata['columns']
-                    if col['type'] in ['Ordinal', 'Categorical'] and col['name'] not in integer_columns}
-        # QUIPP DateTime types are converted to PrivBayes String because
-        # conversion to PrivBayes DateTime (or leaving PrivBayes to automatically assign)
-        # throws an error
-        dt_dict = {col['name']: 'String' for col in self.metadata['columns']
+                    if col['type'] in ['Ordinal', 'Categorical', 'String']
+                    and col['name'] not in integer_columns
+                    and col['name'] not in float_columns}
+
+        dt_dict = {col['name']: 'DateTime' for col in self.metadata['columns']
                    if col['type'] == 'DateTime'}
         # Combine all datatypes into one dictionary
         self.datatypes = {**float_dict, **int_dict, **str_dict, **dt_dict}
 
-        # Add all categorical variables in a dict - DateTime is treated as categorical
+        # Add all categorical variables in a dict
         self.categorical_attributes = {col['name']: True for col in self.metadata['columns']
-                                       if col['type'] in ['Categorical', 'Ordinal', 'DateTime']}
+                                       if col['type'] in ['Categorical', 'Ordinal']}
+
+        # Add all keys in a dict
+        self.candidate_keys = {col['name']: True for col in self.metadata['columns']
+                               if col['name'] in self.keys}
 
         # Instantiate describer object, describe the dataset and get probabilities
         if verbose:
@@ -120,7 +129,7 @@ class SynthesizerPrivBayes(SynthesizerBase):
                                                                      k=self.k,
                                                                      attribute_to_datatype=self.datatypes,
                                                                      attribute_to_is_categorical=self.categorical_attributes,
-                                                                     attribute_to_is_candidate_key=self.keys,
+                                                                     attribute_to_is_candidate_key=self.candidate_keys,
                                                                      seed=self.random_state,
                                                                      bayesian_network=self.preconfigured_bn
                                                                      )
