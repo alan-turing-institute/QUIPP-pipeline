@@ -71,6 +71,7 @@ def find_column_types(orig_metadata, synth_method, categorical_types):
         elif col['type'] in categorical_types:
             categorical_features.append(col["name"])
         else:
-            numeric_features.append(col["name"])
+            if col['type'] not in ['String', 'DateTime']:
+                numeric_features.append(col["name"])
 
     return categorical_features, numeric_features

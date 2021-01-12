@@ -35,10 +35,16 @@ main <- function() {
                       smoothing = params$smoothing)
 
     # write synthetic datasets to .csv files
-    for(i in 1:num_datasets_to_synthesize) {
-        write.csv(data_synth$syn[[i]],
-                file=paste0(output_prefix, "/synthetic_data_", i, ".csv", sep=""),
-                row.names=FALSE)
+    if (num_datasets_to_synthesize > 1) {
+        for(i in 1:num_datasets_to_synthesize) {
+            write.csv(data_synth$syn[[i]],
+                    file=paste0(output_prefix, "/synthetic_data_", i, ".csv", sep=""),
+                    row.names=FALSE)
+        }
+    } else {
+        write.csv(data_synth$syn,
+                    file=paste0(output_prefix, "/synthetic_data_1", ".csv", sep=""),
+                    row.names=FALSE)
     }
 
 
