@@ -3,15 +3,74 @@ Code to calculate feature importance utility metrics
 """
 
 import featuretools as ft
+import featuretools.variable_types as vtypes
 import json
 import os
 import sys
 import warnings
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, roc_auc_score
 
 sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir, "utilities"))
 from utils import handle_cmdline_args, extract_parameters, find_column_types
+
+
+def featuretools_importances(df, data_meta, utility_params_ft):
+    data_json_type_to_vtype = {'Categorical': vtypes.Categorical,
+                               'ContinuousNumerical': vtypes.Numeric,
+                               'DateTime': vtypes.Datetime,
+                               'DiscreteNumerical': vtypes.Ordinal,
+                               'Ordinal': vtypes.Ordinal,
+                               'String': vtypes.Categorical}
+
+    entity_id = 'my_entity_id'
+    
+    variable_types = { m['name'] : data_json_type_to_vtype[m['type']]
+                       for m in data_meta['columns'] }
+    
+    es = ft.EntitySet('myEntitySet')
+
+    es = es.entity_from_dataframe(entity_id=entity_id,
+                                  dataframe=df,
+                                  index=utility_params_ft['entity_index'],
+                                  time_index=utility_params_ft.get('time_index'),
+                                  secondary_time_index=utility_params_ft.get('secondary_time_index'),
+                                  variable_types=variable_types)
+
+    for ne in utility_params_ft.get('normalized_entities'):
+        es.normalize_entity(base_entity_id=entity_id, **ne)
+
+    cutoff_times = (es[entity_id]
+                    .df[[utility_params_ft['entity_index'],
+                         utility_params_ft['time_index'],
+                         utility_params_ft['label_column']]]
+                    .sort_values(by=utility_params_ft['time_index']))
+
+    fm, features = ft.dfs(entityset=es,
+                          target_entity=entity_id,
+                          agg_primitives=['count', 'percent_true'],
+                          trans_primitives=['is_weekend', 'weekday', 'day', 'month', 'year'],
+                          max_depth=3,
+                          approximate='6h',
+                          cutoff_time=cutoff_times)
+
+    ## Cannot use strings ('objects') as features
+    ## See https://stackoverflow.com/questions/40913104/how-to-use-randomforestclassifier-with-string-data#40934357
+    ## TODO: bag of words
+    Y = fm.pop(utility_params_ft['label_column'])
+    X = fm[fm.dtypes.index[[x is not np.dtype('object') for x in fm.dtypes]]]
+
+    clf = RandomForestClassifier(n_estimators=150)
+    clf.fit(X, Y)
+
+    feature_imps = [(imp, X.columns[i]) for i, imp in enumerate(clf.feature_importances_)]
+    feature_imps.sort()
+    feature_imps.reverse()
+
+    return feature_imps
 
 
 def feature_importance_metrics(synth_method, path_original_ds,
@@ -55,7 +114,12 @@ def feature_importance_metrics(synth_method, path_original_ds,
     rlsd_df = pd.read_csv(path_released_ds + "/synthetic_data_1.csv")
 
     with warnings.catch_warnings(record=True) as warns:
+        pass
         # calculate metric...
+        ## TODO:
+        ##  1. call featuretools_importances on original data
+        ##  2. call featuretools_importances on synthetic data
+        ##  3. fix datetimes in synthetic data (2. will fail)
 
     # store metrics in dictionary
     utility_collector = {}
@@ -79,10 +143,11 @@ def main():
     with open(args.infile) as f:
         synth_params = json.load(f)
 
+    utility_params_ft = synth_params['utility_parameters_feature_importance']
+        
     # if the whole .json is not enabled or if the
     # feature importance utility metrics are not enabled, stop here
-    if not (synth_params["enabled"] and
-            synth_params[f'utility_parameters_feature_importance']['enabled']):
+    if not (synth_params["enabled"] and utility_params_ft['enabled']):
         return
 
     # extract paths and other parameters from args
