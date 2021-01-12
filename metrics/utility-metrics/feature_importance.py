@@ -19,63 +19,83 @@ from utils import handle_cmdline_args, extract_parameters, find_column_types
 
 
 def featuretools_importances(df, data_meta, utility_params_ft):
-    data_json_type_to_vtype = {'Categorical': vtypes.Categorical,
-                               'ContinuousNumerical': vtypes.Numeric,
-                               'DateTime': vtypes.Datetime,
-                               'DiscreteNumerical': vtypes.Ordinal,
-                               'Ordinal': vtypes.Ordinal,
-                               'String': vtypes.Categorical}
+    data_json_type_to_vtype = {
+        "Categorical": vtypes.Categorical,
+        "ContinuousNumerical": vtypes.Numeric,
+        "DateTime": vtypes.Datetime,
+        "DiscreteNumerical": vtypes.Ordinal,
+        "Ordinal": vtypes.Ordinal,
+        "String": vtypes.Categorical,
+    }
 
-    entity_id = 'my_entity_id'
-    
-    variable_types = { m['name'] : data_json_type_to_vtype[m['type']]
-                       for m in data_meta['columns'] }
-    
-    es = ft.EntitySet('myEntitySet')
+    entity_id = "my_entity_id"
 
-    es = es.entity_from_dataframe(entity_id=entity_id,
-                                  dataframe=df,
-                                  index=utility_params_ft['entity_index'],
-                                  time_index=utility_params_ft.get('time_index'),
-                                  secondary_time_index=utility_params_ft.get('secondary_time_index'),
-                                  variable_types=variable_types)
+    variable_types = {
+        m["name"]: data_json_type_to_vtype[m["type"]] for m in data_meta["columns"]
+    }
 
-    for ne in utility_params_ft.get('normalized_entities'):
+    es = ft.EntitySet("myEntitySet")
+
+    es = es.entity_from_dataframe(
+        entity_id=entity_id,
+        dataframe=df,
+        index=utility_params_ft["entity_index"],
+        time_index=utility_params_ft.get("time_index"),
+        secondary_time_index=utility_params_ft.get("secondary_time_index"),
+        variable_types=variable_types,
+    )
+
+    for ne in utility_params_ft.get("normalized_entities"):
         es.normalize_entity(base_entity_id=entity_id, **ne)
 
-    cutoff_times = (es[entity_id]
-                    .df[[utility_params_ft['entity_index'],
-                         utility_params_ft['time_index'],
-                         utility_params_ft['label_column']]]
-                    .sort_values(by=utility_params_ft['time_index']))
+    cutoff_times = (
+        es[entity_id]
+        .df[
+            [
+                utility_params_ft["entity_index"],
+                utility_params_ft["time_index"],
+                utility_params_ft["label_column"],
+            ]
+        ]
+        .sort_values(by=utility_params_ft["time_index"])
+    )
 
-    fm, features = ft.dfs(entityset=es,
-                          target_entity=entity_id,
-                          agg_primitives=['count', 'percent_true'],
-                          trans_primitives=['is_weekend', 'weekday', 'day', 'month', 'year'],
-                          max_depth=3,
-                          approximate='6h',
-                          cutoff_time=cutoff_times)
+    fm, features = ft.dfs(
+        entityset=es,
+        target_entity=entity_id,
+        agg_primitives=["count", "percent_true"],
+        trans_primitives=["is_weekend", "weekday", "day", "month", "year"],
+        max_depth=3,
+        approximate="6h",
+        cutoff_time=cutoff_times,
+    )
 
     ## Cannot use strings ('objects') as features
     ## See https://stackoverflow.com/questions/40913104/how-to-use-randomforestclassifier-with-string-data#40934357
     ## TODO: bag of words
-    Y = fm.pop(utility_params_ft['label_column'])
-    X = fm[fm.dtypes.index[[x is not np.dtype('object') for x in fm.dtypes]]]
+    Y = fm.pop(utility_params_ft["label_column"])
+    X = fm[fm.dtypes.index[[x is not np.dtype("object") for x in fm.dtypes]]]
 
     clf = RandomForestClassifier(n_estimators=150)
     clf.fit(X, Y)
 
-    feature_imps = [(imp, X.columns[i]) for i, imp in enumerate(clf.feature_importances_)]
+    feature_imps = [
+        (imp, X.columns[i]) for i, imp in enumerate(clf.feature_importances_)
+    ]
     feature_imps.sort()
     feature_imps.reverse()
 
     return feature_imps
 
 
-def feature_importance_metrics(synth_method, path_original_ds,
-                        path_original_meta, path_released_ds,
-                        output_file_json, random_seed=1234):
+def feature_importance_metrics(
+    synth_method,
+    path_original_ds,
+    path_original_meta,
+    path_released_ds,
+    output_file_json,
+    random_seed=1234,
+):
     """
     Calculates feature importance differences between the original
     and released datasets, using a random forest classification model.
@@ -143,26 +163,35 @@ def main():
     with open(args.infile) as f:
         synth_params = json.load(f)
 
-    utility_params_ft = synth_params['utility_parameters_feature_importance']
-        
+    utility_params_ft = synth_params["utility_parameters_feature_importance"]
+
     # if the whole .json is not enabled or if the
     # feature importance utility metrics are not enabled, stop here
-    if not (synth_params["enabled"] and utility_params_ft['enabled']):
+    if not (synth_params["enabled"] and utility_params_ft["enabled"]):
         return
 
     # extract paths and other parameters from args
-    synth_method, path_original_ds, \
-    path_original_meta, path_released_ds, \
-    random_seed = extract_parameters(args, synth_params)
+    (
+        synth_method,
+        path_original_ds,
+        path_original_meta,
+        path_released_ds,
+        random_seed,
+    ) = extract_parameters(args, synth_params)
 
     # create output .json full path
     output_file_json = path_released_ds + f"/utility_feature_importance.json"
 
     # calculate and save feature importance metrics
-    feature_importance_metrics(synth_method, path_original_ds,
-                               path_original_meta, path_released_ds,
-                               output_file_json, random_seed)
+    feature_importance_metrics(
+        synth_method,
+        path_original_ds,
+        path_original_meta,
+        path_released_ds,
+        output_file_json,
+        random_seed,
+    )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
