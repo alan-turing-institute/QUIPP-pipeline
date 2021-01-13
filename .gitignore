@@ -33,3 +33,6 @@ generator-outputs
 # Large files
 generators/odi-nhs-ae/data/London\ postcodes.csv
 .Rproj.user
+
+# Mac
+default.profraw
