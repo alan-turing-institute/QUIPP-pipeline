@@ -9,9 +9,9 @@
         "random_state": 1456,
         "category_threshold": 20,
         "epsilon": 0.2,
-        "k": 3,
+        "k": 1,
         "keys": ["appointment_id"],
-        "histogram_bins": 20,
+        "histogram_bins": 10,
         "preconfigured_bn": {}
     },
     "privacy_parameters_disclosure_risk":
@@ -65,6 +65,7 @@
              "index": "gender",
              "make_time_index": false                          
             }
-        ]
+        ],
+        "features_to_exclude": ["patient_id"]
     }
 }

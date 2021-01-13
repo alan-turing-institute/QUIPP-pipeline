@@ -48,17 +48,20 @@ def featuretools_importances(df, data_meta, utility_params_ft):
     for ne in utility_params_ft.get("normalized_entities"):
         es.normalize_entity(base_entity_id=entity_id, **ne)
 
-    cutoff_times = (
-        es[entity_id]
-        .df[
-            [
-                utility_params_ft["entity_index"],
-                utility_params_ft["time_index"],
-                utility_params_ft["label_column"],
+    if utility_params_ft.get("time_index") is not None:
+        cutoff_times = (
+            es[entity_id]
+                .df[
+                [
+                    utility_params_ft["entity_index"],
+                    utility_params_ft["time_index"],
+                    utility_params_ft["label_column"],
+                ]
             ]
-        ]
-        .sort_values(by=utility_params_ft["time_index"])
-    )
+                .sort_values(by=utility_params_ft["time_index"])
+        )
+    else:
+        cutoff_times = None
 
     fm, features = ft.dfs(
         entityset=es,
@@ -70,17 +73,30 @@ def featuretools_importances(df, data_meta, utility_params_ft):
         cutoff_time=cutoff_times,
     )
 
-    ## Cannot use strings ('objects') as features
-    ## See https://stackoverflow.com/questions/40913104/how-to-use-randomforestclassifier-with-string-data#40934357
-    ## TODO: bag of words
     Y = fm.pop(utility_params_ft["label_column"])
-    X = fm[fm.dtypes.index[[x is not np.dtype("object") for x in fm.dtypes]]]
 
+    # create dummies for string categorical variables
+    for col in fm.dtypes.index[[x is np.dtype("object") for x in fm.dtypes]]:
+        one_hot = pd.get_dummies(fm[col])
+        fm = fm.drop(col, axis=1)
+        fm = fm.join(one_hot)
+
+    # drop columns that the user wants to exclude
+    fm = fm.drop(utility_params_ft["features_to_exclude"], axis=1)
+
+    # split data into train and test sets
+    fm_train, fm_test, y_train, y_test = train_test_split(fm, Y, test_size=0.30, shuffle=False)
+
+    # train Random Forest model
     clf = RandomForestClassifier(n_estimators=150)
-    clf.fit(X, Y)
+    clf.fit(fm_train, y_train)
+
+    # predict test labels and calculate AUC
+    probs = clf.predict_proba(fm_test)
+    print('AUC score of {:.3f}'.format(roc_auc_score(y_test, probs[:, 1])))
 
     feature_imps = [
-        (imp, X.columns[i]) for i, imp in enumerate(clf.feature_importances_)
+        (imp, fm.columns[i]) for i, imp in enumerate(clf.feature_importances_)
     ]
     feature_imps.sort()
     feature_imps.reverse()
@@ -89,13 +105,13 @@ def featuretools_importances(df, data_meta, utility_params_ft):
 
 
 def feature_importance_metrics(
-    synth_method,
-    path_original_ds,
-    path_original_meta,
-    path_released_ds,
-    utility_params,
-    output_file_json,
-    random_seed=1234,
+        synth_method,
+        path_original_ds,
+        path_original_meta,
+        path_released_ds,
+        utility_params,
+        output_file_json,
+        random_seed=1234,
 ):
     """
     Calculates feature importance differences between the original
@@ -137,13 +153,10 @@ def feature_importance_metrics(
     rlsd_df = pd.read_csv(path_released_ds + "/synthetic_data_1.csv")
 
     with warnings.catch_warnings(record=True) as warns:
-        pass
-        # calculate metric...
-        ## TODO:
-        ##  1. call featuretools_importances on original data
         orig_feature_importances = featuretools_importances(orig_df, orig_metadata, utility_params)
         rlsd_feature_importances = featuretools_importances(rlsd_df, orig_metadata, utility_params)
-        ##  2. call featuretools_importances on synthetic data
+        import ipdb;
+        ipdb.set_trace()
         ##  3. fix datetimes in synthetic data (2. will fail)
 
     # store metrics in dictionary
