@@ -78,6 +78,23 @@ class SynthesizerPateGAN(SynthesizerBase):
         self.num_samples_to_synthesize = self.parameters["parameters"]["num_samples_to_synthesize"]
         self.eps = self.parameters['parameters']['epsilon']
         self.delta = self.parameters['parameters']['delta']
+        
+        if "columns_to_synthesize" in self.parameters["parameters"].keys():
+            self.columns_to_synthesize = self.parameters["parameters"]["columns_to_synthesize"]
+        else:
+            self.columns_to_synthesize = "all"
+        
+        if not self.columns_to_synthesize in [None, "all", "None"]:
+            input_data = input_data[self.columns_to_synthesize]
+            metadata_update = {"columns": []}
+            self_metadata_update = {"columns": []}
+            for one_col in metadata["columns"]:
+                if one_col["name"] in self.columns_to_synthesize:
+                    metadata_update["columns"].append(one_col)
+                    self_metadata_update["columns"].append(one_col)
+            metadata = metadata_update
+            self.metadata = self_metadata_update
+
         if verbose:
             print(f"\n[INFO] Reading PATE-GAN parameters from json file:\n"
                   f"num_samples_to_fit = {self.num_samples_to_fit}\n"
