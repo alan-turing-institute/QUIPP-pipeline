@@ -25,10 +25,11 @@ SYNTH_OUTPUTS_CSV = $(addsuffix /synthetic_data_1.csv,$(SYNTH_OUTPUTS_PREFIX))
 SYNTH_OUTPUTS_PRIV_DISCL_RISK = $(addsuffix /privacy_disclosure_risk.json,$(SYNTH_OUTPUTS_PREFIX))
 SYNTH_OUTPUTS_UTIL_CLASS = $(addsuffix /utility_classifiers.json,$(SYNTH_OUTPUTS_PREFIX))
 SYNTH_OUTPUTS_UTIL_CORR = $(addsuffix /utility_correlations.json,$(SYNTH_OUTPUTS_PREFIX))
+SYNTH_OUTPUTS_UTIL_FEATURE_IMPORTANCE = $(addsuffix /utility_feature_importance.json,$(SYNTH_OUTPUTS_PREFIX))
 
 .PHONY: all all-synthetic generated-data clean
 
-all: $(SYNTH_OUTPUTS_PRIV_DISCL_RISK) $(SYNTH_OUTPUTS_UTIL_CLASS) $(SYNTH_OUTPUTS_UTIL_CORR)
+all: $(SYNTH_OUTPUTS_PRIV_DISCL_RISK) $(SYNTH_OUTPUTS_UTIL_CLASS) $(SYNTH_OUTPUTS_UTIL_CORR) $(SYNTH_OUTPUTS_FEATURE_IMPORTANCE)
 
 all-synthetic: $(SYNTH_OUTPUTS_CSV)
 
@@ -90,6 +91,11 @@ $(SYNTH_OUTPUTS_UTIL_CORR) : \
 synth-output/%/utility_correlations.json : \
 run-inputs/%.json synth-output/%/synthetic_data_1.csv
 	python metrics/utility-metrics/correlations.py -i $< -o $$(dirname $@)
+
+$(SYNTH_OUTPUTS_UTIL_FEATURE_IMPORTANCE) : \
+synth-output/%/utility_feature_importance.json : \
+run-inputs/%.json synth-output/%/synthetic_data_1.csv
+	python metrics/utility-metrics/feature_importance.py -i $< -o $$(dirname $@)
 
 
 ##-------------------------------------

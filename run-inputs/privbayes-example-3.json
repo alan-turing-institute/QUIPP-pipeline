@@ -9,9 +9,9 @@
         "random_state": 1456,
         "category_threshold": 20,
         "epsilon": 0.2,
-        "k": 3,
+        "k": 1,
         "keys": ["appointment_id"],
-        "histogram_bins": 20,
+        "histogram_bins": 10,
         "preconfigured_bn": {}
     },
     "privacy_parameters_disclosure_risk":
@@ -36,5 +36,36 @@
     "utility_parameters_correlations":
     {
         "enabled": true
+    },
+    "utility_parameters_feature_importance":
+    {
+        "enabled": true,
+        "entity_index": "appointment_id",
+        "time_index": "scheduled_time",
+        "label_column": "no_show",
+        "secondary_time_index": {"appointment_day": ["no_show", "sms_received"]},
+        "normalized_entities": [
+            {"new_entity_id": "patients",
+             "index": "patient_id",
+             "additional_variables": ["scholarship",
+                                      "hypertension",
+                                      "diabetes",
+                                      "alcoholism",
+                                      "handicap"]
+            },
+            { "new_entity_id": "locations",
+             "index": "neighborhood",
+             "make_time_index": false
+            },
+            {"new_entity_id": "ages",
+             "index": "age",
+             "make_time_index": false
+            },
+            {"new_entity_id": "genders",
+             "index": "gender",
+             "make_time_index": false                          
+            }
+        ],
+        "features_to_exclude": ["patient_id"]
     }
 }
