@@ -93,6 +93,7 @@ def feature_importance_metrics(
     path_original_ds,
     path_original_meta,
     path_released_ds,
+    utility_params,
     output_file_json,
     random_seed=1234,
 ):
@@ -112,6 +113,8 @@ def feature_importance_metrics(
         Path to the original metadata.
     path_released_ds : string
         Path to the released dataset.
+    utility_params: dict
+        Parameters for feature importance utility metrics read from inputs json file.
     output_file_json : string
         Path to the output json file that will be generated.
     random_seed : integer
@@ -138,6 +141,8 @@ def feature_importance_metrics(
         # calculate metric...
         ## TODO:
         ##  1. call featuretools_importances on original data
+        orig_feature_importances = featuretools_importances(orig_df, orig_metadata, utility_params)
+        rlsd_feature_importances = featuretools_importances(rlsd_df, orig_metadata, utility_params)
         ##  2. call featuretools_importances on synthetic data
         ##  3. fix datetimes in synthetic data (2. will fail)
 
@@ -188,6 +193,7 @@ def main():
         path_original_ds,
         path_original_meta,
         path_released_ds,
+        utility_params_ft,
         output_file_json,
         random_seed,
     )
