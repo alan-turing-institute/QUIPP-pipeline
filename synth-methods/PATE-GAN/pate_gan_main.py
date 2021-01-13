@@ -76,6 +76,10 @@ class SynthesizerPateGAN(SynthesizerBase):
         self.random_state = self.parameters['parameters']['random_state']
         self.num_datasets_to_synthesize = self.parameters["parameters"]["num_datasets_to_synthesize"]
         self.num_samples_to_synthesize = self.parameters["parameters"]["num_samples_to_synthesize"]
+        self.batch_size = self.parameters["parameters"]["batch_size"]
+        self.num_teachers = self.parameters["parameters"]["num_teachers"]
+        self.num_iters = self.parameters["parameters"]["num_iters"]
+        self.learning_rate = self.parameters["parameters"]["learning_rate"]
         self.eps = self.parameters['parameters']['epsilon']
         self.delta = self.parameters['parameters']['delta']
         
@@ -139,7 +143,11 @@ class SynthesizerPateGAN(SynthesizerBase):
             print(data_sample.describe())
 
         # Instantiate PateGanSynthesizer object
-        pategan = PateGanSynthesizer(self.metadata, self.eps, self.delta)
+        pategan = PateGanSynthesizer(self.metadata, self.eps, self.delta,
+                                     MB_SIZE=self.batch_size,
+                                     LR=self.learning_rate,
+                                     NITER=self.num_iters,
+                                     NUM_TEACHERS=self.num_teachers)
 
         # Fit the model
         if verbose:
