@@ -1,0 +1,40 @@
+{
+    "enabled" : true,
+    "dataset" : "datasets/appointment_noshows/KaggleV2-May-2016-cleaned",
+    "synth-method" : "PATE-GAN",
+    "parameters":
+    {
+        "enabled" : true,
+        "num_samples_to_fit": -1,
+        "num_samples_to_synthesize": 110527,
+        "num_datasets_to_synthesize": 5,
+        "columns_to_synthesize": ["gender","sms_received","no_show","age"],
+	"epsilon": 0.1,
+	"delta": 0,
+        "random_state": 12345
+    },
+    "privacy_parameters_disclosure_risk":
+    {
+        "enabled": false,
+        "num_samples_intruder": 1000,
+        "vars_intruder": ["gender","age","sms_received","no_show"]
+    },
+    "utility_parameters_classifiers":
+    {
+        "enabled": true,
+        "input_columns": ["gender","age","sms_received"],
+        "label_column": "no_show",
+        "test_train_ratio": 0.2,
+        "num_leaked_rows": 0,
+	"classifier": {
+        "LogisticRegression":  
+               {"mode": "main",
+               	"params_main": {"max_iter": 10000}
+                }
+        }
+    },
+    "utility_parameters_correlations":
+    {
+        "enabled": false
+    }
+}
