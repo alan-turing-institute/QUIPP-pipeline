@@ -10,12 +10,17 @@ import sys
 import warnings
 import numpy as np
 import pandas as pd
+from scipy.stats import entropy
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, roc_auc_score
+from typing import Union
 
 sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir, "utilities"))
 from utils import handle_cmdline_args, extract_parameters, find_column_types
+
+sys.path.append(os.path.join(os.path.dirname(__file__)))
+from rbo import RankingSimilarity
 
 
 def featuretools_importances(df, data_meta, utility_params_ft):
@@ -111,6 +116,7 @@ def feature_importance_metrics(
         path_released_ds,
         utility_params,
         output_file_json,
+        percentage_threshold=None,
         random_seed=1234,
 ):
     """
@@ -133,6 +139,12 @@ def feature_importance_metrics(
         Parameters for feature importance utility metrics read from inputs json file.
     output_file_json : string
         Path to the output json file that will be generated.
+    percentage_threshold : Union[float, None], optional
+        if None, all features will be used in computing Rank-biased Overlap (RBO)
+        otherwise, if percentage_threshold is a float between 0 and 1 
+            1. the cumulative sum of the ranking scores is calculated (original dataset)
+            2. select only those features that their scores contribute to the specified percentage_threshold
+            3. compute RBO for the selected features
     random_seed : integer
         Random seed for numpy. Defaults to 1234
     """
@@ -150,17 +162,28 @@ def feature_importance_metrics(
     # only the first synthetic data set (synthetic_data_1.csv)
     # is used for utility evaluation
     orig_df = pd.read_csv(path_original_ds)
-    rlsd_df = pd.read_csv(path_released_ds + "/synthetic_data_1.csv")
-
-    with warnings.catch_warnings(record=True) as warns:
-        orig_feature_importances = featuretools_importances(orig_df, orig_metadata, utility_params)
-        rlsd_feature_importances = featuretools_importances(rlsd_df, orig_metadata, utility_params)
-        import ipdb;
-        ipdb.set_trace()
-        ##  3. fix datetimes in synthetic data (2. will fail)
+    rlsd_df = pd.read_csv(os.path.join(path_released_ds, "synthetic_data_1.csv"))
 
     # store metrics in dictionary
     utility_collector = {}
+
+    with warnings.catch_warnings(record=True) as warns:
+        print("[INFO] Compute feature importance for original dataset")
+        orig_feature_importances = featuretools_importances(orig_df, orig_metadata, utility_params)
+        rank_orig_features = [i[1] for i in orig_feature_importances]
+        score_orig_features = [i[0] for i in orig_feature_importances]
+        
+        print("[INFO] Compute feature importance for synthetic dataset")
+        rlsd_feature_importances = featuretools_importances(rlsd_df, orig_metadata, utility_params)
+        rank_rlsd_features = [i[1] for i in rlsd_feature_importances]
+        score_rlsd_features = [i[0] for i in rlsd_feature_importances]
+
+        utility_collector = compare_features(rank_orig_features, rank_rlsd_features, 
+                                             score_orig_features, score_rlsd_features, 
+                                             utility_collector, percentage_threshold)
+        import ipdb; ipdb.set_trace()
+        print("-------------")
+        ##  3. fix datetimes in synthetic data (2. will fail)
 
     # print warnings
     if len(warns) > 0:
@@ -171,6 +194,69 @@ def feature_importance_metrics(
     # save as .json
     with open(output_file_json, "w") as out_fio:
         json.dump(utility_collector, out_fio)
+
+def compare_features(rank_orig_features: list, rank_rlsd_features: list, 
+                     score_orig_features: Union[None, list]=None, 
+                     score_rlsd_features: Union[None, list]=None, 
+                     utility_collector: dict={}, 
+                     percentage_threshold: Union[float, None]=None):
+    """Compare ranked features using different methods including
+        Ranked-biased Overlap (RBO), extrapolated version of RBO, 
+        L2 norm and KL divergence
+
+    Parameters
+    ----------
+    rank_orig_features : list
+        ranked features from the original dataset
+    rank_rlsd_features : list
+        ranked features from the synthetic/released dataset
+    score_orig_features : Union[None, list], optional
+        scores of the ranked features from the original dataset, by default None
+    score_rlsd_features : Union[None, list], optional
+        scores of the ranked features from the synthetic/released dataset, by default None
+    utility_collector : dict, optional
+        a dictionary to collect utilities, by default {}
+    percentage_threshold : Union[float, None], optional
+        if None, all features will be used in computing Rank-biased Overlap (RBO)
+        otherwise, if percentage_threshold is a float between 0 and 1 
+            1. the cumulative sum of the ranking scores is calculated (original dataset)
+            2. select only those features that their scores contribute to the specified percentage_threshold
+            3. compute RBO for the selected features
+    """
+
+    if percentage_threshold != None and (0 < percentage_threshold < 1) and score_orig_features != None:
+        target_index = np.argmax(np.cumsum(score_orig_features) > percentage_threshold)
+    else:
+        target_index = len(rank_orig_features)
+
+    # Rank-Biased Overlap (RBO)
+    utility_collector["rbo"] = RankingSimilarity(rank_orig_features[:target_index], 
+                                                 rank_rlsd_features[:target_index]).rbo()
+
+    # Rank-Biased Overlap (RBO), extrapolated version
+    utility_collector["rbo_ext"] = RankingSimilarity(rank_orig_features[:target_index], 
+                                                     rank_rlsd_features[:target_index]).rbo_ext()
+    
+    if score_orig_features != None and score_rlsd_features != None:
+        # L2 norm
+        tmp_orig_df = pd.DataFrame(score_orig_features, columns=["score_orig_features"])
+        tmp_orig_df["rank_orig_features"] = rank_orig_features
+        
+        tmp_rlsd_df = pd.DataFrame(score_rlsd_features, columns=["score_rlsd_features"])
+        tmp_rlsd_df["rank_rlsd_features"] = rank_rlsd_features
+
+        orig_rlsd_df = pd.merge(tmp_orig_df, tmp_rlsd_df, 
+                                left_on="rank_orig_features", 
+                                right_on="rank_rlsd_features")
+
+        diff_orig_rlsd_scores = (orig_rlsd_df["score_orig_features"] - orig_rlsd_df["score_rlsd_features"]).to_numpy()
+        utility_collector["l2_norm"] = np.sqrt(np.sum(diff_orig_rlsd_scores**2))
+
+        # KL divergence
+        orig_sf = orig_rlsd_df["score_orig_features"].to_numpy() + 1e-20
+        rlsd_sf = orig_rlsd_df["score_rlsd_features"].to_numpy() + 1e-20
+        utility_collector["kl_orig_rlsd"] = entropy(orig_sf, rlsd_sf)
+    return utility_collector
 
 
 def main():
@@ -198,7 +284,7 @@ def main():
     ) = extract_parameters(args, synth_params)
 
     # create output .json full path
-    output_file_json = path_released_ds + f"/utility_feature_importance.json"
+    output_file_json = os.path.join(path_released_ds, "utility_feature_importance.json")
 
     # calculate and save feature importance metrics
     feature_importance_metrics(
