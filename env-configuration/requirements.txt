@@ -5,3 +5,4 @@ sdv
 uuid
 dython
 DataSynthesizer
+pydantic

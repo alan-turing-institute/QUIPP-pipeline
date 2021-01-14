@@ -3,10 +3,13 @@
 #
 # Should be run from within the QUIPP-pipeline root directory
 
-import json
 import argparse
 import sys
 import os
+from pydantic import ValidationError
+from pydantic import BaseModel
+
+from schema import validate_input_json
 
 def handle_cmdline_args():
     """Return an object with attributes 'infile' and 'outfile', after
@@ -27,18 +30,18 @@ handling the command line arguments"""
     return args
 
 
+
 def main():
     # read command line options
     args = handle_cmdline_args()
 
-    with open(args.infile) as f:
-        synth_params = json.load(f)
+    synth_params = validate_input_json(args.infile)
 
-    if not (synth_params["enabled"] and synth_params['parameters']['enabled']):
+    if not (synth_params.enabled and synth_params.parameters.enabled):
         return
 
-    synth_method = synth_params["synth-method"]
-    dataset = synth_params["dataset"]
+    synth_method = synth_params.synth_method
+    dataset = synth_params.dataset
 
     synth_method_cmd = os.path.abspath(os.path.join(
         "synth-methods", synth_method, "run"))
