@@ -1,8 +1,10 @@
 from pydantic import BaseModel
 
+
 class BaseParameters(BaseModel):
-    
+
     enabled: bool
+
 
 class CTGANParameters(BaseModel):
 

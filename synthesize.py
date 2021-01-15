@@ -4,11 +4,7 @@
 # Should be run from within the QUIPP-pipeline root directory
 
 import argparse
-import sys
 import os
-from pydantic import ValidationError
-from pydantic import BaseModel
-
 from schema import validate_input_json
 
 def handle_cmdline_args():
@@ -58,6 +54,6 @@ def main():
               os.path.basename(args.outfile_prefix)])
 
 
-if __name__=='__main__':
+if __name__ =='__main__':
     main()
 

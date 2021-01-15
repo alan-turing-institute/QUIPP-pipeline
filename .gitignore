@@ -5,6 +5,7 @@
 # Python
 __pycache__
 venv
+.mypy_cache
 
 # Editors
 .idea
@@ -23,6 +24,13 @@ datasets/generated/odi_nhs_ae/*
 # Generated data tests
 generators/odi-nhs-ae/test-data/*.csv
 !generators/odi-nhs-ae/test-data/test_reference.csv
+
+# Synth output folder
+synth-output
+
+# Generator output folder
+generator-outputs
+
 
 # Large files
 generators/odi-nhs-ae/data/London\ postcodes.csv
