@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 from pathlib import Path
 from enum import Enum
-from typing import List, Union
+from typing import List, Union, Type
 from pydantic import ValidationError
 
 from .synth_method_params import BaseParameters, CTGANParameters
@@ -45,11 +45,13 @@ class BaseParams(BaseModel):
 
 class CTGAN(BaseParams):
 
-    synth_method: str = Field(SynthMethods.CTGAN.value, alias="synth-method")
+    synth_method: SynthMethods = Field(SynthMethods.CTGAN, alias="synth-method")
     parameters: CTGANParameters
 
+InputSchemaParsed = Union[BaseParams, CTGAN]
+InputSchema = Union[Type[BaseParams], Type[CTGAN]]
 
-def get_input_validation_schema(synth_method: SynthMethods) -> Union[CTGAN]:
+def get_input_validation_schema(synth_method: SynthMethods) -> InputSchema:
     """Return a Pydantic Model for synth_method
 
     Args:
@@ -60,9 +62,11 @@ def get_input_validation_schema(synth_method: SynthMethods) -> Union[CTGAN]:
     """
     if synth_method == SynthMethods.CTGAN:
         return CTGAN
+    else:
+        raise NotImplemented(f"Schema for {synth_method} is not implemented")
 
 
-def validate_input_json(input_json_path: str):
+def validate_input_json(input_json_path: str) -> InputSchemaParsed:
     """Validate input json
 
     Args:
@@ -72,7 +76,7 @@ def validate_input_json(input_json_path: str):
         ValueError: Details of validation error
     """
 
-    def validate_file(schema: BaseModel):
+    def validate_file(schema: InputSchema) -> InputSchemaParsed:
 
         try:
             params = schema.parse_file(input_json_path)

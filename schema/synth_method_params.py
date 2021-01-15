@@ -6,7 +6,7 @@ class BaseParameters(BaseModel):
     enabled: bool
 
 
-class CTGANParameters(BaseModel):
+class CTGANParameters(BaseParameters):
 
     enabled: bool = True
     num_samples_to_fit: int
