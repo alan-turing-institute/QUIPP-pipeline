@@ -6,3 +6,5 @@ uuid
 dython
 DataSynthesizer
 pydantic
+typer
+Jinja2

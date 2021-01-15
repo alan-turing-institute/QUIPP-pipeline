@@ -1,9 +1,8 @@
-from pydantic import BaseModel, Field
-from pathlib import Path
 from enum import Enum
-from typing import List, Union, Type
-from pydantic import ValidationError
+from pathlib import Path
+from typing import List, Type, Union
 
+from pydantic import BaseModel, Field, ValidationError
 from .synth_method_params import BaseParameters, CTGANParameters
 
 
@@ -62,8 +61,8 @@ def get_input_validation_schema(synth_method: SynthMethods) -> InputSchema:
     """
     if synth_method == SynthMethods.CTGAN:
         return CTGAN
-    else:
-        raise NotImplemented(f"Schema for {synth_method} is not implemented")
+
+    raise NotImplementedError(f"Schema for {synth_method} is not implemented")
 
 
 def validate_input_json(input_json_path: str) -> InputSchemaParsed:
@@ -80,9 +79,9 @@ def validate_input_json(input_json_path: str) -> InputSchemaParsed:
 
         try:
             params = schema.parse_file(input_json_path)
-        except ValidationError as ve:
+        except ValidationError as error:
             raise ValueError(
-                f"{input_json_path} is not valid \nDetail:\n {ve.json()}"
+                f"{input_json_path} is not valid \nDetail:\n {error.json()}"
             ) from None
 
         return params
