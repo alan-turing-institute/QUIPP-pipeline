@@ -1,1 +1,6 @@
 jupyter-repo2docker>=0.11
+mypy
+pylint
+flake8
+black
+isort
