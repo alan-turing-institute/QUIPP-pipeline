@@ -10,14 +10,14 @@ try:
     # from pate_gan_source import PateGanSynthesizer
     from pate_gan import PateGan as PateGanSynthesizer
 except ImportError:
+    sys.path.append(os.path.join(os.path.dirname(__file__),
+                                 os.path.pardir,
+                                 os.path.pardir,
+                                 "libs", "synthetic_data_release", "synthetic_data"))
     sys.path.append(os.path.join(os.path.dirname(__file__), 
                                  os.path.pardir, 
                                  os.path.pardir, 
-                                 "libs", "synthetic_data_release", "generative_models"))
-    sys.path.append(os.path.join(os.path.dirname(__file__), 
-                                 os.path.pardir, 
-                                 os.path.pardir, 
-                                 "libs", "synthetic_data_release"))
+                                 "libs", "synthetic_data_release", "synthetic_data", "generative_models"))
     from pate_gan import PateGan as PateGanSynthesizer
 except:
     err_msg = "[ERROR] could not import PateGanSynthesizer.\n"
