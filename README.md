@@ -99,6 +99,25 @@ environmental variable `SGFROOT` to point to this location.  That is, in bash,
 We use the PrivBayes implementation within the DataSynthesizer fork found [here](https://github.com/gmingas/DataSynthesizer). 
 In order to install it, clone the above repository locally, go to its root directory and run `pip install .`
 
+#### Forked synthetic_data_release
+
+We use the PATE-GAN implementation within the `synthetic_data_release` fork found [here](https://github.com/kasra-hosseini/synthetic_data_release). 
+In order to use PATE-GAN in QUIPP:
+1. create a new directory:
+
+```bash
+cd /path/to/QUIPP-pipeline
+mkdir libs
+```
+
+2. Clone the above repository inside `libs` directory created in the previous step:
+
+```bash
+# from /path/to/QUIPP-pipeline 
+cd libs
+git clone https://github.com/kasra-hosseini/synthetic_data_release.git
+```
+
 ## Top-level directory contents
 
 The top-level directory structure mirrors the data pipeline.

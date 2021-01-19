@@ -1,21 +1,36 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
 import json
 import os
 import pandas as pd
 import sys
 
 try:
-    from ctgan.synthesizer import CTGANSynthesizer
-except ImportError as err:
-    sys.exit("[ERROR] CTGAN library needs to be installed.\nError message: %s" % err)
+    # from pate_gan_source import PateGanSynthesizer
+    from pate_gan import PateGan as PateGanSynthesizer
+except ImportError:
+    sys.path.append(os.path.join(os.path.dirname(__file__),
+                                 os.path.pardir,
+                                 os.path.pardir,
+                                 "libs", "synthetic_data_release", "synthetic_data"))
+    sys.path.append(os.path.join(os.path.dirname(__file__), 
+                                 os.path.pardir, 
+                                 os.path.pardir, 
+                                 "libs", "synthetic_data_release", "synthetic_data", "generative_models"))
+    from pate_gan import PateGan as PateGanSynthesizer
+except:
+    err_msg = "[ERROR] could not import PateGanSynthesizer.\n"
+    err_msg += "Refer to the README file to set up PATE-GAN"
+    sys.exit(err_msg)
 
 sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir, "Base"))
 from base import SynthesizerBase
+from utils_pate import NpEncoder
 
-# --- CTGAN main class
-class SynthesizerCTGAN(SynthesizerBase):
+# --- PATE-GAN main class
+class SynthesizerPateGAN(SynthesizerBase):
 
     def __init__(self):
         self.num_samples_to_fit = None
@@ -23,16 +38,17 @@ class SynthesizerCTGAN(SynthesizerBase):
         self.discrete_column_names = None
         self.num_epochs = None
         self.random_state = None
+        self.converted_metadata = []
 
         # instantiate SynthesizerBase from Base directory
         super().__init__()
 
     def fit_synthesizer(self, parameters_json_path, csv_path, metadata_json_path, verbose=True):
         """
-        Fits CTGAN model and stores the model internally
+        Fits PATE-GAN model and stores the model internally
 
         Arguments:
-            parameters_json_path: path to a json file which contains CTGAN parameters (user inputs)
+            parameters_json_path: path to a json file which contains PATE-GAN parameters (user inputs)
             csv_path: real data
             metadata_json_path: file describing the CSV file
         """
@@ -41,9 +57,21 @@ class SynthesizerCTGAN(SynthesizerBase):
         if verbose:
             print("\n[INFO] Reading input data and metadata from disk")
         input_data, metadata = self.read_data(csv_path, metadata_json_path, verbose)
+
+        # Convert columns:
+        #   - DateTime ---> ContinuousNumerical
+        # NOTE: self.converted_metadata keeps track of these changes
+        for icol, one_col in enumerate(metadata['columns']):
+            if one_col['type'].lower() in ['datetime']:
+                input_data[one_col['name']] = input_data[one_col['name']].apply(lambda x: datetime.strptime(x, "%Y-%m-%d %H:%M:%S").timestamp())
+                new_type = 'ContinuousNumerical'
+                self.converted_metadata.append([icol, one_col['type'], new_type])
+                metadata['columns'][icol]['type'] = new_type 
+
         print(f"[INFO] #rows before removing NaN: {len(input_data)}")
         input_data.dropna(inplace=True)
         print(f"[INFO] #rows after removing NaN: {len(input_data)}")
+
         with open(metadata_json_path) as metadata_json:
             self.metadata = json.load(metadata_json)
 
@@ -60,10 +88,16 @@ class SynthesizerCTGAN(SynthesizerBase):
         with open(parameters_json_path) as parameters_json:
             self.parameters = json.load(parameters_json)
         self.num_samples_to_fit = self.parameters['parameters']['num_samples_to_fit']
-        self.num_epochs = self.parameters['parameters']['num_epochs']
         self.random_state = self.parameters['parameters']['random_state']
         self.num_datasets_to_synthesize = self.parameters["parameters"]["num_datasets_to_synthesize"]
         self.num_samples_to_synthesize = self.parameters["parameters"]["num_samples_to_synthesize"]
+        self.batch_size = self.parameters["parameters"]["batch_size"]
+        self.num_teachers = self.parameters["parameters"]["num_teachers"]
+        self.num_iters = self.parameters["parameters"]["num_iters"]
+        self.learning_rate = self.parameters["parameters"]["learning_rate"]
+        self.eps = self.parameters['parameters']['epsilon']
+        self.delta = self.parameters['parameters']['delta']
+        
         if "columns_to_synthesize" in self.parameters["parameters"].keys():
             self.columns_to_synthesize = self.parameters["parameters"]["columns_to_synthesize"]
         else:
@@ -81,20 +115,50 @@ class SynthesizerCTGAN(SynthesizerBase):
             self.metadata = self_metadata_update
 
         if verbose:
-            print(f"\n[INFO] Reading CTGAN parameters from json file:\n"
+            print(f"\n===============================\n"
+                  f"[INFO] Reading PATE-GAN parameters from json file:\n"
                   f"num_samples_to_fit = {self.num_samples_to_fit}\n"
-                  f"num_epochs = {self.num_epochs}\n"
-                  f"random_state = {self.random_state}\n")
+                  f"num_samples_to_synthesize = {self.num_samples_to_synthesize}\n"
+                  f"num_datasets_to_synthesize = {self.num_datasets_to_synthesize}\n"
+                  "----------\n"
+                  f"num_iters = {self.num_iters}\n"
+                  f"learning_rate = {self.learning_rate}\n"
+                  f"batch_size = {self.batch_size}\n"
+                  f"random_state = {self.random_state}\n"
+                  "----------\n"
+                  f"num_teachers = {self.num_teachers}\n"
+                  f"eps = {self.eps}\n"
+                  f"delta = {self.delta}\n"
+                  f"===============================\n"
+                  )
 
         # Extract discrete column names list from metadata
-        # XXX NOTE: The list of discrete types needs to be updated when the format of the metadata is finalised
-        # XXX Deal with DateTime in CTGAN
-        self.discrete_column_names = [col['name'] for col in metadata['columns']
-                                      if col['type'] in ['Categorical', 'Ordinal', 'DiscreteNumerical', "DateTime"]]
+        self.metadata['categorical_columns'] = []
+        self.metadata['ordinal_columns'] = []
+        self.metadata['continuous_columns'] = []
+        for i, col in enumerate(metadata['columns']):
+            if col['type'] in ['Categorical', 'DiscreteNumerical', "DateTime"]:
+                self.metadata['categorical_columns'].append(i)
+            elif col['type'] in ['Ordinal']:
+                self.metadata['ordinal_columns'].append(i)
+            else:
+                self.metadata['continuous_columns'].append(i)
+
+        categorical_columns = sorted(self.metadata['categorical_columns'] + self.metadata['ordinal_columns'])
+
+        for one_col in categorical_columns:
+            unique_values = input_data[metadata['columns'][one_col]['name']].unique()
+            unique_values.sort()
+            self.metadata['columns'][one_col]['size'] = len(unique_values)
+            self.metadata['columns'][one_col]['i2s'] = unique_values.tolist()
+
+        for one_col in self.metadata['continuous_columns']:
+            self.metadata['columns'][one_col]['min'] = input_data[metadata['columns'][one_col]['name']].min()
+            self.metadata['columns'][one_col]['max'] = input_data[metadata['columns'][one_col]['name']].max()
 
         # Draw random sample from input data with requested size
         if self.num_samples_to_fit == 0:
-            sys.exit('\nNumber of samples for fitting cannot be 0')
+            ValueError('\nNumber of samples for fitting cannot be 0')
         elif self.num_samples_to_fit != -1:
             if verbose:
                 print(f"\n[INFO] Sampling {self.num_samples_to_fit} rows from input data")
@@ -106,17 +170,21 @@ class SynthesizerCTGAN(SynthesizerBase):
             print("[INFO] Summary of the data frame that will be used for fitting:")
             print(data_sample.describe())
 
-        # Instantiate CTGANSynthesizer object
-        ctgan = CTGANSynthesizer(embedding_dim=128, batch_size=100)
+        # Instantiate PateGanSynthesizer object
+        pategan = PateGanSynthesizer(self.metadata, self.eps, self.delta,
+                                     MB_SIZE=self.batch_size,
+                                     LR=self.learning_rate,
+                                     NITER=self.num_iters,
+                                     NUM_TEACHERS=self.num_teachers)
 
         # Fit the model
         if verbose:
-            print(f"\n[INFO] Fitting the CTGAN model, total number of epochs: {self.num_epochs}")
+            print(f"\n[INFO] Fitting the PATE-GAN model.")
         self.num_data_sample = len(data_sample)
-        ctgan.fit(data_sample, self.discrete_column_names, epochs=self.num_epochs)
+        pategan.fit(data_sample)
 
         # Store the model
-        self.model = ctgan
+        self.model = pategan
 
     def synthesize(self, output_path, num_samples_to_synthesize=-1, store_internally=False, verbose=True):
         """Create synthetic data set using the fitted model. Stores the synthetic data
@@ -135,7 +203,7 @@ class SynthesizerCTGAN(SynthesizerBase):
             if not os.path.isdir(output_path):
                 os.makedirs(output_path)
             for i_syn in range(1, self.num_datasets_to_synthesize + 1):
-                synthetic_data = self.model.sample(self.num_samples_to_synthesize)
+                synthetic_data = self.model.generate_samples(self.num_samples_to_synthesize)
 
                 if verbose:
                     print(f"\n[INFO] Synthesis: Created synthetic data set with the following characteristics:\n"
@@ -144,11 +212,11 @@ class SynthesizerCTGAN(SynthesizerBase):
 
                 synthetic_data.to_csv(os.path.join(output_path, f"synthetic_data_{i_syn}.csv"), index=False)
 
-            with open(os.path.join(output_path,"ctgan_parameters.json"), 'w') as par:
+            with open(os.path.join(output_path,"pategan_parameters.json"), 'w') as par:
                 json.dump(self.parameters, par)
 
             with open(os.path.join(output_path,"data_description.json"), 'w') as meta:
-                json.dump(self.metadata, meta)
+                json.dump(self.metadata, meta, cls=NpEncoder)
 
             if verbose:
                 print(f"[INFO] Stored synthesized dataset to file: {output_path}")
@@ -158,22 +226,6 @@ class SynthesizerCTGAN(SynthesizerBase):
             self.synthetic_data = synthetic_data
             if verbose:
                 print("[INFO] Stored synthesized dataset internally")
-
+    
 if __name__ == "__main__":
-    # Test if it works
-
-    import uuid
-
-    ctgan_syn = SynthesizerCTGAN()
-
-    UUID_run = uuid.uuid1()
-
-    output_path = "../../synth_output/ctgan_"+str(UUID_run)
-
-
-    path2csv = os.path.join("../../datasets/generated/odi_nhs_ae/hospital_ae_data_deidentify.csv")
-    path2meta = os.path.join("../../datasets/generated/odi_nhs_ae/hospital_ae_data_deidentify.json")
-    path2params = os.path.join("tests", "parameters", "ctgan_parameters.json")
-
-    ctgan_syn.fit_synthesizer(path2params, path2csv, path2meta)
-    ctgan_syn.synthesize(output_path=output_path)
+    print("[WARNING] run PATE-GAN via SynthesizerPateGAN class.")

@@ -213,11 +213,11 @@ def classifier_metrics(synth_method, path_original_ds,
             utility_diff[clf_name] = calculate_diff_metrics(utility_o_o[clf_name], utility_r_o[clf_name])
 
             # calculate and store confusion matrices
-            utility_confusion_o_o[clf_name] = calculate_confusion_matrix(y_test_pred_o_o,
-                                                                         y_test_o,
+            utility_confusion_o_o[clf_name] = calculate_confusion_matrix(y_test_o,
+                                                                         y_test_pred_o_o,
                                                                          target_names=clf_orig.classes_)
-            utility_confusion_r_o[clf_name] = calculate_confusion_matrix(y_test_pred_r_o,
-                                                                         y_test_o,
+            utility_confusion_r_o[clf_name] = calculate_confusion_matrix(y_test_o,
+                                                                         y_test_pred_r_o,
                                                                          target_names=clf_rlsd.classes_)
     
     # mean relative differences for each metric (from all classifiers combined)
@@ -246,9 +246,9 @@ def classifier_metrics(synth_method, path_original_ds,
     report.report(path_released_ds)
 
 
-def calculate_confusion_matrix(y_pred, y_test, target_names):
+def calculate_confusion_matrix(y_true, y_pred, target_names):
     """Calculate confusion matrix and save to dictionary"""
-    output = {"conf_matrix": confusion_matrix(y_pred, y_test).tolist(),
+    output = {"conf_matrix": confusion_matrix(y_true, y_pred).tolist(),
               "target_names": target_names.tolist()}
     return output
 
