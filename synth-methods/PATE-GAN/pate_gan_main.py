@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
 import json
 import os
 import pandas as pd
@@ -26,6 +27,7 @@ except:
 
 sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir, "Base"))
 from base import SynthesizerBase
+from utils_pate import NpEncoder
 
 # --- PATE-GAN main class
 class SynthesizerPateGAN(SynthesizerBase):
@@ -36,6 +38,7 @@ class SynthesizerPateGAN(SynthesizerBase):
         self.discrete_column_names = None
         self.num_epochs = None
         self.random_state = None
+        self.converted_metadata = []
 
         # instantiate SynthesizerBase from Base directory
         super().__init__()
@@ -54,6 +57,16 @@ class SynthesizerPateGAN(SynthesizerBase):
         if verbose:
             print("\n[INFO] Reading input data and metadata from disk")
         input_data, metadata = self.read_data(csv_path, metadata_json_path, verbose)
+
+        # Convert columns:
+        #   - DateTime ---> ContinuousNumerical
+        # NOTE: self.converted_metadata keeps track of these changes
+        for icol, one_col in enumerate(metadata['columns']):
+            if one_col['type'].lower() in ['datetime']:
+                input_data[one_col['name']] = input_data[one_col['name']].apply(lambda x: datetime.strptime(x, "%Y-%m-%d %H:%M:%S").timestamp())
+                new_type = 'ContinuousNumerical'
+                self.converted_metadata.append([icol, one_col['type'], new_type])
+                metadata['columns'][icol]['type'] = new_type 
 
         print(f"[INFO] #rows before removing NaN: {len(input_data)}")
         input_data.dropna(inplace=True)
@@ -203,7 +216,7 @@ class SynthesizerPateGAN(SynthesizerBase):
                 json.dump(self.parameters, par)
 
             with open(os.path.join(output_path,"data_description.json"), 'w') as meta:
-                json.dump(self.metadata, meta)
+                json.dump(self.metadata, meta, cls=NpEncoder)
 
             if verbose:
                 print(f"[INFO] Stored synthesized dataset to file: {output_path}")
@@ -213,6 +226,6 @@ class SynthesizerPateGAN(SynthesizerBase):
             self.synthetic_data = synthetic_data
             if verbose:
                 print("[INFO] Stored synthesized dataset internally")
-
+    
 if __name__ == "__main__":
     print("[WARNING] run PATE-GAN via SynthesizerPateGAN class.")
