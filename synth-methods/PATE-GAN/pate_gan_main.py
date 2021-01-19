@@ -54,9 +54,11 @@ class SynthesizerPateGAN(SynthesizerBase):
         if verbose:
             print("\n[INFO] Reading input data and metadata from disk")
         input_data, metadata = self.read_data(csv_path, metadata_json_path, verbose)
+
         print(f"[INFO] #rows before removing NaN: {len(input_data)}")
         input_data.dropna(inplace=True)
         print(f"[INFO] #rows after removing NaN: {len(input_data)}")
+
         with open(metadata_json_path) as metadata_json:
             self.metadata = json.load(metadata_json)
 
@@ -100,9 +102,22 @@ class SynthesizerPateGAN(SynthesizerBase):
             self.metadata = self_metadata_update
 
         if verbose:
-            print(f"\n[INFO] Reading PATE-GAN parameters from json file:\n"
+            print(f"\n===============================\n"
+                  f"[INFO] Reading PATE-GAN parameters from json file:\n"
                   f"num_samples_to_fit = {self.num_samples_to_fit}\n"
-                  f"random_state = {self.random_state}\n")
+                  f"num_samples_to_synthesize = {self.num_samples_to_synthesize}\n"
+                  f"num_datasets_to_synthesize = {self.num_datasets_to_synthesize}\n"
+                  "----------\n"
+                  f"num_iters = {self.num_iters}\n"
+                  f"learning_rate = {self.learning_rate}\n"
+                  f"batch_size = {self.batch_size}\n"
+                  f"random_state = {self.random_state}\n"
+                  "----------\n"
+                  f"num_teachers = {self.num_teachers}\n"
+                  f"eps = {self.eps}\n"
+                  f"delta = {self.delta}\n"
+                  f"===============================\n"
+                  )
 
         # Extract discrete column names list from metadata
         self.metadata['categorical_columns'] = []
@@ -130,7 +145,7 @@ class SynthesizerPateGAN(SynthesizerBase):
 
         # Draw random sample from input data with requested size
         if self.num_samples_to_fit == 0:
-            sys.exit('\nNumber of samples for fitting cannot be 0')
+            ValueError('\nNumber of samples for fitting cannot be 0')
         elif self.num_samples_to_fit != -1:
             if verbose:
                 print(f"\n[INFO] Sampling {self.num_samples_to_fit} rows from input data")
