@@ -340,6 +340,7 @@ def main():
         path_released_ds,
         utility_params_ft,
         output_file_json,
+        None,
         random_seed,
     )
 
