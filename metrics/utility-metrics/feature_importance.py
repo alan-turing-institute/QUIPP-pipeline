@@ -231,7 +231,7 @@ def compare_features(rank_orig_features: list, rank_rlsd_features: list,
 
     # Rank-Biased Overlap (RBO)
     utility_collector["rbo"] = RankingSimilarity(rank_orig_features[:target_index], 
-                                                 rank_rlsd_features[:target_index]).rbo()
+                                                 rank_rlsd_features[:target_index]).rbo(p=0.6)
 
     # Rank-Biased Overlap (RBO), extrapolated version
     utility_collector["rbo_ext"] = RankingSimilarity(rank_orig_features[:target_index], 
