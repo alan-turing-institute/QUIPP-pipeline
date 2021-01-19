@@ -41,13 +41,20 @@ def featuretools_importances(df, data_meta, utility_params_ft):
 
     es = ft.EntitySet("myEntitySet")
 
+    # if there is no id/index column in the dataframe, create one
+    # for use with featuretools
+    index = utility_params_ft.get("entity_index")
+    if index is None:
+        df['index_col'] = df.index
+        index = "index_col"
+
     es = es.entity_from_dataframe(
         entity_id=entity_id,
         dataframe=df,
-        index=utility_params_ft["entity_index"],
+        index=index,
         time_index=utility_params_ft.get("time_index"),
         secondary_time_index=utility_params_ft.get("secondary_time_index"),
-        variable_types=variable_types,
+        variable_types=variable_types
     )
 
     for ne in utility_params_ft.get("normalized_entities"):
@@ -78,16 +85,22 @@ def featuretools_importances(df, data_meta, utility_params_ft):
         cutoff_time=cutoff_times,
     )
 
+    # drop null/nan values to allow sklearn to fit the RF model
+    fm = fm.dropna()
+
     Y = fm.pop(utility_params_ft["label_column"])
 
     # create dummies for string categorical variables
+    # drops last dummy column for each variable
     for col in fm.dtypes.index[[x is np.dtype("object") for x in fm.dtypes]]:
-        one_hot = pd.get_dummies(fm[col])
+        one_hot = pd.get_dummies(fm[col]).iloc[:,0:-1]
         fm = fm.drop(col, axis=1)
-        fm = fm.join(one_hot)
+        fm = fm.join(one_hot, rsuffix="_" + col)
 
     # drop columns that the user wants to exclude
-    fm = fm.drop(utility_params_ft["features_to_exclude"], axis=1)
+    ef = utility_params_ft.get("features_to_exclude")
+    if ef is not None:
+        fm = fm.drop(ef, axis=1)
 
     # split data into train and test sets
     fm_train, fm_test, y_train, y_test = train_test_split(fm, Y, test_size=0.30, shuffle=False)
@@ -181,7 +194,7 @@ def feature_importance_metrics(
         utility_collector = compare_features(rank_orig_features, rank_rlsd_features, 
                                              score_orig_features, score_rlsd_features, 
                                              utility_collector, percentage_threshold)
-        import ipdb; ipdb.set_trace()
+
         print("-------------")
         ##  3. fix datetimes in synthetic data (2. will fail)
 
