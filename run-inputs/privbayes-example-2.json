@@ -31,5 +31,21 @@
     "utility_parameters_correlations":
     {
         "enabled": true
+    },
+    "utility_parameters_feature_importance":
+    {
+        "enabled": true,
+        "label_column": "wkabint",
+        "normalized_entities": [
+            {"new_entity_id": "age",
+             "index": "age",
+                "make_time_index": false
+            },
+            {"new_entity_id": "income",
+             "index": "income",
+             "make_time_index": false
+            }
+        ]
     }
+
 }
