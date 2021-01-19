@@ -93,6 +93,23 @@ run-inputs/%.json synth-output/%/synthetic_data_1.csv
 
 
 ##-------------------------------------
+## Helper targets for individual inputs
+##-------------------------------------
+
+##   make run-example
+##
+## produces synthetic data and metrics from run-inputs/example.json with output in synth-output/example/
+
+run-% :\
+synth-output/%/synthetic_data_1.csv\
+synth-output/%/disclosure_risk.json\
+synth-output/%/utility_diff.json\
+synth-output/%/utility_feature_importance.json\
+synth-output/%/utility_feature_importance.json\
+;
+
+
+##-------------------------------------
 ## Clean
 ##-------------------------------------
 
