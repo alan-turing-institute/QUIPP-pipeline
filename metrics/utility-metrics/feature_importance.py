@@ -195,6 +195,9 @@ def feature_importance_metrics(
                                              score_orig_features, score_rlsd_features, 
                                              utility_collector, percentage_threshold)
 
+        utility_collector["orig_feature_importances"] = orig_feature_importances
+        utility_collector["rlsd_feature_importances"] = rlsd_feature_importances
+
         ##  3. fix datetimes in synthetic data (2. will fail)
 
     # print warnings
@@ -205,7 +208,7 @@ def feature_importance_metrics(
 
     # save as .json
     with open(output_file_json, "w") as out_fio:
-        json.dump(utility_collector, out_fio)
+        json.dump(utility_collector, out_fio, indent=4)
 
 def compare_features(rank_orig_features: list, rank_rlsd_features: list, 
                      score_orig_features: Union[None, list]=None, 
@@ -242,12 +245,19 @@ def compare_features(rank_orig_features: list, rank_rlsd_features: list,
         target_index = len(rank_orig_features)
 
     # Rank-Biased Overlap (RBO)
-    utility_collector["rbo"] = RankingSimilarity(rank_orig_features[:target_index], 
-                                                 rank_rlsd_features[:target_index]).rbo(p=0.6)
+    
+    utility_collector["rbo_0.6"] = RankingSimilarity(rank_orig_features[:target_index], 
+                                                     rank_rlsd_features[:target_index]).rbo(p=0.6)
+    
+    utility_collector["rbo_0.8"] = RankingSimilarity(rank_orig_features[:target_index], 
+                                                     rank_rlsd_features[:target_index]).rbo(p=0.8)
 
     # Rank-Biased Overlap (RBO), extrapolated version
-    utility_collector["rbo_ext"] = RankingSimilarity(rank_orig_features[:target_index], 
-                                                     rank_rlsd_features[:target_index]).rbo_ext()
+    utility_collector["rbo_ext_0.6"] = RankingSimilarity(rank_orig_features[:target_index], 
+                                                         rank_rlsd_features[:target_index]).rbo_ext(p=0.6)
+
+    utility_collector["rbo_ext_0.8"] = RankingSimilarity(rank_orig_features[:target_index], 
+                                                         rank_rlsd_features[:target_index]).rbo_ext(p=0.8)
     
     if score_orig_features != None and score_rlsd_features != None:
         # L2 norm
