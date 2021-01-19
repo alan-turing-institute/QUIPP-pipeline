@@ -22,14 +22,14 @@ SYNTH_OUTPUTS_PREFIX = $(addprefix synth-output/,$(RUN_INPUTS_BASE_PREFIX))
 SYNTH_OUTPUTS_CSV = $(addsuffix /synthetic_data_1.csv,$(SYNTH_OUTPUTS_PREFIX))
 
 ## Construct a list of .json file names for each utility and privacy metric
-SYNTH_OUTPUTS_PRIV_DISCL_RISK = $(addsuffix /privacy_disclosure_risk.json,$(SYNTH_OUTPUTS_PREFIX))
-SYNTH_OUTPUTS_UTIL_CLASS = $(addsuffix /utility_classifiers.json,$(SYNTH_OUTPUTS_PREFIX))
+SYNTH_OUTPUTS_PRIV_DISCL_RISK = $(addsuffix /disclosure_risk.json,$(SYNTH_OUTPUTS_PREFIX))
+SYNTH_OUTPUTS_UTIL_CLASS = $(addsuffix /utility_diff.json,$(SYNTH_OUTPUTS_PREFIX))
 SYNTH_OUTPUTS_UTIL_CORR = $(addsuffix /utility_correlations.json,$(SYNTH_OUTPUTS_PREFIX))
 SYNTH_OUTPUTS_UTIL_FEATURE_IMPORTANCE = $(addsuffix /utility_feature_importance.json,$(SYNTH_OUTPUTS_PREFIX))
 
 .PHONY: all all-synthetic generated-data clean
 
-all: $(SYNTH_OUTPUTS_PRIV_DISCL_RISK) $(SYNTH_OUTPUTS_UTIL_CLASS) $(SYNTH_OUTPUTS_UTIL_CORR) $(SYNTH_OUTPUTS_FEATURE_IMPORTANCE)
+all: $(SYNTH_OUTPUTS_PRIV_DISCL_RISK) $(SYNTH_OUTPUTS_UTIL_CLASS) $(SYNTH_OUTPUTS_UTIL_CORR) $(SYNTH_OUTPUTS_UTIL_FEATURE_IMPORTANCE)
 
 all-synthetic: $(SYNTH_OUTPUTS_CSV)
 
@@ -78,12 +78,12 @@ synth-output/%/synthetic_data_1.csv : run-inputs/%.json $(AE_DEIDENTIFIED_DATA)
 
 ## compute privacy and utility metrics
 $(SYNTH_OUTPUTS_PRIV_DISCL_RISK) : \
-synth-output/%/privacy_disclosure_risk.json : \
+synth-output/%/disclosure_risk.json : \
 run-inputs/%.json synth-output/%/synthetic_data_1.csv
 	python metrics/privacy-metrics/disclosure_risk.py -i $< -o $$(dirname $@)
 
 $(SYNTH_OUTPUTS_UTIL_CLASS) : \
-synth-output/%/utility_classifiers.json : \
+synth-output/%/utility_diff.json : \
 run-inputs/%.json synth-output/%/synthetic_data_1.csv
 	python metrics/utility-metrics/classifiers.py -i $< -o $$(dirname $@)
 
@@ -96,6 +96,23 @@ $(SYNTH_OUTPUTS_UTIL_FEATURE_IMPORTANCE) : \
 synth-output/%/utility_feature_importance.json : \
 run-inputs/%.json synth-output/%/synthetic_data_1.csv
 	python metrics/utility-metrics/feature_importance.py -i $< -o $$(dirname $@)
+
+
+##-------------------------------------
+## Helper targets for individual inputs
+##-------------------------------------
+
+##   make run-example
+##
+## produces synthetic data and metrics from run-inputs/example.json with output in synth-output/example/
+
+run-% :\
+synth-output/%/synthetic_data_1.csv\
+synth-output/%/disclosure_risk.json\
+synth-output/%/utility_diff.json\
+synth-output/%/utility_feature_importance.json\
+synth-output/%/utility_feature_importance.json\
+;
 
 
 ##-------------------------------------
