@@ -12,7 +12,7 @@
         "num_teachers": 10,
         "num_iters": 100,
         "learning_rate": 1e-4,
-        "columns_to_synthesize": ["gender","sms_received","no_show","age"],
+        "columns_to_synthesize": "all",
 	"epsilon": 0.1,
 	"delta": 0,
         "random_state": 12345
