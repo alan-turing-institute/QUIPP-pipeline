@@ -30,6 +30,33 @@ def handle_cmdline_args():
     return args
 
 
+def handle_cmdline_args_rf_seeds():
+    """
+    Return an object with attributes 'infile', 'outfile' and
+    'seeds' after handling the command line arguments
+    """
+
+    parser = argparse.ArgumentParser(
+        description='Generate synthetic data from a specification in a json '
+                    'file using the "synth-method" described in the json file.  ')
+
+    parser.add_argument(
+        '-i', dest='infile', required=True,
+        help='The input json file. Must contain a "synth-method" property')
+
+    parser.add_argument(
+        '-o', dest='outfile_prefix', required=True,
+        help='The prefix of the output paths (data json and csv), '
+             'relative to the QUIPP-pipeline root directory')
+
+    parser.add_argument(
+        '-s', dest='seeds', required=True,
+        help='List of seeds to use for RF training')
+
+    args = parser.parse_args()
+    return args
+
+
 def extract_parameters(args, synth_params):
     """
     This method takes args from the command line and
