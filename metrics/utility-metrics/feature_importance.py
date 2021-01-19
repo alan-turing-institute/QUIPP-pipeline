@@ -168,7 +168,7 @@ def feature_importance_metrics(
         Random seeds list for random forest training. Only used when path_released_ds is None.
     """
 
-    print("[INFO] Calculating feature importance utility metrics:")
+    print("[INFO] Calculating feature importance utility metricsß")
 
     # set random seed
     np.random.seed(random_seed)
@@ -188,13 +188,13 @@ def feature_importance_metrics(
     utility_collector = {}
 
     with warnings.catch_warnings(record=True) as warns:
-        print("[INFO] Compute feature importance for original dataset")
+        print("Computing feature importance for original dataset")
         orig_feature_importances = featuretools_importances(orig_df, orig_metadata, utility_params, random_seed)
         rank_orig_features = [i[1] for i in orig_feature_importances]
         score_orig_features = [i[0] for i in orig_feature_importances]
         
         if path_released_ds is not None:
-            print("[INFO] Compute feature importance for synthetic dataset")
+            print("Computing feature importance for synthetic dataset")
             rlsd_feature_importances = featuretools_importances(rlsd_df, orig_metadata, utility_params, random_seed)
             rank_rlsd_features = [i[1] for i in rlsd_feature_importances]
             score_rlsd_features = [i[0] for i in rlsd_feature_importances]
@@ -204,8 +204,8 @@ def feature_importance_metrics(
             utility_collector["orig_feature_importances"] = orig_feature_importances
             utility_collector["rlsd_feature_importances"] = rlsd_feature_importances
         else:
+            print("Computing feature importance for original dataset with different seeds in RF")
             final_collector = []
-
             for rs in random_seeds_rf:
                 orig_feature_importances_2 = featuretools_importances(orig_df, orig_metadata, utility_params, rs)
                 rank_orig_features_2 = [i[1] for i in orig_feature_importances_2]
