@@ -23,7 +23,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__)))
 from rbo import RankingSimilarity
 
 
-def featuretools_importances(df, data_meta, utility_params_ft):
+def featuretools_importances(df, data_meta, utility_params_ft, rs):
     data_json_type_to_vtype = {
         "Categorical": vtypes.Categorical,
         "ContinuousNumerical": vtypes.Numeric,
@@ -106,7 +106,7 @@ def featuretools_importances(df, data_meta, utility_params_ft):
     fm_train, fm_test, y_train, y_test = train_test_split(fm, Y, test_size=0.30, shuffle=False)
 
     # train Random Forest model
-    clf = RandomForestClassifier(n_estimators=150)
+    clf = RandomForestClassifier(n_estimators=150, random_state=rs)
     clf.fit(fm_train, y_train)
 
     # predict test labels and calculate AUC
@@ -123,7 +123,6 @@ def featuretools_importances(df, data_meta, utility_params_ft):
 
 
 def feature_importance_metrics(
-        synth_method,
         path_original_ds,
         path_original_meta,
         path_released_ds,
@@ -131,23 +130,28 @@ def feature_importance_metrics(
         output_file_json,
         percentage_threshold=None,
         random_seed=1234,
+        random_seeds_rf=[124331, 111233, 554365, 976873, 123874]
 ):
     """
-    Calculates feature importance differences between the original
-    and released datasets, using a random forest classification model.
+    Calculates feature importance ranking differences between the original
+    and released datasets, using a random forest classification model
+    and the RBO ranking comparison metric.
     Saves the results into a .json file. These can be compared to
     estimate the utility of the released dataset.
 
+    If path_released_ds is None, it calculates differences between the
+    rankings produced when changing the the random forest seed many
+    times, while always using the original dataset for training.
+
     Parameters
     ----------
-    synth_method: string
-        The synthesis method used to create the released dataset.
     path_original_ds : string
         Path to the original dataset.
     path_original_meta : string
         Path to the original metadata.
     path_released_ds : string
-        Path to the released dataset.
+        Path to the released dataset. If None, then calculate difference between
+        rankings produced with different RF seeds on the original dataset.
     utility_params: dict
         Parameters for feature importance utility metrics read from inputs json file.
     output_file_json : string
@@ -160,6 +164,8 @@ def feature_importance_metrics(
             3. compute RBO for the selected features
     random_seed : integer
         Random seed for numpy. Defaults to 1234
+    random_seeds_rf : list
+        Random seeds list for random forest training. Only used when path_released_ds is None.
     """
 
     print("[INFO] Calculating feature importance utility metrics:")
@@ -175,28 +181,42 @@ def feature_importance_metrics(
     # only the first synthetic data set (synthetic_data_1.csv)
     # is used for utility evaluation
     orig_df = pd.read_csv(path_original_ds)
-    rlsd_df = pd.read_csv(os.path.join(path_released_ds, "synthetic_data_1.csv"))
+    if path_released_ds is not None:
+        rlsd_df = pd.read_csv(os.path.join(path_released_ds, "synthetic_data_1.csv"))
 
     # store metrics in dictionary
     utility_collector = {}
 
     with warnings.catch_warnings(record=True) as warns:
         print("[INFO] Compute feature importance for original dataset")
-        orig_feature_importances = featuretools_importances(orig_df, orig_metadata, utility_params)
+        orig_feature_importances = featuretools_importances(orig_df, orig_metadata, utility_params, random_seed)
         rank_orig_features = [i[1] for i in orig_feature_importances]
         score_orig_features = [i[0] for i in orig_feature_importances]
         
-        print("[INFO] Compute feature importance for synthetic dataset")
-        rlsd_feature_importances = featuretools_importances(rlsd_df, orig_metadata, utility_params)
-        rank_rlsd_features = [i[1] for i in rlsd_feature_importances]
-        score_rlsd_features = [i[0] for i in rlsd_feature_importances]
+        if path_released_ds is not None:
+            print("[INFO] Compute feature importance for synthetic dataset")
+            rlsd_feature_importances = featuretools_importances(rlsd_df, orig_metadata, utility_params, random_seed)
+            rank_rlsd_features = [i[1] for i in rlsd_feature_importances]
+            score_rlsd_features = [i[0] for i in rlsd_feature_importances]
+            utility_collector = compare_features(rank_orig_features, rank_rlsd_features,
+                                                 score_orig_features, score_rlsd_features,
+                                                 utility_collector, percentage_threshold)
+            utility_collector["orig_feature_importances"] = orig_feature_importances
+            utility_collector["rlsd_feature_importances"] = rlsd_feature_importances
+        else:
+            final_collector = []
 
-        utility_collector = compare_features(rank_orig_features, rank_rlsd_features, 
-                                             score_orig_features, score_rlsd_features, 
-                                             utility_collector, percentage_threshold)
-
-        utility_collector["orig_feature_importances"] = orig_feature_importances
-        utility_collector["rlsd_feature_importances"] = rlsd_feature_importances
+            for rs in random_seeds_rf:
+                orig_feature_importances_2 = featuretools_importances(orig_df, orig_metadata, utility_params, rs)
+                rank_orig_features_2 = [i[1] for i in orig_feature_importances_2]
+                score_orig_features_2 = [i[0] for i in orig_feature_importances_2]
+                utility_collector = compare_features(rank_orig_features, rank_orig_features_2,
+                                                     score_orig_features, score_orig_features_2,
+                                                     utility_collector, percentage_threshold)
+                utility_collector[f"orig_feature_importances_{random_seed}"] = orig_feature_importances
+                utility_collector[f"orig_feature_importances_{rs}"] = orig_feature_importances_2
+                final_collector.append(utility_collector)
+                utility_collector = {}
 
         ##  3. fix datetimes in synthetic data (2. will fail)
 
@@ -207,8 +227,13 @@ def feature_importance_metrics(
             print(iw.message)
 
     # save as .json
-    with open(output_file_json, "w") as out_fio:
-        json.dump(utility_collector, out_fio, indent=4)
+    if path_released_ds is not None:
+        with open(output_file_json, "w") as out_fio:
+            json.dump(utility_collector, out_fio, indent=4)
+    else:
+        with open(output_file_json, "w") as out_fio:
+            json.dump(final_collector, out_fio, indent=4)
+
 
 def compare_features(rank_orig_features: list, rank_rlsd_features: list, 
                      score_orig_features: Union[None, list]=None, 
@@ -310,7 +335,6 @@ def main():
 
     # calculate and save feature importance metrics
     feature_importance_metrics(
-        synth_method,
         path_original_ds,
         path_original_meta,
         path_released_ds,
