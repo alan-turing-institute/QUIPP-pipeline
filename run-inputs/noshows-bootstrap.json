@@ -1,0 +1,77 @@
+{
+    "enabled" : true,
+    "dataset" : "datasets/appointment_noshows/KaggleV2-May-2016-cleaned",
+    "synth-method" : "bootstrap",
+    "parameters":
+    {
+        "enabled" : true,
+        "num_samples_to_synthesize": -1,
+        "random_state": 12345
+    },
+    "privacy_parameters_disclosure_risk":
+    {
+        "enabled": false,
+        "num_samples_intruder": 5000,
+        "vars_intruder": ["gender", "age", "neighborhood"]
+    },
+    "utility_parameters_classifiers":
+    {
+        "enabled": false,
+        "input_columns": ["gender", "neighborhood", "scholarship", "handicap"],
+        "label_column": "no_show",
+        "test_train_ratio": 0.2,
+        "num_leaked_rows": 0,
+        "classifier": {
+            "LogisticRegression":  {"mode": "main",
+                                    "params_main": {"max_iter": 1000}
+                                   }
+        }
+    },
+    "utility_parameters_correlations":
+    {
+        "enabled": false
+    },
+    "utility_parameters_feature_importance": {
+        "enabled": true,
+        "time_index": "scheduled_time",
+        "label_column": "no_show",
+        "secondary_time_index": {
+            "appointment_day": [
+                "no_show",
+                "sms_received"
+            ]
+        },
+        "normalized_entities": [
+            {
+                "new_entity_id": "patients",
+                "index": "patient_id",
+                "additional_variables": [
+                    "scholarship",
+                    "hypertension",
+                    "diabetes",
+                    "alcoholism",
+                    "handicap"
+                ]
+            },
+            {
+                "new_entity_id": "locations",
+                "index": "neighborhood",
+                "make_time_index": false
+            },
+            {
+                "new_entity_id": "ages",
+                "index": "age",
+                "make_time_index": false
+            },
+            {
+                "new_entity_id": "genders",
+                "index": "gender",
+                "make_time_index": false
+            }
+        ],
+        "features_to_exclude": [
+            "patient_id",
+            "appointment_id"
+        ]
+    }
+}
