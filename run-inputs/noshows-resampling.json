@@ -13,7 +13,7 @@
         "synthesis_methods": ["sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample", "sample"],
         "proper": false,
         "tree_minbucket": 1,
-        "smoothing": {}
+        "smoothing": {"appointment_id": "density"}
     },
     "privacy_parameters_disclosure_risk":
     {
@@ -37,5 +37,48 @@
     "utility_parameters_correlations":
     {
         "enabled": true
+    },
+    "utility_parameters_feature_importance": {
+        "enabled": true,
+        "time_index": "scheduled_time",
+        "label_column": "no_show",
+        "secondary_time_index": {
+            "appointment_day": [
+                "no_show",
+                "sms_received"
+            ]
+        },
+        "normalized_entities": [
+            {
+                "new_entity_id": "patients",
+                "index": "patient_id",
+                "additional_variables": [
+                    "scholarship",
+                    "hypertension",
+                    "diabetes",
+                    "alcoholism",
+                    "handicap"
+                ]
+            },
+            {
+                "new_entity_id": "locations",
+                "index": "neighborhood",
+                "make_time_index": false
+            },
+            {
+                "new_entity_id": "ages",
+                "index": "age",
+                "make_time_index": false
+            },
+            {
+                "new_entity_id": "genders",
+                "index": "gender",
+                "make_time_index": false
+            }
+        ],
+        "features_to_exclude": [
+            "patient_id",
+            "appointment_id"
+        ]
     }
 }
