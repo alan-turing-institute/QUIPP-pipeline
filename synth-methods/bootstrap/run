@@ -1,0 +1,58 @@
+#!/usr/bin/env python
+
+import argparse
+import os
+import json
+import pandas as pd
+
+def handle_cmdline_args():
+    parser = argparse.ArgumentParser(
+        description='Read input files and output file for run of PrivBayes.')
+
+    parser.add_argument('parameter_json', help='The json containing the synthesis parameters')
+
+    parser.add_argument('data_path_prefix', help='The prefix of the path to the input data, relative to QUIPP-pipeline root (append .csv and .json to get the data files)')
+
+    parser.add_argument('output_prefix', help='The prefix to use for the output files (.json and .csv), in the current directory')
+
+    args = parser.parse_args()
+
+    return args
+
+
+def get_param(params, k, default=None, k_default=None):
+    v = params.get(k)
+    if v == None or v == k_default:
+        return default
+    else:
+        return v
+
+
+def main():
+    args = handle_cmdline_args()
+    
+    in_prefix = args.data_path_prefix
+    out_prefix = args.output_prefix
+    parameter_json_path = args.parameter_json
+
+    in_csv = in_prefix + '.csv'
+    in_json = in_prefix + '.json'
+
+    with open(parameter_json_path) as f:
+        params = json.load(f)['parameters']
+
+    df = pd.read_csv(in_csv)
+
+    N = get_param(params, 'num_samples_to_synthesize',
+                  default=len(df), k_default=-1)
+
+    random_state = get_param(params, 'random_state',
+                             default=12345)
+
+    sample = df.sample(N, replace=True, random_state=random_state)
+
+    sample.to_csv(out_prefix + '/synthetic_data_1.csv', index=False)
+
+
+if __name__=='__main__':
+    main()
