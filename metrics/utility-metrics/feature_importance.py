@@ -75,12 +75,18 @@ def featuretools_importances(df, data_meta, utility_params_ft, rs):
     else:
         cutoff_times = None
 
+    max_depth_param = utility_params_ft.get("max_depth")
+    if max_depth_param is None:
+        max_depth = 3
+    else:
+        max_depth = max_depth_param
+        
     fm, features = ft.dfs(
         entityset=es,
         target_entity=entity_id,
         agg_primitives=["count", "percent_true"],
         trans_primitives=["is_weekend", "weekday", "day", "month", "year"],
-        max_depth=3,
+        max_depth=max_depth,
         approximate="6h",
         cutoff_time=cutoff_times,
     )

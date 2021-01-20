@@ -54,6 +54,7 @@ def input_json(random_state, epsilon):
         "utility_parameters_feature_importance": {
             "enabled": True,
             "label_column": "label",
+            "max_depth": 5,
             "normalized_entities": [],
         },
     }

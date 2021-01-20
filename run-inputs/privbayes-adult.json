@@ -38,6 +38,7 @@
     {
         "enabled": true,
         "label_column": "label",
+        "max_depth": 5,
         "normalized_entities": [ ]
     }
 }
