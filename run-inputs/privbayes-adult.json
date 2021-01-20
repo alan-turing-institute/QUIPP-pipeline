@@ -5,11 +5,11 @@
     "parameters":
     {
         "enabled" : true,
-        "num_samples_to_synthesize": 110527,
+        "num_samples_to_synthesize": 32562,
         "random_state": 1456,
         "category_threshold": 20,
         "epsilon": 1.0,
-        "k": 1,
+        "k": 3,
         "keys": ["appointment_id"],
         "histogram_bins": 10,
         "preconfigured_bn": {}
