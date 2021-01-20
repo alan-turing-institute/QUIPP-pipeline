@@ -65,7 +65,7 @@ def featuretools_importances(df, data_meta, utility_params_ft, rs):
             es[entity_id]
                 .df[
                 [
-                    utility_params_ft["entity_index"],
+                    index,
                     utility_params_ft["time_index"],
                     utility_params_ft["label_column"],
                 ]
@@ -283,7 +283,7 @@ def compare_features(rank_orig_features: list, rank_rlsd_features: list,
 
     utility_collector["rbo_ext_0.8"] = RankingSimilarity(rank_orig_features[:target_index], 
                                                          rank_rlsd_features[:target_index]).rbo_ext(p=0.8)
-    
+
     if score_orig_features != None and score_rlsd_features != None:
         # L2 norm
         tmp_orig_df = pd.DataFrame(score_orig_features, columns=["score_orig_features"])
