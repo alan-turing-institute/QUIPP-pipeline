@@ -18,7 +18,7 @@ def input_json(random_state, epsilon):
             "random_state": int(random_state),
             "category_threshold": 20,
             "epsilon": epsilon,
-            "k": 1,
+            "k": 3,
             "keys": ["appointment_id"],
             "histogram_bins": 10,
             "preconfigured_bn": {},
@@ -114,7 +114,7 @@ def collect_results(all_params):
 
 
 def plot_results(df):
-    df.boxplot(by="epsilon", column="rbo")
+    df.boxplot(by="epsilon", column="rbo_0.8")
     plt.ylabel("RBO(feature importances)")
     plt.tight_layout()
     plt.savefig("rbo.pdf")
@@ -159,7 +159,7 @@ if __name__ == "__main__":
     args = handle_cmdline_args()
 
     random_states = range(args.nreplicas)
-    epsilons = [0.01, 0.1, 1.0, 10.0, 100.0, 1000.0]
+    epsilons = [0.01, 1.0, 10.0, 1000.0]
 
     all_params = pd.DataFrame(
         data=product(random_states, epsilons), columns=["random_state", "epsilon"]
