@@ -122,7 +122,7 @@ if __name__ == "__main__":
     random_states = range(args.nreplicas)
 
     all_params = pd.DataFrame(
-        data=product(random_states, epsilons), columns=["random_state"]
+        data=random_states, columns=["random_state"]
     )
 
     for i, params in all_params.iterrows():
