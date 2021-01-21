@@ -275,20 +275,33 @@ def compare_features(rank_orig_features: list, rank_rlsd_features: list,
     else:
         target_index = len(rank_orig_features)
 
+
     # Rank-Biased Overlap (RBO)
     
-    utility_collector["rbo_0.6"] = RankingSimilarity(rank_orig_features[:target_index], 
-                                                     rank_rlsd_features[:target_index]).rbo(p=0.6)
+    orig_rlsd_sim = RankingSimilarity(rank_orig_features[:target_index], 
+                                      rank_rlsd_features[:target_index])
     
-    utility_collector["rbo_0.8"] = RankingSimilarity(rank_orig_features[:target_index], 
-                                                     rank_rlsd_features[:target_index]).rbo(p=0.8)
+    utility_collector["rbo_0.6"] = orig_rlsd_sim.rbo(p=0.6)
+    utility_collector["rbo_0.8"] = orig_rlsd_sim.rbo(p=0.8)
+    
+    # extrapolated version
+    utility_collector["rbo_ext_0.6"] = orig_rlsd_sim.rbo_ext(p=0.6)
+    utility_collector["rbo_ext_0.8"] = orig_rlsd_sim.rbo_ext(p=0.8)
 
-    # Rank-Biased Overlap (RBO), extrapolated version
-    utility_collector["rbo_ext_0.6"] = RankingSimilarity(rank_orig_features[:target_index], 
-                                                         rank_rlsd_features[:target_index]).rbo_ext(p=0.6)
+    # original against one random permutation
+    orig_rand_sim = RankingSimilarity(rank_orig_features[:target_index], 
+                                      np.random.permutation(rank_orig_features[:target_index]))
 
-    utility_collector["rbo_ext_0.8"] = RankingSimilarity(rank_orig_features[:target_index], 
-                                                         rank_rlsd_features[:target_index]).rbo_ext(p=0.8)
+    utility_collector["rbo_rand_0.6"] = orig_rand_sim.rbo(p=0.6)
+    utility_collector["rbo_rand_0.8"] = orig_rand_sim.rbo(p=0.8)
+
+    # original lower bound
+    orig_lower_sim = RankingSimilarity(rank_orig_features[:target_index], 
+                                       list(reversed(rank_orig_features[:target_index])))
+
+    utility_collector["rbo_lower_0.6"] = orig_lower_sim.rbo(p=0.6)
+    utility_collector["rbo_lower_0.8"] = orig_lower_sim.rbo(p=0.8)
+
 
     if score_orig_features != None and score_rlsd_features != None:
         # L2 norm
