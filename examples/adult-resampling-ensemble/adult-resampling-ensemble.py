@@ -16,7 +16,7 @@ def input_json(random_state):
             "num_samples_to_fit": -1,
             "num_samples_to_synthesize": -1,
             "num_datasets_to_synthesize": 1,
-            "random_state": random_state,
+            "random_state": int(random_state),
             "vars_sequence": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
             "synthesis_methods": [
                 "sample",
