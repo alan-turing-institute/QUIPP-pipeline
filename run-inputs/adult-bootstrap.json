@@ -1,0 +1,32 @@
+{
+    "enabled" : true,
+    "dataset" : "datasets/adult_dataset/adult",
+    "synth-method" : "synthpop",
+    "parameters":
+    {
+        "enabled" : true,
+        "num_samples_to_synthesize": -1,
+        "random_state": 12345
+    },
+    "privacy_parameters_disclosure_risk":
+    {
+        "enabled": false,
+        "num_samples_intruder": 5000,
+        "vars_intruder": ["gender", "age", "neighborhood"]
+    },
+    "utility_parameters_classifiers":
+    {
+        "enabled": false
+    },
+    "utility_parameters_correlations":
+    {
+        "enabled": false
+    },
+    "utility_parameters_feature_importance":
+    {
+        "enabled": true,
+        "label_column": "label",
+        "max_depth": 3,
+        "normalized_entities": [ ]
+    }
+}
