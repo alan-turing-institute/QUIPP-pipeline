@@ -1,7 +1,7 @@
 {
     "enabled" : true,
     "dataset" : "datasets/adult_dataset/adult",
-    "synth-method" : "synthpop",
+    "synth-method" : "bootstrap",
     "parameters":
     {
         "enabled" : true,
