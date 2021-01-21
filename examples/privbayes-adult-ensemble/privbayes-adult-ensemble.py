@@ -15,7 +15,7 @@ def input_json(random_state, epsilon):
         "parameters": {
             "enabled": True,
             "num_samples_to_synthesize": 32562,
-            "random_state": random_state,
+            "random_state": int(random_state),
             "category_threshold": 20,
             "epsilon": epsilon,
             "k": 3,
