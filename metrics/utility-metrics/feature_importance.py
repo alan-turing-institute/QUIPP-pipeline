@@ -14,6 +14,7 @@ from scipy.stats import entropy
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, roc_auc_score
+from sklearn.inspection import permutation_importance
 from typing import Union
 
 sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir, "utilities"))
@@ -80,7 +81,7 @@ def featuretools_importances(df, data_meta, utility_params_ft, rs):
         max_depth = 3
     else:
         max_depth = max_depth_param
-        
+
     fm, features = ft.dfs(
         entityset=es,
         target_entity=entity_id,
@@ -99,7 +100,7 @@ def featuretools_importances(df, data_meta, utility_params_ft, rs):
     # create dummies for string categorical variables
     # drops last dummy column for each variable
     for col in fm.dtypes.index[[x is np.dtype("object") for x in fm.dtypes]]:
-        one_hot = pd.get_dummies(fm[col]).iloc[:,0:-1]
+        one_hot = pd.get_dummies(fm[col]).iloc[:, 0:-1]
         fm = fm.drop(col, axis=1)
         fm = fm.join(one_hot, rsuffix="_" + col)
 
@@ -119,13 +120,20 @@ def featuretools_importances(df, data_meta, utility_params_ft, rs):
     probs = clf.predict_proba(fm_test)
     print('AUC score of {:.3f}'.format(roc_auc_score(y_test, probs[:, 1])))
 
-    feature_imps = [
+    # get built-in RF feature importances
+    feature_imps_builtin = [
         (imp, fm.columns[i]) for i, imp in enumerate(clf.feature_importances_)
     ]
-    feature_imps.sort()
-    feature_imps.reverse()
+    feature_imps_builtin.sort()
+    feature_imps_builtin.reverse()
 
-    return feature_imps
+    # get permutation feature importances from RF
+    feature_imps_permutation = permutation_importance(clf, fm_test, y_test)
+    sorted_idx = feature_imps_permutation.importances_mean.argsort()[::-1]
+    feature_imps_permutation = list(zip(feature_imps_permutation.importances_mean[sorted_idx],
+                                        fm.columns[sorted_idx]))
+
+    return feature_imps_builtin, feature_imps_permutation
 
 
 def feature_importance_metrics(
@@ -191,36 +199,71 @@ def feature_importance_metrics(
         rlsd_df = pd.read_csv(os.path.join(path_released_ds, "synthetic_data_1.csv"))
 
     # store metrics in dictionary
-    utility_collector = {}
+    utility_collector_builtin = {}
+    utility_collector_permutation = {}
 
     with warnings.catch_warnings(record=True) as warns:
         print("Computing feature importance for original dataset")
-        orig_feature_importances = featuretools_importances(orig_df, orig_metadata, utility_params, random_seed)
-        rank_orig_features = [i[1] for i in orig_feature_importances]
-        score_orig_features = [i[0] for i in orig_feature_importances]
-        
+        orig_feature_importances_builtin, orig_feature_importances_permutation = \
+            featuretools_importances(orig_df, orig_metadata, utility_params, random_seed)
+        rank_orig_features_builtin = [i[1] for i in orig_feature_importances_builtin]
+        score_orig_features_builtin = [i[0] for i in orig_feature_importances_builtin]
+        rank_orig_features_permutation = [i[1] for i in orig_feature_importances_permutation]
+        score_orig_features_permutation = [i[0] for i in orig_feature_importances_permutation]
+
         if path_released_ds is not None:
             print("Computing feature importance for synthetic dataset")
-            rlsd_feature_importances = featuretools_importances(rlsd_df, orig_metadata, utility_params, random_seed)
-            rank_rlsd_features = [i[1] for i in rlsd_feature_importances]
-            score_rlsd_features = [i[0] for i in rlsd_feature_importances]
-            utility_collector = compare_features(rank_orig_features, rank_rlsd_features,
-                                                 score_orig_features, score_rlsd_features,
-                                                 utility_collector, percentage_threshold)
-            utility_collector["orig_feature_importances"] = orig_feature_importances
-            utility_collector["rlsd_feature_importances"] = rlsd_feature_importances
+            rlsd_feature_importances_builtin, rlsd_feature_importances_permutation = \
+                featuretools_importances(rlsd_df, orig_metadata, utility_params, random_seed)
+            rank_rlsd_features_builtin = [i[1] for i in rlsd_feature_importances_builtin]
+            score_rlsd_features_builtin = [i[0] for i in rlsd_feature_importances_builtin]
+            rank_rlsd_features_permutation = [i[1] for i in rlsd_feature_importances_permutation]
+            score_rlsd_features_permutation = [i[0] for i in rlsd_feature_importances_permutation]
+
+            utility_collector_builtin = compare_features(rank_orig_features_builtin, rank_rlsd_features_builtin,
+                                                         score_orig_features_builtin, score_rlsd_features_builtin,
+                                                         utility_collector_builtin, percentage_threshold)
+            utility_collector_builtin["orig_feature_importances"] = orig_feature_importances_builtin
+            utility_collector_builtin["rlsd_feature_importances"] = rlsd_feature_importances_builtin
+
+            utility_collector_permutation = compare_features(rank_orig_features_permutation,
+                                                             rank_rlsd_features_permutation,
+                                                             score_orig_features_permutation,
+                                                             score_rlsd_features_permutation,
+                                                             utility_collector_permutation, percentage_threshold)
+            utility_collector_permutation["orig_feature_importances"] = orig_feature_importances_permutation
+            utility_collector_permutation["rlsd_feature_importances"] = rlsd_feature_importances_permutation
+
+            utility_collector = {"builtin": utility_collector_builtin, "permutation": utility_collector_permutation}
+
         else:
             print("Computing feature importance for original dataset with different seeds in RF")
             final_collector = []
             for rs in random_seeds_rf:
-                orig_feature_importances_2 = featuretools_importances(orig_df, orig_metadata, utility_params, rs)
-                rank_orig_features_2 = [i[1] for i in orig_feature_importances_2]
-                score_orig_features_2 = [i[0] for i in orig_feature_importances_2]
-                utility_collector = compare_features(rank_orig_features, rank_orig_features_2,
-                                                     score_orig_features, score_orig_features_2,
-                                                     utility_collector, percentage_threshold)
-                utility_collector[f"orig_feature_importances_{random_seed}"] = orig_feature_importances
-                utility_collector[f"orig_feature_importances_{rs}"] = orig_feature_importances_2
+                orig_feature_importances_builtin_2, orig_feature_importances_permutation_2 = \
+                    featuretools_importances(orig_df, orig_metadata, utility_params, rs)
+                rank_orig_features_builtin_2 = [i[1] for i in orig_feature_importances_builtin_2]
+                score_orig_features_builtin_2 = [i[0] for i in orig_feature_importances_builtin_2]
+
+                utility_collector_builtin = compare_features(rank_orig_features_builtin, rank_orig_features_builtin_2,
+                                                             score_orig_features_builtin, score_orig_features_builtin_2,
+                                                             utility_collector_builtin, percentage_threshold)
+                utility_collector_builtin[f"orig_feature_importances_{random_seed}"] = orig_feature_importances_builtin
+                utility_collector_builtin[f"orig_feature_importances_{rs}"] = orig_feature_importances_builtin_2
+
+                rank_orig_features_permutation_2 = [i[1] for i in orig_feature_importances_permutation_2]
+                score_orig_features_permutation_2 = [i[0] for i in orig_feature_importances_permutation_2]
+                utility_collector_permutation = compare_features(rank_orig_features_permutation,
+                                                                 rank_orig_features_permutation_2,
+                                                                 score_orig_features_permutation,
+                                                                 score_orig_features_permutation_2,
+                                                                 utility_collector_permutation, percentage_threshold)
+                utility_collector_permutation[
+                    f"orig_feature_importances_{random_seed}"] = orig_feature_importances_permutation
+                utility_collector_permutation[f"orig_feature_importances_{rs}"] = orig_feature_importances_permutation_2
+
+                utility_collector = {"builtin": utility_collector_builtin, "permutation": utility_collector_permutation}
+
                 final_collector.append(utility_collector)
                 utility_collector = {}
 
@@ -241,11 +284,11 @@ def feature_importance_metrics(
             json.dump(final_collector, out_fio, indent=4)
 
 
-def compare_features(rank_orig_features: list, rank_rlsd_features: list, 
-                     score_orig_features: Union[None, list]=None, 
-                     score_rlsd_features: Union[None, list]=None, 
-                     utility_collector: dict={}, 
-                     percentage_threshold: Union[float, None]=None):
+def compare_features(rank_orig_features: list, rank_rlsd_features: list,
+                     score_orig_features: Union[None, list] = None,
+                     score_rlsd_features: Union[None, list] = None,
+                     utility_collector: dict = {},
+                     percentage_threshold: Union[float, None] = None):
     """Compare ranked features using different methods including
         Ranked-biased Overlap (RBO), extrapolated version of RBO, 
         L2 norm and KL divergence
@@ -275,48 +318,46 @@ def compare_features(rank_orig_features: list, rank_rlsd_features: list,
     else:
         target_index = len(rank_orig_features)
 
-
     # Rank-Biased Overlap (RBO)
-    
-    orig_rlsd_sim = RankingSimilarity(rank_orig_features[:target_index], 
+
+    orig_rlsd_sim = RankingSimilarity(rank_orig_features[:target_index],
                                       rank_rlsd_features[:target_index])
-    
+
     utility_collector["rbo_0.6"] = orig_rlsd_sim.rbo(p=0.6)
     utility_collector["rbo_0.8"] = orig_rlsd_sim.rbo(p=0.8)
-    
+
     # extrapolated version
     utility_collector["rbo_ext_0.6"] = orig_rlsd_sim.rbo_ext(p=0.6)
     utility_collector["rbo_ext_0.8"] = orig_rlsd_sim.rbo_ext(p=0.8)
 
     # original against one random permutation
-    orig_rand_sim = RankingSimilarity(rank_orig_features[:target_index], 
+    orig_rand_sim = RankingSimilarity(rank_orig_features[:target_index],
                                       np.random.permutation(rank_orig_features[:target_index]))
 
     utility_collector["rbo_rand_0.6"] = orig_rand_sim.rbo(p=0.6)
     utility_collector["rbo_rand_0.8"] = orig_rand_sim.rbo(p=0.8)
 
     # original lower bound
-    orig_lower_sim = RankingSimilarity(rank_orig_features[:target_index], 
+    orig_lower_sim = RankingSimilarity(rank_orig_features[:target_index],
                                        list(reversed(rank_orig_features[:target_index])))
 
     utility_collector["rbo_lower_0.6"] = orig_lower_sim.rbo(p=0.6)
     utility_collector["rbo_lower_0.8"] = orig_lower_sim.rbo(p=0.8)
 
-
     if score_orig_features != None and score_rlsd_features != None:
         # L2 norm
         tmp_orig_df = pd.DataFrame(score_orig_features, columns=["score_orig_features"])
         tmp_orig_df["rank_orig_features"] = rank_orig_features
-        
+
         tmp_rlsd_df = pd.DataFrame(score_rlsd_features, columns=["score_rlsd_features"])
         tmp_rlsd_df["rank_rlsd_features"] = rank_rlsd_features
 
-        orig_rlsd_df = pd.merge(tmp_orig_df, tmp_rlsd_df, 
-                                left_on="rank_orig_features", 
+        orig_rlsd_df = pd.merge(tmp_orig_df, tmp_rlsd_df,
+                                left_on="rank_orig_features",
                                 right_on="rank_rlsd_features")
 
         diff_orig_rlsd_scores = (orig_rlsd_df["score_orig_features"] - orig_rlsd_df["score_rlsd_features"]).to_numpy()
-        utility_collector["l2_norm"] = np.sqrt(np.sum(diff_orig_rlsd_scores**2))
+        utility_collector["l2_norm"] = np.sqrt(np.sum(diff_orig_rlsd_scores ** 2))
 
         # KL divergence
         orig_sf = orig_rlsd_df["score_orig_features"].to_numpy() + 1e-20
