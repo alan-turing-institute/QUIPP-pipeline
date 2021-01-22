@@ -53,7 +53,7 @@
         ]
     },
     "utility_parameters_classifiers": {
-        "enabled": true,
+        "enabled": false,
         "classifier": {
             "LogisticRegression": {
                 "mode": "main",

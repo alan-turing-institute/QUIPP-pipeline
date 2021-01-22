@@ -16,7 +16,7 @@
     },
     "utility_parameters_classifiers":
     {
-        "enabled": true,
+        "enabled": false,
         "classifier": {
             "LogisticRegression":  {"mode": "main",
                                     "params_main": {"max_iter": 1000}

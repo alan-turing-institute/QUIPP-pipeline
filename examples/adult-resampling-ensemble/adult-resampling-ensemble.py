@@ -43,7 +43,7 @@ def input_json(random_state):
             "vars_intruder": ["gender", "age", "neighborhood"],
         },
         "utility_parameters_classifiers": {
-            "enabled": True,
+            "enabled": False,
             "classifier": {
                 "LogisticRegression": {"mode": "main", "params_main": {"max_iter": 1000}}
             },
