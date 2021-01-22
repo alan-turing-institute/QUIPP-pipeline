@@ -6,6 +6,6 @@ uuid
 dython
 DataSynthesizer
 featuretools
-tensorboard==2.0.1
-tensorflow==2.0.0a0
-tensorflow-estimator==2.0.1
+tensorboard
+tensorflow
+tensorflow-estimator
