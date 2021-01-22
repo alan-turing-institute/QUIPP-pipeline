@@ -2,6 +2,7 @@ import argparse
 import json
 import matplotlib.pyplot as plt
 import subprocess
+import seaborn as sns
 import pandas as pd
 from itertools import product
 from pathlib import Path
@@ -60,7 +61,7 @@ def input_json(random_state, epsilon):
     }
 
 def filename_stem(i):
-    return f"privbayes-adult-ensemble-{i:04}"
+    return f"privbayes-adult-ensemble-3-{i:04}"
 
 
 def input_path(i):
@@ -84,22 +85,7 @@ def write_input_file(i, params, force=False):
 
 def read_json(fname):
     with open(fname) as f:
-        return json.loads(f.read())
-
-
-def collect_results(all_params):
-    results = pd.DataFrame(
-        [read_json(feature_importance_path(i)) for i, _ in all_params.iterrows()]
-    )
-
-    return all_params.join(results)
-
-
-def plot_results(df):
-    df.boxplot(by="epsilon", column="rbo_0.8")
-    plt.ylabel("RBO(feature importances)")
-    plt.tight_layout()
-    plt.savefig("rbo.pdf")
+        return json.load(f)
 
 
 def handle_cmdline_args():
@@ -141,7 +127,7 @@ if __name__ == "__main__":
     args = handle_cmdline_args()
 
     random_states = range(args.nreplicas)
-    epsilons = [0.01, 0.1, 1.0, 10.0, 100.0, 1000.0]
+    epsilons = [0.4, 2.0, 4.0, 6.0, 8.0, 20.0]
 
     all_params = pd.DataFrame(
         data=product(random_states, epsilons), columns=["random_state", "epsilon"]
@@ -153,7 +139,5 @@ if __name__ == "__main__":
 
     if args.run:
         all_targets = [f"run-{filename_stem(i)}" for i, _ in all_params.iterrows()]
-        subprocess.run(["make", "-j", "-C../.."] + all_targets)
+        subprocess.run(["make", "-j32", "-C../.."] + all_targets)
 
-        df = collect_results(all_params)
-        plot_results(df)
