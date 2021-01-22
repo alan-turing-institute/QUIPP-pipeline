@@ -15,6 +15,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, roc_auc_score
 from sklearn.inspection import permutation_importance
+from sklearn.preprocessing import LabelEncoder
 from typing import Union
 
 sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir, "utilities"))
@@ -29,7 +30,7 @@ def featuretools_importances(df, data_meta, utility_params_ft, rs):
         "Categorical": vtypes.Categorical,
         "ContinuousNumerical": vtypes.Numeric,
         "DateTime": vtypes.Datetime,
-        "DiscreteNumerical": vtypes.Ordinal,
+        "DiscreteNumerical": vtypes.Numeric,
         "Ordinal": vtypes.Ordinal,
         "String": vtypes.Categorical,
     }
@@ -48,6 +49,9 @@ def featuretools_importances(df, data_meta, utility_params_ft, rs):
     if index is None:
         df['index_col'] = df.index
         index = "index_col"
+
+    # drop nan
+    df = df.dropna(axis=0, how='any')
 
     es = es.entity_from_dataframe(
         entity_id=entity_id,
@@ -85,24 +89,36 @@ def featuretools_importances(df, data_meta, utility_params_ft, rs):
     fm, features = ft.dfs(
         entityset=es,
         target_entity=entity_id,
-        agg_primitives=["count", "percent_true"],
-        trans_primitives=["is_weekend", "weekday", "day", "month", "year"],
+        agg_primitives=utility_params_ft["aggPrimitives"],
+        trans_primitives=utility_params_ft["tranPrimitives"],
         max_depth=max_depth,
         approximate="6h",
         cutoff_time=cutoff_times,
     )
 
+    fm = fm.replace([np.inf, -np.inf], np.nan)
+
     # drop null/nan values to allow sklearn to fit the RF model
-    fm = fm.dropna()
+    if utility_params_ft.get("drop_na") is not None:
+        if utility_params_ft["drop_na"] == "columns":
+            fm = fm.dropna(axis=1, how='any')
+        elif utility_params_ft["drop_na"] == "rows":
+            fm = fm.dropna()
+        elif utility_params_ft["drop_na"] == "all":
+            fm = fm.dropna()
+            fm = fm.dropna(axis=1, how='any')
 
     Y = fm.pop(utility_params_ft["label_column"])
 
-    # create dummies for string categorical variables
-    # drops last dummy column for each variable
+    ## create dummies or numerical labels for string categorical variables    
     for col in fm.dtypes.index[[x is np.dtype("object") for x in fm.dtypes]]:
-        one_hot = pd.get_dummies(fm[col]).iloc[:, 0:-1]
-        fm = fm.drop(col, axis=1)
-        fm = fm.join(one_hot, rsuffix="_" + col)
+        if utility_params_ft["categorical_enconding"] == "dummies":
+            one_hot = pd.get_dummies(fm[col], prefix=col, prefix_sep="_")#.iloc[:, 0:-1]
+            fm = fm.drop(col, axis=1)
+            fm = fm.join(one_hot)
+        else:
+            labelencoder = LabelEncoder()
+            fm[col] = labelencoder.fit_transform(fm[col])
 
     # drop columns that the user wants to exclude
     ef = utility_params_ft.get("features_to_exclude")
@@ -118,7 +134,8 @@ def featuretools_importances(df, data_meta, utility_params_ft, rs):
 
     # predict test labels and calculate AUC
     probs = clf.predict_proba(fm_test)
-    print('AUC score of {:.3f}'.format(roc_auc_score(y_test, probs[:, 1])))
+    auc = roc_auc_score(y_test, probs[:, 1])
+    print('AUC score of {:.3f}'.format(auc))
 
     # get built-in RF feature importances
     feature_imps_builtin = [
@@ -133,7 +150,7 @@ def featuretools_importances(df, data_meta, utility_params_ft, rs):
     feature_imps_permutation = list(zip(feature_imps_permutation.importances_mean[sorted_idx],
                                         fm.columns[sorted_idx]))
 
-    return feature_imps_builtin, feature_imps_permutation
+    return auc, feature_imps_builtin, feature_imps_permutation
 
 
 def feature_importance_metrics(
@@ -213,7 +230,7 @@ def feature_importance_metrics(
 
         if path_released_ds is not None:
             print("Computing feature importance for synthetic dataset")
-            rlsd_feature_importances_builtin, rlsd_feature_importances_permutation = \
+            auc, rlsd_feature_importances_builtin, rlsd_feature_importances_permutation = \
                 featuretools_importances(rlsd_df, orig_metadata, utility_params, random_seed)
             rank_rlsd_features_builtin = [i[1] for i in rlsd_feature_importances_builtin]
             score_rlsd_features_builtin = [i[0] for i in rlsd_feature_importances_builtin]
@@ -225,6 +242,7 @@ def feature_importance_metrics(
                                                          utility_collector_builtin, percentage_threshold)
             utility_collector_builtin["orig_feature_importances"] = orig_feature_importances_builtin
             utility_collector_builtin["rlsd_feature_importances"] = rlsd_feature_importances_builtin
+            utility_collector_builtin["auc"] = auc
 
             utility_collector_permutation = compare_features(rank_orig_features_permutation,
                                                              rank_rlsd_features_permutation,
@@ -233,6 +251,7 @@ def feature_importance_metrics(
                                                              utility_collector_permutation, percentage_threshold)
             utility_collector_permutation["orig_feature_importances"] = orig_feature_importances_permutation
             utility_collector_permutation["rlsd_feature_importances"] = rlsd_feature_importances_permutation
+            utility_collector_permutation["auc"] = auc
 
             utility_collector = {"builtin": utility_collector_builtin, "permutation": utility_collector_permutation}
 
@@ -240,7 +259,7 @@ def feature_importance_metrics(
             print("Computing feature importance for original dataset with different seeds in RF")
             final_collector = []
             for rs in random_seeds_rf:
-                orig_feature_importances_builtin_2, orig_feature_importances_permutation_2 = \
+                auc, orig_feature_importances_builtin_2, orig_feature_importances_permutation_2 = \
                     featuretools_importances(orig_df, orig_metadata, utility_params, rs)
                 rank_orig_features_builtin_2 = [i[1] for i in orig_feature_importances_builtin_2]
                 score_orig_features_builtin_2 = [i[0] for i in orig_feature_importances_builtin_2]
@@ -250,6 +269,7 @@ def feature_importance_metrics(
                                                              utility_collector_builtin, percentage_threshold)
                 utility_collector_builtin[f"orig_feature_importances_{random_seed}"] = orig_feature_importances_builtin
                 utility_collector_builtin[f"orig_feature_importances_{rs}"] = orig_feature_importances_builtin_2
+                utility_collector_builtin[f"auc_{rs}"] = auc
 
                 rank_orig_features_permutation_2 = [i[1] for i in orig_feature_importances_permutation_2]
                 score_orig_features_permutation_2 = [i[0] for i in orig_feature_importances_permutation_2]
@@ -261,6 +281,7 @@ def feature_importance_metrics(
                 utility_collector_permutation[
                     f"orig_feature_importances_{random_seed}"] = orig_feature_importances_permutation
                 utility_collector_permutation[f"orig_feature_importances_{rs}"] = orig_feature_importances_permutation_2
+                utility_collector_permutation[f"auc_{rs}"] = auc
 
                 utility_collector = {"builtin": utility_collector_builtin, "permutation": utility_collector_permutation}
 
