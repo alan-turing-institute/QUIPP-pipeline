@@ -1,4 +1,5 @@
 # Script to calculate feature importance metric using different Random Forest training seeds.
+# It only requires one run-input file as it does not do synthesis.
 # Should be run from the root QUIPP directory with arguments:
 # -i [run-input-file] -o [synth-output-dir] -s [list-of-seeds-for-RF]
 
