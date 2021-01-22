@@ -16,17 +16,45 @@
     },
     "utility_parameters_classifiers":
     {
-        "enabled": false
+        "enabled": true,
+        "classifier": {
+            "LogisticRegression":  {"mode": "main",
+                                    "params_main": {"max_iter": 1000}
+                                   }
+        }
     },
     "utility_parameters_correlations":
     {
-        "enabled": false
+        "enabled": true
     },
     "utility_parameters_feature_importance":
     {
         "enabled": true,
         "label_column": "label",
-        "max_depth": 3,
-        "normalized_entities": [ ]
+        "normalized_entities": [
+            {"new_entity_id": "education",
+             "index": "education-num",
+             "additional_variables": ["education"],
+             "make_time_index": false
+            },
+            {"new_entity_id": "Workclass",
+             "index": "workclass",
+             "additional_variables": [],
+             "make_time_index": false
+            },
+            {"new_entity_id": "Occupation",
+             "index": "occupation",
+             "additional_variables": [],
+             "make_time_index": false
+            }
+        ],
+        "aggPrimitives": [
+            "std", "min", "max", "mean", "last", "count"
+        ],
+        "tranPrimitives": ["percentile"],
+        "max_depth": 2,
+        "features_to_exclude": ["education-num"],
+        "drop_na": "columns",
+        "categorical_enconding": "labels"
     }
 }
