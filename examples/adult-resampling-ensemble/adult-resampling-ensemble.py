@@ -42,16 +42,46 @@ def input_json(random_state):
             "num_samples_intruder": 5000,
             "vars_intruder": ["gender", "age", "neighborhood"],
         },
-        "utility_parameters_classifiers": {"enabled": False},
-        "utility_parameters_correlations": {"enabled": False},
+        "utility_parameters_classifiers": {
+            "enabled": True,
+            "classifier": {
+                "LogisticRegression": {"mode": "main", "params_main": {"max_iter": 1000}}
+            },
+        },
+        "utility_parameters_correlations": {"enabled": True},
         "utility_parameters_feature_importance": {
             "enabled": True,
             "label_column": "label",
-            "max_depth": 3,
-            "normalized_entities": [],
+            "normalized_entities": [
+                {
+                    "new_entity_id": "education",
+                    "index": "education-num",
+                    "additional_variables": ["education"],
+                    "make_time_index": False,
+                },
+                {
+                    "new_entity_id": "Workclass",
+                    "index": "workclass",
+                    "additional_variables": [],
+                    "make_time_index": False,
+                },
+                {
+                    "new_entity_id": "Occupation",
+                    "index": "occupation",
+                    "additional_variables": [],
+                    "make_time_index": False,
+                },
+            ],
+            "aggPrimitives": ["std", "min", "max", "mean", "last", "count"],
+            "tranPrimitives": ["percentile"],
+            "max_depth": 2,
+            "features_to_exclude": ["education-num"],
+            "drop_na": "columns",
+            "categorical_enconding": "labels",
         },
     }
 
+    
 
 def filename_stem(i):
     return f"adult-resampling-ensemble-{i:04}"

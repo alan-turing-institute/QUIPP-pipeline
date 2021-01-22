@@ -26,39 +26,44 @@ def input_json(random_state, epsilon):
         },
         "privacy_parameters_disclosure_risk": {"enabled": False},
         "utility_parameters_classifiers": {
-            "enabled": False,
-            "input_columns": [
-                "age",
-                "workclass",
-                "fnlwgt",
-                "education-num",
-                "marital-status",
-                "occupation",
-                "relationship",
-                "sex",
-                "capital-gain",
-                "capital-loss",
-                "hours",
-                "native",
-            ],
-            "label_column": "label",
-            "test_train_ratio": 0.2,
-            "num_leaked_rows": 0,
+            "enabled": True,
             "classifier": {
-                "LogisticRegression": {
-                    "mode": "main",
-                    "params_main": {"max_iter": 1000},
-                }
+                "LogisticRegression": {"mode": "main", "params_main": {"max_iter": 1000}}
             },
         },
         "utility_parameters_correlations": {"enabled": True},
         "utility_parameters_feature_importance": {
             "enabled": True,
             "label_column": "label",
-            "max_depth": 3,
-            "normalized_entities": [],
+            "normalized_entities": [
+                {
+                    "new_entity_id": "education",
+                    "index": "education-num",
+                    "additional_variables": ["education"],
+                    "make_time_index": False,
+                },
+                {
+                    "new_entity_id": "Workclass",
+                    "index": "workclass",
+                    "additional_variables": [],
+                    "make_time_index": False,
+                },
+                {
+                    "new_entity_id": "Occupation",
+                    "index": "occupation",
+                    "additional_variables": [],
+                    "make_time_index": False,
+                },
+            ],
+            "aggPrimitives": ["std", "min", "max", "mean", "last", "count"],
+            "tranPrimitives": ["percentile"],
+            "max_depth": 2,
+            "features_to_exclude": ["education-num"],
+            "drop_na": "columns",
+            "categorical_enconding": "labels",
         },
     }
+
 
 def filename_stem(i):
     return f"privbayes-adult-ensemble-3-{i:04}"
@@ -127,7 +132,7 @@ if __name__ == "__main__":
     args = handle_cmdline_args()
 
     random_states = range(args.nreplicas)
-    epsilons = [0.4, 2.0, 4.0, 6.0, 8.0, 20.0]
+    epsilons = [0.0001, 0.001, 0.01, 0.1, 0.4, 1.0, 2.0, 4.0, 10.0, 20.0]
 
     all_params = pd.DataFrame(
         data=product(random_states, epsilons), columns=["random_state", "epsilon"]

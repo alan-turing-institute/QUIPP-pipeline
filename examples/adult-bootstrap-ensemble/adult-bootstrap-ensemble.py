@@ -8,36 +8,56 @@ from pathlib import Path
 
 def input_json(random_state):
     return {
-        "enabled" : True,
-        "dataset" : "datasets/adult_dataset/adult",
-        "synth-method" : "bootstrap",
-        "parameters":
-        {
-            "enabled" : True,
+        "enabled": True,
+        "dataset": "datasets/adult_dataset/adult",
+        "synth-method": "bootstrap",
+        "parameters": {
+            "enabled": True,
             "num_samples_to_synthesize": -1,
-            "random_state": int(random_state)
+            "random_state": int(random_state),
         },
-        "privacy_parameters_disclosure_risk":
-        {
+        "privacy_parameters_disclosure_risk": {
             "enabled": False,
             "num_samples_intruder": 5000,
-            "vars_intruder": ["gender", "age", "neighborhood"]
+            "vars_intruder": ["gender", "age", "neighborhood"],
         },
-        "utility_parameters_classifiers":
-        {
-            "enabled": False
+        "utility_parameters_classifiers": {
+            "enabled": True,
+            "classifier": {
+                "LogisticRegression": {"mode": "main", "params_main": {"max_iter": 1000}}
+            },
         },
-        "utility_parameters_correlations":
-        {
-            "enabled": False
-        },
-        "utility_parameters_feature_importance":
-        {
+        "utility_parameters_correlations": {"enabled": True},
+        "utility_parameters_feature_importance": {
             "enabled": True,
             "label_column": "label",
-            "max_depth": 3,
-            "normalized_entities": [ ]
-        }
+            "normalized_entities": [
+                {
+                    "new_entity_id": "education",
+                    "index": "education-num",
+                    "additional_variables": ["education"],
+                    "make_time_index": False,
+                },
+                {
+                    "new_entity_id": "Workclass",
+                    "index": "workclass",
+                    "additional_variables": [],
+                    "make_time_index": False,
+                },
+                {
+                    "new_entity_id": "Occupation",
+                    "index": "occupation",
+                    "additional_variables": [],
+                    "make_time_index": False,
+                },
+            ],
+            "aggPrimitives": ["std", "min", "max", "mean", "last", "count"],
+            "tranPrimitives": ["percentile"],
+            "max_depth": 2,
+            "features_to_exclude": ["education-num"],
+            "drop_na": "columns",
+            "categorical_enconding": "labels",
+        },
     }
 
 
