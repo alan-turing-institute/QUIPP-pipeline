@@ -221,7 +221,7 @@ def feature_importance_metrics(
 
     with warnings.catch_warnings(record=True) as warns:
         print("Computing feature importance for original dataset")
-        orig_feature_importances_builtin, orig_feature_importances_permutation = \
+        auc, orig_feature_importances_builtin, orig_feature_importances_permutation = \
             featuretools_importances(orig_df, orig_metadata, utility_params, random_seed)
         rank_orig_features_builtin = [i[1] for i in orig_feature_importances_builtin]
         score_orig_features_builtin = [i[0] for i in orig_feature_importances_builtin]
