@@ -26,12 +26,12 @@ def main():
     out_prefix = args.output_prefix
     parameter_json_path = args.parameter_json
 
-    privbayes_syn = SynthesizerPrivBayes()
+    privbayes_syn = SynthesizerPrivBayes(parameter_json_path)
 
     in_csv = in_prefix + '.csv'
     in_json = in_prefix + '.json'
 
-    privbayes_syn.fit_synthesizer(parameter_json_path, in_csv, in_json, out_prefix)
+    privbayes_syn.fit_synthesizer(in_csv, in_json, out_prefix)
 
     privbayes_syn.synthesize(output_path=out_prefix)
 
