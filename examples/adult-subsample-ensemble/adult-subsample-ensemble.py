@@ -6,14 +6,14 @@ import pandas as pd
 from itertools import product
 from pathlib import Path
 
-def input_json(random_state, frac):
+def input_json(random_state, sample_frac):
     return {
         "enabled": True,
         "dataset": "datasets/adult_dataset/adult",
         "synth-method": "subsample",
         "parameters": {
             "enabled": True,
-            "frac_samples_to_synthesize": frac,
+            "frac_samples_to_synthesize": sample_frac,
             "random_state": int(random_state),
         },
         "privacy_parameters_disclosure_risk": {
