@@ -12,7 +12,8 @@
         "k": 3,
         "keys": ["appointment_id"],
         "histogram_bins": 10,
-        "preconfigured_bn": {}
+        "preconfigured_bn": {},
+        "save_description": false
     },
     "privacy_parameters_disclosure_risk":
     {
@@ -66,6 +67,8 @@
              "make_time_index": false                          
             }
         ],
+        "aggPrimitives": ["std", "min", "max", "mean", "last", "count"],
+        "tranPrimitives": ["percentile"],
         "features_to_exclude": ["patient_id"]
     }
 }
