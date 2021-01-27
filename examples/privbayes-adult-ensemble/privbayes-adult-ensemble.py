@@ -23,6 +23,7 @@ def input_json(random_state, epsilon):
             "keys": ["appointment_id"],
             "histogram_bins": 10,
             "preconfigured_bn": {},
+            "save_description": False
         },
         "privacy_parameters_disclosure_risk": {"enabled": False},
         "utility_parameters_classifiers": {
@@ -55,8 +56,6 @@ def input_json(random_state, epsilon):
                     "make_time_index": False,
                 },
             ],
-            "aggPrimitives": ["std", "min", "max", "mean", "last", "count"],
-            "tranPrimitives": ["percentile"],
             "max_depth": 2,
             "features_to_exclude": ["education-num"],
             "drop_na": "columns",
@@ -66,7 +65,7 @@ def input_json(random_state, epsilon):
 
 
 def filename_stem(i):
-    return f"privbayes-adult-ensemble-3-{i:04}"
+    return f"privbayes-adult-ensemble-{i:04}"
 
 
 def input_path(i):
@@ -132,7 +131,7 @@ if __name__ == "__main__":
     args = handle_cmdline_args()
 
     random_states = range(args.nreplicas)
-    epsilons = [0.0001, 0.001, 0.01, 0.1, 0.4, 1.0, 2.0, 4.0, 10.0, 20.0]
+    epsilons = [0.0001, 0.001, 0.01, 0.1, 0.4, 1.0, 4.0, 10.0]
 
     all_params = pd.DataFrame(
         data=product(random_states, epsilons), columns=["random_state", "epsilon"]
@@ -144,5 +143,4 @@ if __name__ == "__main__":
 
     if args.run:
         all_targets = [f"run-{filename_stem(i)}" for i, _ in all_params.iterrows()]
-        subprocess.run(["make", "-j32", "-C../.."] + all_targets)
-
+        subprocess.run(["make", "-k", "-j72", "-C../.."] + all_targets)
