@@ -90,8 +90,8 @@ def featuretools_importances(df, data_meta, utility_params_ft, rs):
     fm, features = ft.dfs(
         entityset=es,
         target_entity=entity_id,
-        agg_primitives=utility_params_ft["aggPrimitives"],
-        trans_primitives=utility_params_ft["tranPrimitives"],
+        agg_primitives=utility_params_ft.get("aggPrimitives"),
+        trans_primitives=utility_params_ft.get("tranPrimitives"),
         max_depth=max_depth,
         approximate="6h",
         cutoff_time=cutoff_times,
