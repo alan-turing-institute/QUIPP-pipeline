@@ -152,8 +152,13 @@ def featuretools_importances(df, data_meta, utility_params_ft, rs):
                                         fm.columns[sorted_idx]))
 
     # get Shapley values
-    explainer = shap.TreeExplainer(clf)
+    explainer = shap.TreeExplainer(model=clf)
     shap_values = explainer.shap_values(fm_test)
+    # version that uses the interventional perturbation option (takes into account a background dataset
+    # fm_train) - throws errors in some cases which can be suppressed by setting check_additivity=False
+    # in explainer.shap_values(). It is also slower.
+    # explainer = shap.TreeExplainer(model=clf, data=fm_train, feature_perturbation='interventional')
+    # shap_values = explainer.shap_values(fm_test, check_additivity=False)
     vals = np.abs(shap_values).mean(0)
     feature_imps_shapley = pd.DataFrame(list(zip(fm_test.columns, sum(vals))),
                                         columns=['col_name', 'feature_importance_vals'])

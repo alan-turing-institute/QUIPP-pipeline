@@ -9,3 +9,4 @@ featuretools
 tensorboard
 tensorflow
 tensorflow-estimator
+shap
