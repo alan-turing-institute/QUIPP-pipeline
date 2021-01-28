@@ -107,7 +107,7 @@ if __name__ == "__main__":
     args = handle_cmdline_args()
 
     random_states = range(args.nreplicas)
-    epsilons = [0.001, 0.1, 1.0, 10.0]
+    epsilons = [0.0001, 0.001, 0.01, 0.1, 0.4, 1.0, 4.0, 10.0]
 
     all_params = pd.DataFrame(
         data=product(random_states, epsilons), columns=["random_state", "epsilon"]
