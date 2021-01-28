@@ -40,7 +40,7 @@ def input_json(random_state, epsilon):
             "features_to_exclude": ["currentSmoker"],
             "drop_na": "columns",
             "categorical_enconding": "labels",
-            "normalize_entities": [],
+            "normalized_entities": [],
             "compute_shapley": False
         },
     }
