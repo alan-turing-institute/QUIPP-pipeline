@@ -72,8 +72,6 @@ def input_json(random_state):
                     "make_time_index": False,
                 },
             ],
-            "aggPrimitives": ["std", "min", "max", "mean", "last", "count"],
-            "tranPrimitives": ["percentile"],
             "max_depth": 2,
             "features_to_exclude": ["education-num"],
             "drop_na": "columns",
