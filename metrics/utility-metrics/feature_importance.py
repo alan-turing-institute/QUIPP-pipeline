@@ -152,20 +152,23 @@ def featuretools_importances(df, data_meta, utility_params_ft, rs):
                                         fm.columns[sorted_idx]))
 
     # get Shapley values
-    explainer = shap.TreeExplainer(model=clf)
-    shap_values = explainer.shap_values(fm_test)
-    # version that uses the interventional perturbation option (takes into account a background dataset
-    # fm_train) - throws errors in some cases which can be suppressed by setting check_additivity=False
-    # in explainer.shap_values(). It is also slower.
-    # explainer = shap.TreeExplainer(model=clf, data=fm_train, feature_perturbation='interventional')
-    # shap_values = explainer.shap_values(fm_test, check_additivity=False)
-    vals = np.abs(shap_values).mean(0)
-    feature_imps_shapley = pd.DataFrame(list(zip(fm_test.columns, sum(vals))),
-                                        columns=['col_name', 'feature_importance_vals'])
-    feature_imps_shapley.sort_values(by=['feature_importance_vals'], ascending=False, inplace=True)
-    feature_imps_shapley = [(row['feature_importance_vals'], row['col_name'])
-                            for index, row in feature_imps_shapley.iterrows()]
-
+    if utility_params_ft.get("compute_shapley"):
+        explainer = shap.TreeExplainer(model=clf)
+        shap_values = explainer.shap_values(fm_test)
+        # version that uses the interventional perturbation option (takes into account a background dataset
+        # fm_train) - throws errors in some cases which can be suppressed by setting check_additivity=False
+        # in explainer.shap_values(). It is also slower.
+        # explainer = shap.TreeExplainer(model=clf, data=fm_train, feature_perturbation='interventional')
+        # shap_values = explainer.shap_values(fm_test, check_additivity=False)
+        vals = np.abs(shap_values).mean(0)
+        feature_imps_shapley = pd.DataFrame(list(zip(fm_test.columns, sum(vals))),
+                                            columns=['col_name', 'feature_importance_vals'])
+        feature_imps_shapley.sort_values(by=['feature_importance_vals'], ascending=False, inplace=True)
+        feature_imps_shapley = [(row['feature_importance_vals'], row['col_name'])
+                                for index, row in feature_imps_shapley.iterrows()]
+    else:
+        feature_imps_shapley = []
+        
     return auc, feature_imps_builtin, feature_imps_permutation, feature_imps_shapley
 
 
@@ -276,15 +279,18 @@ def feature_importance_metrics(
             utility_collector_permutation["auc_orig"] = auc_orig
             utility_collector_permutation["auc_rlsd"] = auc_rlsd
 
-            utility_collector_shapley = compare_features(rank_orig_features_shapley,
+            if utility_params.get("compute_shapley"):
+                utility_collector_shapley = compare_features(rank_orig_features_shapley,
                                                              rank_rlsd_features_shapley,
                                                              score_orig_features_shapley,
                                                              score_rlsd_features_shapley,
                                                              utility_collector_shapley, percentage_threshold)
-            utility_collector_shapley["orig_feature_importances"] = orig_feature_importances_shapley
-            utility_collector_shapley["rlsd_feature_importances"] = rlsd_feature_importances_shapley
-            utility_collector_shapley["auc_orig"] = auc_orig
-            utility_collector_shapley["auc_rlsd"] = auc_rlsd
+                utility_collector_shapley["orig_feature_importances"] = orig_feature_importances_shapley
+                utility_collector_shapley["rlsd_feature_importances"] = rlsd_feature_importances_shapley
+                utility_collector_shapley["auc_orig"] = auc_orig
+                utility_collector_shapley["auc_rlsd"] = auc_rlsd
+            else:
+                utility_collector_shapley = {}
 
             utility_collector = {"builtin": utility_collector_builtin,
                                  "permutation": utility_collector_permutation,
@@ -320,18 +326,21 @@ def feature_importance_metrics(
                 utility_collector_permutation[f"auc_orig_{random_seed}"] = auc_orig
                 utility_collector_permutation[f"auc_{rs}"] = auc_orig_2
 
-                rank_orig_features_shapley_2 = [i[1] for i in orig_feature_importances_shapley_2]
-                score_orig_features_shapley_2 = [i[0] for i in orig_feature_importances_shapley_2]
-                utility_collector_shapley = compare_features(rank_orig_features_shapley,
+                if utility_params.get("compute_shapley"):
+                    rank_orig_features_shapley_2 = [i[1] for i in orig_feature_importances_shapley_2]
+                    score_orig_features_shapley_2 = [i[0] for i in orig_feature_importances_shapley_2]
+                    utility_collector_shapley = compare_features(rank_orig_features_shapley,
                                                                  rank_orig_features_shapley_2,
                                                                  score_orig_features_shapley,
                                                                  score_orig_features_shapley_2,
                                                                  utility_collector_shapley, percentage_threshold)
-                utility_collector_shapley[
-                    f"orig_feature_importances_{random_seed}"] = orig_feature_importances_shapley
-                utility_collector_shapley[f"orig_feature_importances_{rs}"] = orig_feature_importances_shapley_2
-                utility_collector_shapley[f"auc_orig_{random_seed}"] = auc_orig
-                utility_collector_shapley[f"auc_{rs}"] = auc_orig_2
+                    utility_collector_shapley[
+                        f"orig_feature_importances_{random_seed}"] = orig_feature_importances_shapley
+                    utility_collector_shapley[f"orig_feature_importances_{rs}"] = orig_feature_importances_shapley_2
+                    utility_collector_shapley[f"auc_orig_{random_seed}"] = auc_orig
+                    utility_collector_shapley[f"auc_{rs}"] = auc_orig_2
+                else:
+                    utility_collector_shapley = {}
 
                 utility_collector = {"builtin": utility_collector_builtin,
                                      "permutation": utility_collector_permutation,
