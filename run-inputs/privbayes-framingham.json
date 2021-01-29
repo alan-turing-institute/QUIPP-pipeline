@@ -1,0 +1,35 @@
+{
+    "enabled": true,
+    "dataset": "datasets/framingham/framingham_cleaned",
+    "synth-method": "PrivBayes",
+    "parameters": {
+        "enabled": true,
+        "num_samples_to_synthesize": 4240,
+        "random_state": 123,
+        "category_threshold": 20,
+        "epsilon": 1.0,
+        "k": 3,
+        "keys": [],
+        "histogram_bins": 10,
+        "preconfigured_bn": {},
+        "save_description": false
+    },
+    "privacy_parameters_disclosure_risk": {"enabled": false},
+    "utility_parameters_classifiers": {
+        "enabled": false,
+        "classifier": {
+            "LogisticRegression": {"mode": "main", "params_main": {"max_iter": 1000}}
+        }
+    },
+    "utility_parameters_correlations": {"enabled": true},
+    "utility_parameters_feature_importance": {
+        "enabled": true,
+        "label_column": "TenYearCHD",
+        "max_depth": 2,
+        "features_to_exclude": ["currentSmoker"],
+        "drop_na": "columns",
+        "normalized_entities": [],
+        "categorical_enconding": "labels",
+        "compute_shapley": false
+    }
+}

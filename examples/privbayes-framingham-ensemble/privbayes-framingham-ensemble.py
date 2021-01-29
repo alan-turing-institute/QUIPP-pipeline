@@ -11,16 +11,16 @@ from pathlib import Path
 def input_json(random_state, epsilon):
     return {
         "enabled": True,
-        "dataset": "datasets/adult_dataset/adult",
+        "dataset": "datasets/framingham/framingham_cleaned",
         "synth-method": "PrivBayes",
         "parameters": {
             "enabled": True,
-            "num_samples_to_synthesize": 32562,
+            "num_samples_to_synthesize": 4240,
             "random_state": int(random_state),
             "category_threshold": 20,
             "epsilon": epsilon,
             "k": 3,
-            "keys": ["appointment_id"],
+            "keys": [],
             "histogram_bins": 10,
             "preconfigured_bn": {},
             "save_description": False
@@ -35,47 +35,23 @@ def input_json(random_state, epsilon):
         "utility_parameters_correlations": {"enabled": True},
         "utility_parameters_feature_importance": {
             "enabled": True,
-            "label_column": "label",
-            "normalized_entities": [
-                {
-                    "new_entity_id": "education",
-                    "index": "education-num",
-                    "additional_variables": ["education"],
-                    "make_time_index": False,
-                },
-                {
-                    "new_entity_id": "Workclass",
-                    "index": "workclass",
-                    "additional_variables": [],
-                    "make_time_index": False,
-                },
-                {
-                    "new_entity_id": "Occupation",
-                    "index": "occupation",
-                    "additional_variables": [],
-                    "make_time_index": False,
-                },
-            ],
+            "label_column": "TenYearCHD",
             "max_depth": 2,
-            "features_to_exclude": ["education-num"],
+            "features_to_exclude": ["currentSmoker"],
             "drop_na": "columns",
             "categorical_enconding": "labels",
+            "normalized_entities": [],
+            "compute_shapley": False
         },
     }
 
 
 def filename_stem(i):
-    return f"privbayes-adult-ensemble-{i:04}"
+    return f"privbayes-framingham-ensemble-{i:04}"
 
 
 def input_path(i):
     return Path(f"../../run-inputs/{filename_stem(i)}.json")
-
-
-def feature_importance_path(i):
-    return Path(
-        f"../../synth-output/{filename_stem(i)}/utility_feature_importance.json"
-    )
 
 
 def write_input_file(i, params, force=False):

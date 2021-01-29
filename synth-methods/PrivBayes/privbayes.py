@@ -17,7 +17,7 @@ from base import SynthesizerBase
 class SynthesizerPrivBayes(SynthesizerBase):
     """Implements dataset synthesis with PrivBayes."""
 
-    def __init__(self):
+    def __init__(self, parameters_json_path):
         self.metadata = None
         self.parameters = None
         self.num_samples_to_synthesize = None
@@ -36,9 +36,25 @@ class SynthesizerPrivBayes(SynthesizerBase):
         # instantiate SynthesizerBase from Base directory
         super().__init__()
 
-    def fit_synthesizer(self, parameters_json_path, csv_path,
-                        metadata_json_path, output_path,
-                        verbose=True):
+        # initialize parameters
+        with open(parameters_json_path) as parameters_json:
+            self.parameters = json.load(parameters_json)
+        self.category_threshold = self.parameters['parameters']['category_threshold']
+        self.epsilon = self.parameters['parameters']['epsilon']
+        self.k = self.parameters['parameters']['k']
+        self.keys = self.parameters['parameters']['keys']
+        self.histogram_bins = self.parameters['parameters']['histogram_bins']
+        self.random_state = self.parameters['parameters']['random_state']
+        self.preconfigured_bn = self.parameters['parameters']['preconfigured_bn']
+
+        self.num_samples_to_synthesize = self.parameters['parameters']['num_samples_to_synthesize']
+        
+        self.save_description = self.parameters['parameters'].get('save_description')
+        if self.save_description is None:
+            self.save_description = True
+
+    def fit_synthesizer(self, csv_path, metadata_json_path,
+                        output_path, verbose=True):
         """
         Wrapper around PrivBayes' DataDescriber. Finds data types and
         conditional probabilities, creates a description file.
@@ -61,15 +77,6 @@ class SynthesizerPrivBayes(SynthesizerBase):
             self.metadata = json.load(metadata_json)
 
         # Extract parameters from json parameter file
-        with open(parameters_json_path) as parameters_json:
-            self.parameters = json.load(parameters_json)
-        self.category_threshold = self.parameters['parameters']['category_threshold']
-        self.epsilon = self.parameters['parameters']['epsilon']
-        self.k = self.parameters['parameters']['k']
-        self.keys = self.parameters['parameters']['keys']
-        self.histogram_bins = self.parameters['parameters']['histogram_bins']
-        self.random_state = self.parameters['parameters']['random_state']
-        self.preconfigured_bn = self.parameters['parameters']['preconfigured_bn']
         random.seed(self.random_state)
         np.random.seed(self.random_state)
         np.random.default_rng(self.random_state)
@@ -148,10 +155,6 @@ class SynthesizerPrivBayes(SynthesizerBase):
         output_path : string
             Path where output synthetic .csv will be written.
         """
-
-        # how many samples to synthesize
-        self.num_samples_to_synthesize = self.parameters['parameters']['num_samples_to_synthesize']
-
         # Synthesize the samples
         generator = DataGenerator()
         generator.generate_dataset_in_correlated_attribute_mode(self.num_samples_to_synthesize,
@@ -159,3 +162,7 @@ class SynthesizerPrivBayes(SynthesizerBase):
 
         # save synthetic data to disk
         generator.save_synthetic_data(os.path.join(output_path, "synthetic_data_1.csv"))
+
+    def __del__(self):
+        if not self.save_description:
+            os.remove(self.description_file)

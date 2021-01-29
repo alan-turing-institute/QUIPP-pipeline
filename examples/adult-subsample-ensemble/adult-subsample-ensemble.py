@@ -2,30 +2,25 @@ import argparse
 import json
 import matplotlib.pyplot as plt
 import subprocess
-import seaborn as sns
 import pandas as pd
 from itertools import product
 from pathlib import Path
 
-
-def input_json(random_state, epsilon):
+def input_json(random_state, sample_frac):
     return {
         "enabled": True,
         "dataset": "datasets/adult_dataset/adult",
-        "synth-method": "PrivBayes",
+        "synth-method": "subsample",
         "parameters": {
             "enabled": True,
-            "num_samples_to_synthesize": 32562,
+            "frac_samples_to_synthesize": sample_frac,
             "random_state": int(random_state),
-            "category_threshold": 20,
-            "epsilon": epsilon,
-            "k": 3,
-            "keys": ["appointment_id"],
-            "histogram_bins": 10,
-            "preconfigured_bn": {},
-            "save_description": False
         },
-        "privacy_parameters_disclosure_risk": {"enabled": False},
+        "privacy_parameters_disclosure_risk": {
+            "enabled": False,
+            "num_samples_intruder": 5000,
+            "vars_intruder": ["gender", "age", "neighborhood"],
+        },
         "utility_parameters_classifiers": {
             "enabled": False,
             "classifier": {
@@ -56,6 +51,8 @@ def input_json(random_state, epsilon):
                     "make_time_index": False,
                 },
             ],
+            "aggPrimitives": ["std", "min", "max", "mean", "last", "count"],
+            "tranPrimitives": ["percentile"],
             "max_depth": 2,
             "features_to_exclude": ["education-num"],
             "drop_na": "columns",
@@ -65,17 +62,11 @@ def input_json(random_state, epsilon):
 
 
 def filename_stem(i):
-    return f"privbayes-adult-ensemble-{i:04}"
+    return f"adult-subsample-ensemble-{i:04}"
 
 
 def input_path(i):
     return Path(f"../../run-inputs/{filename_stem(i)}.json")
-
-
-def feature_importance_path(i):
-    return Path(
-        f"../../synth-output/{filename_stem(i)}/utility_feature_importance.json"
-    )
 
 
 def write_input_file(i, params, force=False):
@@ -131,10 +122,10 @@ if __name__ == "__main__":
     args = handle_cmdline_args()
 
     random_states = range(args.nreplicas)
-    epsilons = [0.0001, 0.001, 0.01, 0.1, 0.4, 1.0, 4.0, 10.0]
+    sample_fracs = [1.0, 0.4, 0.1, 0.04, 0.01, 0.004, 0.001]
 
     all_params = pd.DataFrame(
-        data=product(random_states, epsilons), columns=["random_state", "epsilon"]
+        data=product(random_states, sample_fracs), columns=["random_state", "sample_frac"]
     )
 
     for i, params in all_params.iterrows():
@@ -143,4 +134,4 @@ if __name__ == "__main__":
 
     if args.run:
         all_targets = [f"run-{filename_stem(i)}" for i, _ in all_params.iterrows()]
-        subprocess.run(["make", "-k", "-j72", "-C../.."] + all_targets)
+        subprocess.run(["make", "-j72", "-C../.."] + all_targets)
