@@ -169,7 +169,8 @@ def featuretools_importances(df, data_meta, utility_params_ft, rs):
     else:
         feature_imps_shapley = []
         
-    return auc, feature_imps_builtin, feature_imps_permutation, feature_imps_shapley
+    return auc, feature_imps_builtin, feature_imps_permutation, \
+           feature_imps_shapley, clf, fm_test, y_test
 
 
 def feature_importance_metrics(
@@ -241,7 +242,8 @@ def feature_importance_metrics(
 
     with warnings.catch_warnings(record=True) as warns:
         print("Computing feature importance for original dataset")
-        auc_orig, orig_feature_importances_builtin, orig_feature_importances_permutation, orig_feature_importances_shapley = \
+        auc_orig, orig_feature_importances_builtin, orig_feature_importances_permutation, \
+        orig_feature_importances_shapley, _, X_test_orig, y_test_orig = \
             featuretools_importances(orig_df, orig_metadata, utility_params, random_seed)
         rank_orig_features_builtin = [i[1] for i in orig_feature_importances_builtin]
         score_orig_features_builtin = [i[0] for i in orig_feature_importances_builtin]
@@ -252,7 +254,8 @@ def feature_importance_metrics(
 
         if path_released_ds is not None:
             print("Computing feature importance for synthetic dataset")
-            auc_rlsd, rlsd_feature_importances_builtin, rlsd_feature_importances_permutation, rlsd_feature_importances_shapley = \
+            auc_rlsd, rlsd_feature_importances_builtin, rlsd_feature_importances_permutation, \
+            rlsd_feature_importances_shapley, clf_rlsd, _, _ = \
                 featuretools_importances(rlsd_df, orig_metadata, utility_params, random_seed)
             rank_rlsd_features_builtin = [i[1] for i in rlsd_feature_importances_builtin]
             score_rlsd_features_builtin = [i[0] for i in rlsd_feature_importances_builtin]
@@ -264,10 +267,17 @@ def feature_importance_metrics(
             utility_collector_builtin = compare_features(rank_orig_features_builtin, rank_rlsd_features_builtin,
                                                          score_orig_features_builtin, score_rlsd_features_builtin,
                                                          utility_collector_builtin, percentage_threshold)
+
+            # predict test labels and calculate cross AUC - trained on rlsd, test on original
+            probs = clf_rlsd.predict_proba(X_test_orig)
+            auc_cross = roc_auc_score(y_test_orig, probs[:, 1])
+            print('Cross-AUC score of {:.3f}'.format(auc_cross))
+
             utility_collector_builtin["orig_feature_importances"] = orig_feature_importances_builtin
             utility_collector_builtin["rlsd_feature_importances"] = rlsd_feature_importances_builtin
             utility_collector_builtin["auc_orig"] = auc_orig
             utility_collector_builtin["auc_rlsd"] = auc_rlsd
+            utility_collector_builtin["auc_cross"] = auc_cross
 
             utility_collector_permutation = compare_features(rank_orig_features_permutation,
                                                              rank_rlsd_features_permutation,
@@ -278,6 +288,7 @@ def feature_importance_metrics(
             utility_collector_permutation["rlsd_feature_importances"] = rlsd_feature_importances_permutation
             utility_collector_permutation["auc_orig"] = auc_orig
             utility_collector_permutation["auc_rlsd"] = auc_rlsd
+            utility_collector_permutation["auc_cross"] = auc_cross
 
             if utility_params.get("compute_shapley"):
                 utility_collector_shapley = compare_features(rank_orig_features_shapley,
@@ -289,6 +300,7 @@ def feature_importance_metrics(
                 utility_collector_shapley["rlsd_feature_importances"] = rlsd_feature_importances_shapley
                 utility_collector_shapley["auc_orig"] = auc_orig
                 utility_collector_shapley["auc_rlsd"] = auc_rlsd
+                utility_collector_shapley["auc_cross"] = auc_cross
             else:
                 utility_collector_shapley = {}
 
