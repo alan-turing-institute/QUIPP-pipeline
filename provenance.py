@@ -1,6 +1,6 @@
 import re
 import subprocess
-
+import json
 
 def generate_provenance_json(script="unknown", params={}):
     """Generate the provenance in a format which can later be output as valid json.
@@ -85,5 +85,5 @@ def get_local_changes():
 
 if __name__ == "__main__":
 
-    p = generate_provenance_json()
+    p = json.dumps(generate_provenance_json())
     print(p)
