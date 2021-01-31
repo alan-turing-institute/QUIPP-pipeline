@@ -1,7 +1,6 @@
 ## --- echo commands (for debugging)
 ## SHELL = sh -xv
 
-
 ##-------------------------------------
 ## Set up main path variables
 ##-------------------------------------
@@ -32,6 +31,18 @@ SYNTH_OUTPUTS_UTIL_FEATURE_IMPORTANCE = $(addsuffix /utility_feature_importance.
 all: $(SYNTH_OUTPUTS_PRIV_DISCL_RISK) $(SYNTH_OUTPUTS_UTIL_CLASS) $(SYNTH_OUTPUTS_UTIL_CORR) $(SYNTH_OUTPUTS_UTIL_FEATURE_IMPORTANCE)
 
 all-synthetic: $(SYNTH_OUTPUTS_CSV)
+
+
+##-------------------------------------
+## Add provenance information to output
+##-------------------------------------
+
+PROVENANCE_DEF = provenance() {\
+    git_result=$$(python provenance.py | jq '{commit, local_modifications}') ; \
+    ( jq ". += {git: $$git_result}" $$1 > $${1}.tmp ) && mv $${1}.tmp $$1 || \
+    echo "Warning: No provenance could be recorded for this target" && rm -f $${1}.tmp ; \
+}
+ADD_PROVENANCE = $(PROVENANCE_DEF) && provenance
 
 
 ##-------------------------------------
@@ -67,9 +78,11 @@ $(AE_DEIDENTIFIED_DATA) &: $(LONDON_POSTCODES)
 ## synthesize data - this rule also builds "synth-output/%/data_description.json"
 $(SYNTH_OUTPUTS_CSV) : \
 synth-output/%/synthetic_data_1.csv : run-inputs/%.json $(AE_DEIDENTIFIED_DATA)
-	mkdir -p $$(dirname $@) && \
-	cp $< $$(dirname $@) && \
-	python synthesize.py -i $< -o $$(dirname $@)
+	outdir=$$(dirname $@) && \
+	mkdir -p $$outdir && \
+	cp $< $${outdir}/input.json && \
+	$(ADD_PROVENANCE) $${outdir}/input.json && \
+	python synthesize.py -i $< -o $$outdir
 
 
 ##-------------------------------------
@@ -80,22 +93,26 @@ synth-output/%/synthetic_data_1.csv : run-inputs/%.json $(AE_DEIDENTIFIED_DATA)
 $(SYNTH_OUTPUTS_PRIV_DISCL_RISK) : \
 synth-output/%/disclosure_risk.json : \
 run-inputs/%.json synth-output/%/synthetic_data_1.csv
-	python metrics/privacy-metrics/disclosure_risk.py -i $< -o $$(dirname $@)
+	python metrics/privacy-metrics/disclosure_risk.py -i $< -o $$(dirname $@) &&\
+	$(ADD_PROVENANCE) $@
 
 $(SYNTH_OUTPUTS_UTIL_CLASS) : \
 synth-output/%/utility_diff.json : \
 run-inputs/%.json synth-output/%/synthetic_data_1.csv
-	python metrics/utility-metrics/classifiers.py -i $< -o $$(dirname $@)
+	python metrics/utility-metrics/classifiers.py -i $< -o $$(dirname $@) &&\
+	$(ADD_PROVENANCE) $@
 
 $(SYNTH_OUTPUTS_UTIL_CORR) : \
 synth-output/%/utility_correlations.json : \
 run-inputs/%.json synth-output/%/synthetic_data_1.csv
-	python metrics/utility-metrics/correlations.py -i $< -o $$(dirname $@)
+	python metrics/utility-metrics/correlations.py -i $< -o $$(dirname $@) &&\
+	$(ADD_PROVENANCE) $@
 
 $(SYNTH_OUTPUTS_UTIL_FEATURE_IMPORTANCE) : \
 synth-output/%/utility_feature_importance.json : \
 run-inputs/%.json synth-output/%/synthetic_data_1.csv
-	python metrics/utility-metrics/feature_importance.py -i $< -o $$(dirname $@)
+	python metrics/utility-metrics/feature_importance.py -i $< -o $$(dirname $@) &&\
+	$(ADD_PROVENANCE) $@
 
 
 ##-------------------------------------
