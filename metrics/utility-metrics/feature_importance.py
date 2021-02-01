@@ -14,7 +14,7 @@ import pandas as pd
 from scipy.stats import entropy
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, roc_auc_score
+from sklearn.metrics import accuracy_score, roc_auc_score, f1_score
 from sklearn.inspection import permutation_importance
 from sklearn.preprocessing import LabelEncoder
 from typing import Union
@@ -143,7 +143,9 @@ def featuretools_importances(df, data_meta, utility_params_ft, rs):
     # predict test labels and calculate AUC
     probs = clf.predict_proba(fm_test)
     auc = roc_auc_score(y_test, probs[:, 1])
-    print('AUC score of {:.3f}'.format(auc))
+    y_pred = clf.predict(fm_test)
+    f1 = f1_score(y_test, y_pred, average='weighted')
+    print('AUC score of {:.3f} and weighted F1 score of {:.3f}'.format(auc, f1))
 
     # get built-in RF feature importances
     feature_imps_builtin = [
@@ -176,7 +178,7 @@ def featuretools_importances(df, data_meta, utility_params_ft, rs):
     else:
         feature_imps_shapley = []
         
-    return auc, feature_imps_builtin, feature_imps_permutation, \
+    return auc, f1, feature_imps_builtin, feature_imps_permutation, \
            feature_imps_shapley, clf, fm_test, y_test
 
 
@@ -249,7 +251,7 @@ def feature_importance_metrics(
 
     with warnings.catch_warnings(record=True) as warns:
         print("Computing feature importance for original dataset")
-        auc_orig, orig_feature_importances_builtin, orig_feature_importances_permutation, \
+        auc_orig, f1_orig, orig_feature_importances_builtin, orig_feature_importances_permutation, \
         orig_feature_importances_shapley, _, X_test_orig, y_test_orig = \
             featuretools_importances(orig_df, orig_metadata, utility_params, random_seed)
         rank_orig_features_builtin = [i[1] for i in orig_feature_importances_builtin]
@@ -261,7 +263,7 @@ def feature_importance_metrics(
 
         if path_released_ds is not None:
             print("Computing feature importance for synthetic dataset")
-            auc_rlsd, rlsd_feature_importances_builtin, rlsd_feature_importances_permutation, \
+            auc_rlsd, f1_rlsd, rlsd_feature_importances_builtin, rlsd_feature_importances_permutation, \
             rlsd_feature_importances_shapley, clf_rlsd, _, _ = \
                 featuretools_importances(rlsd_df, orig_metadata, utility_params, random_seed)
             rank_rlsd_features_builtin = [i[1] for i in rlsd_feature_importances_builtin]
@@ -278,13 +280,18 @@ def feature_importance_metrics(
             # predict test labels and calculate cross AUC - trained on rlsd, test on original
             probs = clf_rlsd.predict_proba(X_test_orig)
             auc_cross = roc_auc_score(y_test_orig, probs[:, 1])
-            print('Cross-AUC score of {:.3f}'.format(auc_cross))
+            y_pred = clf_rlsd.predict(X_test_orig)
+            f1_cross = f1_score(y_test_orig, y_pred, average='weighted')
+            print('Cross-AUC score of {:.3f} and weighted cross_F1 of {:.3f}'.format(auc_cross, f1_cross))
 
             utility_collector_builtin["orig_feature_importances"] = orig_feature_importances_builtin
             utility_collector_builtin["rlsd_feature_importances"] = rlsd_feature_importances_builtin
             utility_collector_builtin["auc_orig"] = auc_orig
             utility_collector_builtin["auc_rlsd"] = auc_rlsd
             utility_collector_builtin["auc_cross"] = auc_cross
+            utility_collector_builtin["f1_orig"] = f1_orig
+            utility_collector_builtin["f1_rlsd"] = f1_rlsd
+            utility_collector_builtin["f1_cross"] = f1_cross
 
             utility_collector_permutation = compare_features(rank_orig_features_permutation,
                                                              rank_rlsd_features_permutation,
@@ -296,6 +303,9 @@ def feature_importance_metrics(
             utility_collector_permutation["auc_orig"] = auc_orig
             utility_collector_permutation["auc_rlsd"] = auc_rlsd
             utility_collector_permutation["auc_cross"] = auc_cross
+            utility_collector_permutation["f1_orig"] = f1_orig
+            utility_collector_permutation["f1_rlsd"] = f1_rlsd
+            utility_collector_permutation["f1_cross"] = f1_cross
 
             if utility_params.get("compute_shapley"):
                 utility_collector_shapley = compare_features(rank_orig_features_shapley,
@@ -308,6 +318,9 @@ def feature_importance_metrics(
                 utility_collector_shapley["auc_orig"] = auc_orig
                 utility_collector_shapley["auc_rlsd"] = auc_rlsd
                 utility_collector_shapley["auc_cross"] = auc_cross
+                utility_collector_shapley["f1_orig"] = f1_orig
+                utility_collector_shapley["f1_rlsd"] = f1_rlsd
+                utility_collector_shapley["f1_cross"] = f1_cross
             else:
                 utility_collector_shapley = {}
 
@@ -319,7 +332,7 @@ def feature_importance_metrics(
             print("Computing feature importance for original dataset with different seeds in RF")
             final_collector = []
             for rs in random_seeds_rf:
-                auc_orig_2, orig_feature_importances_builtin_2, \
+                auc_orig_2, f1_orig_2, orig_feature_importances_builtin_2, \
                 orig_feature_importances_permutation_2, orig_feature_importances_shapley_2 = \
                     featuretools_importances(orig_df, orig_metadata, utility_params, rs)
                 rank_orig_features_builtin_2 = [i[1] for i in orig_feature_importances_builtin_2]
@@ -330,7 +343,10 @@ def feature_importance_metrics(
                                                              utility_collector_builtin, percentage_threshold)
                 utility_collector_builtin[f"orig_feature_importances_{random_seed}"] = orig_feature_importances_builtin
                 utility_collector_builtin[f"orig_feature_importances_{rs}"] = orig_feature_importances_builtin_2
-                utility_collector_builtin[f"auc_{rs}"] = auc
+                utility_collector_builtin[f"auc_orig_{random_seed}"] = auc_orig
+                utility_collector_builtin[f"auc_{rs}"] = auc_orig_2
+                utility_collector_builtin[f"f1_orig_{random_seed}"] = f1_orig
+                utility_collector_builtin[f"f1_{rs}"] = f1_orig_2
 
                 rank_orig_features_permutation_2 = [i[1] for i in orig_feature_importances_permutation_2]
                 score_orig_features_permutation_2 = [i[0] for i in orig_feature_importances_permutation_2]
@@ -344,6 +360,8 @@ def feature_importance_metrics(
                 utility_collector_permutation[f"orig_feature_importances_{rs}"] = orig_feature_importances_permutation_2
                 utility_collector_permutation[f"auc_orig_{random_seed}"] = auc_orig
                 utility_collector_permutation[f"auc_{rs}"] = auc_orig_2
+                utility_collector_permutation[f"f1_orig_{random_seed}"] = f1_orig
+                utility_collector_permutation[f"f1_{rs}"] = f1_orig_2
 
                 if utility_params.get("compute_shapley"):
                     rank_orig_features_shapley_2 = [i[1] for i in orig_feature_importances_shapley_2]
@@ -358,6 +376,8 @@ def feature_importance_metrics(
                     utility_collector_shapley[f"orig_feature_importances_{rs}"] = orig_feature_importances_shapley_2
                     utility_collector_shapley[f"auc_orig_{random_seed}"] = auc_orig
                     utility_collector_shapley[f"auc_{rs}"] = auc_orig_2
+                    utility_collector_shapley[f"f1_orig_{random_seed}"] = f1_orig
+                    utility_collector_shapley[f"f1_{rs}"] = f1_orig_2
                 else:
                     utility_collector_shapley = {}
 
