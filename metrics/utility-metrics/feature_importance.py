@@ -27,75 +27,82 @@ from rbo import RankingSimilarity
 
 
 def featuretools_importances(df, data_meta, utility_params_ft, rs):
-    data_json_type_to_vtype = {
-        "Categorical": vtypes.Categorical,
-        "ContinuousNumerical": vtypes.Numeric,
-        "DateTime": vtypes.Datetime,
-        "DiscreteNumerical": vtypes.Numeric,
-        "Ordinal": vtypes.Ordinal,
-        "String": vtypes.Categorical,
-    }
 
-    entity_id = "my_entity_id"
+    if utility_params_ft.get("skip_feature_engineering"):
 
-    variable_types = {
-        m["name"]: data_json_type_to_vtype[m["type"]] for m in data_meta["columns"]
-    }
+        fm = df.copy(deep=False)
 
-    es = ft.EntitySet("myEntitySet")
+    else:
 
-    # if there is no id/index column in the dataframe, create one
-    # for use with featuretools
-    index = utility_params_ft.get("entity_index")
-    if index is None:
-        df['index_col'] = df.index
-        index = "index_col"
+        data_json_type_to_vtype = {
+            "Categorical": vtypes.Categorical,
+            "ContinuousNumerical": vtypes.Numeric,
+            "DateTime": vtypes.Datetime,
+            "DiscreteNumerical": vtypes.Numeric,
+            "Ordinal": vtypes.Ordinal,
+            "String": vtypes.Categorical,
+        }
 
-    # drop nan
-    df = df.dropna(axis=0, how='any')
+        entity_id = "my_entity_id"
 
-    es = es.entity_from_dataframe(
-        entity_id=entity_id,
-        dataframe=df,
-        index=index,
-        time_index=utility_params_ft.get("time_index"),
-        secondary_time_index=utility_params_ft.get("secondary_time_index"),
-        variable_types=variable_types
-    )
+        variable_types = {
+            m["name"]: data_json_type_to_vtype[m["type"]] for m in data_meta["columns"]
+        }
 
-    for ne in utility_params_ft.get("normalized_entities"):
-        es.normalize_entity(base_entity_id=entity_id, **ne)
+        es = ft.EntitySet("myEntitySet")
 
-    if utility_params_ft.get("time_index") is not None:
-        cutoff_times = (
-            es[entity_id]
-                .df[
-                [
-                    index,
-                    utility_params_ft["time_index"],
-                    utility_params_ft["label_column"],
-                ]
-            ]
-                .sort_values(by=utility_params_ft["time_index"])
+        # if there is no id/index column in the dataframe, create one
+        # for use with featuretools
+        index = utility_params_ft.get("entity_index")
+        if index is None:
+            df['index_col'] = df.index
+            index = "index_col"
+
+        # drop nan
+        df = df.dropna(axis=0, how='any')
+
+        es = es.entity_from_dataframe(
+            entity_id=entity_id,
+            dataframe=df,
+            index=index,
+            time_index=utility_params_ft.get("time_index"),
+            secondary_time_index=utility_params_ft.get("secondary_time_index"),
+            variable_types=variable_types
         )
-    else:
-        cutoff_times = None
 
-    max_depth_param = utility_params_ft.get("max_depth")
-    if max_depth_param is None:
-        max_depth = 3
-    else:
-        max_depth = max_depth_param
+        for ne in utility_params_ft.get("normalized_entities"):
+            es.normalize_entity(base_entity_id=entity_id, **ne)
 
-    fm, features = ft.dfs(
-        entityset=es,
-        target_entity=entity_id,
-        agg_primitives=utility_params_ft.get("aggPrimitives"),
-        trans_primitives=utility_params_ft.get("tranPrimitives"),
-        max_depth=max_depth,
-        approximate="6h",
-        cutoff_time=cutoff_times,
-    )
+        if utility_params_ft.get("time_index") is not None:
+            cutoff_times = (
+                es[entity_id]
+                    .df[
+                    [
+                        index,
+                        utility_params_ft["time_index"],
+                        utility_params_ft["label_column"],
+                    ]
+                ]
+                    .sort_values(by=utility_params_ft["time_index"])
+            )
+        else:
+            cutoff_times = None
+
+        max_depth_param = utility_params_ft.get("max_depth")
+        if max_depth_param is None:
+            max_depth = 3
+        else:
+            max_depth = max_depth_param
+
+        fm, features = ft.dfs(
+            entityset=es,
+            target_entity=entity_id,
+            agg_primitives=utility_params_ft.get("aggPrimitives"),
+            trans_primitives=utility_params_ft.get("tranPrimitives"),
+            max_depth=max_depth,
+            approximate="6h",
+            cutoff_time=cutoff_times,
+        )
 
     fm = fm.replace([np.inf, -np.inf], np.nan)
 
