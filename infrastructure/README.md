@@ -44,7 +44,6 @@ You may be prompted to create a pulumi account
 
 - Some useful [hints](https://blog.gripdev.xyz/2019/02/19/debugging-cloud-init-on-ubuntu-in-azure-or-anywhere/)
 
-
 ## Manual config
 
 SSH into machine. Ensure cloud init has finished:
@@ -53,56 +52,7 @@ SSH into machine. Ensure cloud init has finished:
 cloud-init status -w
 ```
 
-<!-- 
-Log into the azure cli:
-```bash
-az login
-```
-
-Set the subscription:
-```bash
-az account set -s 'c100c04d-970f-4d77-999a-add73cf49668'
-```
-
-Mount the shared data directory:
-```
-bash /etc/mount_filestorage.sh
-``` -->
-
 The file share will be mounted at `/mnt/vmexperiments/quippstore/`
-
-
-<!-- Navigate to the correct directory in file share.
-
-Checkout the git repo:
-```bash 
-git clone https://github.com/alan-turing-institute/QUIPP-pipeline.git
-```
-
-Install any dependencies:
-
-
-```bash
-source /miniconda/bin/activate
-conda init
-```
-
-```bash
-cd QUIPP-pipeline
-```
-
-```bash
-pip install -r env-configuration/requirements.txt
-```
-
-```
-sudo Rscript env-configuration/install.R
-```
-
-```bash
-bash env-configuration/postBuild
-``` -->
-
 
 ### First time for each user
 
