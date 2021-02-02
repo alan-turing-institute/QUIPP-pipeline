@@ -16,10 +16,10 @@ def input_json(random_state, epsilon, k):
         "parameters": {
             "enabled": True,
             "num_samples_to_synthesize": 4240,
-            "random_state": 1234,
+            "random_state": int(random_state),
             "category_threshold": 20,
-            "epsilon": 1.0,
-            "k": int(3),
+            "epsilon": epsilon,
+            "k": int(k),
             "keys": [],
             "histogram_bins": 10,
             "preconfigured_bn": {},
@@ -132,11 +132,10 @@ def handle_cmdline_args():
 
     parser.add_argument(
         "-e",
-        "--epsilon",
-        dest="epsilon",
+        "--epsilons",
+        dest="epsilons",
         required=True,
-        type=float,
-        help="Define epsilon for the requested run",
+        help="Define list of epsilons for the requested run",
     )
 
     parser.add_argument(
@@ -158,7 +157,7 @@ if __name__ == "__main__":
     random_states = range(args.nreplicas)
 
     all_params = pd.DataFrame(
-        data=product(random_states, [args.epsilon], [args.k]), columns=["random_state", "epsilon", "k"]
+        data=product(random_states, map(int, args.epsilons.strip('[]').split(',')), [args.k]), columns=["random_state", "epsilon", "k"]
     )
 
     for i, params in all_params.iterrows():
