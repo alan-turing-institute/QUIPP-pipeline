@@ -157,7 +157,7 @@ if __name__ == "__main__":
     random_states = range(args.nreplicas)
 
     all_params = pd.DataFrame(
-        data=product(random_states, map(int, args.epsilons.strip('[]').split(',')), [args.k]), columns=["random_state", "epsilon", "k"]
+        data=product(random_states, map(float, args.epsilons.strip('[]').split(',')), [args.k]), columns=["random_state", "epsilon", "k"]
     )
 
     for i, params in all_params.iterrows():

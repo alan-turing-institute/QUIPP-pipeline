@@ -127,11 +127,10 @@ def handle_cmdline_args():
 
     parser.add_argument(
         "-s",
-        "--sample-fraction",
-        dest="sample_frac",
+        "--sample-fractions",
+        dest="sample_fracs",
         required=True,
-        type=float,
-        help="The fraction of samples used that is subsampled",
+        help="The list of fractions of samples used",
     )
 
     args = parser.parse_args()
@@ -144,7 +143,7 @@ if __name__ == "__main__":
     random_states = range(args.nreplicas)
 
     all_params = pd.DataFrame(
-        data=product(random_states, [args.sample_frac]), columns=["random_state", "sample_frac"]
+        data=product(random_states, map(float, args.sample_fracs.strip('[]').split(','))), columns=["random_state", "sample_frac"]
     )
 
     for i, params in all_params.iterrows():
