@@ -1,7 +1,6 @@
 """A Python Pulumi program"""
 
 from pathlib import Path
-import toml
 import base64
 import pulumi
 import pulumi_azure as azure
@@ -9,16 +8,13 @@ import pulumi_azure as azure
 
 SSH_admin_key = Path("~/.ssh/id_rsa.pub").expanduser()
 cloud_init = Path("vm_config.yaml")
-n_vms = 1
-name_prefix = "testquippexp"
-vm_size = "Standard_D1_v2"
+name_prefix = "quippauto"
+vm_size = ["Standard_F32s_v2"]
+# vm_size = ["Standard_F72s_v2", "Standard_F72s_v2", "Standard_F72s_v2", "Standard_F32s_v2"]
 
-for vm in range(n_vms):
-    
+for vm, vm_s in enumerate(vm_size):
 
     vm_name = name_prefix + f"_{vm}"
-
-    print(f"Provisioning {vm_name}")
 
     example_resource_group = azure.core.ResourceGroup(vm_name, location="North Europe")
 
@@ -41,6 +37,7 @@ for vm in range(n_vms):
         resource_group_name=example_resource_group.name,
         location=example_resource_group.location,
         allocation_method="Dynamic",
+        domain_name_label = vm_name.replace("_", "-"),
     )
 
     example_network_interface = azure.network.NetworkInterface(
@@ -61,7 +58,7 @@ for vm in range(n_vms):
         f"{vm_name}_vm".replace("_", "-"),
         resource_group_name=example_resource_group.name,
         location=example_resource_group.location,
-        size=vm_size,
+        size=vm_s,
         admin_username="adminuser",
         network_interface_ids=[example_network_interface.id],
         admin_ssh_keys=[
@@ -79,5 +76,7 @@ for vm in range(n_vms):
             sku="16.04-LTS",
             version="latest",
         ),
-        custom_data=(lambda path: base64.b64encode(cloud_init.open('rb').read()).decode("ascii") )(cloud_init),
+        custom_data=(
+            lambda path: base64.b64encode(cloud_init.open("rb").read()).decode("ascii")
+        )(cloud_init),
     )

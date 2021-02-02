@@ -59,4 +59,5 @@ The file share will be mounted at `/mnt/vmexperiments/quippstore/`
 ```bash
 source /miniconda/bin/activate
 conda init
+conda activate py38_quipp
 ```
