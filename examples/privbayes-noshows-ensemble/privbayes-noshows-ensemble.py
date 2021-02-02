@@ -20,7 +20,7 @@ def input_json(random_state, epsilon, k):
             "random_state": 1456,
             "category_threshold": 20,
             "epsilon": epsilon,
-            "k": k,
+            "k": int(k),
             "keys": ["appointment_id"],
             "histogram_bins": 10,
             "preconfigured_bn": {},
