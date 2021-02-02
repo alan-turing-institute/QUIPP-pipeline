@@ -76,6 +76,8 @@ def input_json(random_state):
             "features_to_exclude": ["education-num"],
             "drop_na": "columns",
             "categorical_enconding": "labels",
+            "compute_shapley": True,
+            "skip_feature_engineering": False
         },
     }
 
