@@ -127,10 +127,9 @@ def handle_cmdline_args():
 
     parser.add_argument(
         "-e",
-        "--epsilon",
-        dest="epsilon",
+        "--epsilons",
+        dest="epsilons",
         required=True,
-        type=float,
         help="Define epsilon for the requested run",
     )
 
@@ -153,7 +152,7 @@ if __name__ == "__main__":
     random_states = range(args.nreplicas)
 
     all_params = pd.DataFrame(
-        data=product(random_states, [args.epsilon], [args.k]), columns=["random_state", "epsilon", "k"]
+        data=product(random_states, map(float, args.epsilons.strip('[]').split(',')), [args.k]), columns=["random_state", "epsilon", "k"]
     )
 
     for i, params in all_params.iterrows():
