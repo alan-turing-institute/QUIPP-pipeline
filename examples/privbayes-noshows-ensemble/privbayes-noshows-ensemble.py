@@ -86,7 +86,7 @@ def input_json(random_state, epsilon, k):
 
 
 def filename_stem(i):
-    return f"privbayes-framingham-ensemble-{i:04}"
+    return f"privbayes-noshows-ensemble-{i:04}"
 
 
 def input_path(i):

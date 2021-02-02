@@ -65,7 +65,7 @@ def input_json(random_state):
 
 
 def filename_stem(i):
-    return f"adult-bootstrap-ensemble-{i:04}"
+    return f"noshows-bootstrap-ensemble-{i:04}"
 
 
 def input_path(i):
