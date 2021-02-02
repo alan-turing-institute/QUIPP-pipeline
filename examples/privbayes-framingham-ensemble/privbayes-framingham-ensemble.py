@@ -11,44 +11,69 @@ from pathlib import Path
 def input_json(random_state, epsilon, k):
     return {
         "enabled": True,
-        "label_column": "TenYearCHD",
-        "aggPrimitives": [
-            "mean", "max", "min"
-        ],
-        "tranPrimitives": [],
-        "max_depth": 2,
-        "features_to_exclude": [],
-        "drop_na": "rows",
-        "normalized_entities": [
-            {"new_entity_id": "edu",
-             "index": "education",
-             "make_time_index": False
-            },
-            {"new_entity_id": "smoking",
-             "index": "cigsPerDay",
-             "additional_variables": ["currentSmoker"],
-             "make_time_index": False
-            },
-            {"new_entity_id": "sex",
-             "index": "male",
-             "make_time_index": False
-            },
-            {"new_entity_id": "lifeyears",
-             "index": "age",
-             "make_time_index": False
-            },
-            {"new_entity_id": "hypertension",
-             "index": "prevalentHyp",
-             "make_time_index": False
-            },
-            {"new_entity_id": "diabetic",
-             "index": "diabetes",
-             "make_time_index": False
+        "dataset": "datasets/framingham/framingham_cleaned",
+        "synth-method": "PrivBayes",
+        "parameters": {
+            "enabled": True,
+            "num_samples_to_synthesize": 4240,
+            "random_state": 1234,
+            "category_threshold": 20,
+            "epsilon": 1.0,
+            "k": int(3),
+            "keys": [],
+            "histogram_bins": 10,
+            "preconfigured_bn": {},
+            "save_description": False
+        },
+        "privacy_parameters_disclosure_risk": {"enabled": False},
+        "utility_parameters_classifiers": {
+            "enabled": False,
+            "classifier": {
+                "LogisticRegression": {"mode": "main", "params_main": {"max_iter": 1000}}
             }
+        },
+        "utility_parameters_correlations": {"enabled": True},
+        "utility_parameters_feature_importance": {
+            "enabled": True,
+            "label_column": "TenYearCHD",
+            "aggPrimitives": [
+                "mean", "max", "min"
             ],
-        "categorical_enconding": "labels",
-        "compute_shapley": True,
-        "skip_feature_engineering": False
+            "tranPrimitives": [],
+            "max_depth": 2,
+            "features_to_exclude": [],
+            "drop_na": "rows",
+            "normalized_entities": [
+                {"new_entity_id": "edu",
+                 "index": "education",
+                 "make_time_index": False
+                },
+                {"new_entity_id": "smoking",
+                 "index": "cigsPerDay",
+                 "additional_variables": ["currentSmoker"],
+                 "make_time_index": False
+                },
+                {"new_entity_id": "sex",
+                 "index": "male",
+                 "make_time_index": False
+                },
+                {"new_entity_id": "lifeyears",
+                 "index": "age",
+                 "make_time_index": False
+                },
+                {"new_entity_id": "hypertension",
+                 "index": "prevalentHyp",
+                 "make_time_index": False
+                },
+                {"new_entity_id": "diabetic",
+                 "index": "diabetes",
+                 "make_time_index": False
+                }
+                ],
+            "categorical_enconding": "labels",
+            "compute_shapley": True,
+            "skip_feature_engineering": False
+        }
     }
 
 
