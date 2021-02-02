@@ -8,41 +8,47 @@ from itertools import product
 from pathlib import Path
 
 
-def input_json(random_state, epsilon):
+def input_json(random_state, epsilon, k):
     return {
         "enabled": True,
-        "dataset": "datasets/framingham/framingham_cleaned",
-        "synth-method": "PrivBayes",
-        "parameters": {
-            "enabled": True,
-            "num_samples_to_synthesize": 4240,
-            "random_state": int(random_state),
-            "category_threshold": 20,
-            "epsilon": epsilon,
-            "k": 3,
-            "keys": [],
-            "histogram_bins": 10,
-            "preconfigured_bn": {},
-            "save_description": False
-        },
-        "privacy_parameters_disclosure_risk": {"enabled": False},
-        "utility_parameters_classifiers": {
-            "enabled": False,
-            "classifier": {
-                "LogisticRegression": {"mode": "main", "params_main": {"max_iter": 1000}}
+        "label_column": "TenYearCHD",
+        "aggPrimitives": [
+            "mean", "max", "min"
+        ],
+        "tranPrimitives": [],
+        "max_depth": 2,
+        "features_to_exclude": [],
+        "drop_na": "rows",
+        "normalized_entities": [
+            {"new_entity_id": "edu",
+             "index": "education",
+             "make_time_index": False
             },
-        },
-        "utility_parameters_correlations": {"enabled": True},
-        "utility_parameters_feature_importance": {
-            "enabled": True,
-            "label_column": "TenYearCHD",
-            "max_depth": 2,
-            "features_to_exclude": ["currentSmoker"],
-            "drop_na": "columns",
-            "categorical_enconding": "labels",
-            "normalized_entities": [],
-            "compute_shapley": False
-        },
+            {"new_entity_id": "smoking",
+             "index": "cigsPerDay",
+             "additional_variables": ["currentSmoker"],
+             "make_time_index": False
+            },
+            {"new_entity_id": "sex",
+             "index": "male",
+             "make_time_index": False
+            },
+            {"new_entity_id": "lifeyears",
+             "index": "age",
+             "make_time_index": False
+            },
+            {"new_entity_id": "hypertension",
+             "index": "prevalentHyp",
+             "make_time_index": False
+            },
+            {"new_entity_id": "diabetic",
+             "index": "diabetes",
+             "make_time_index": False
+            }
+            ],
+        "categorical_enconding": "labels",
+        "compute_shapley": True,
+        "skip_feature_engineering": False
     }
 
 
@@ -99,6 +105,24 @@ def handle_cmdline_args():
         help="Write out input files, even if they exist",
     )
 
+    parser.add_argument(
+        "-e",
+        "--epsilon",
+        dest="epsilon",
+        required=True,
+        type=float,
+        help="Define epsilon for the requested run",
+    )
+
+    parser.add_argument(
+        "-k",
+        "--parents",
+        dest="k",
+        required=True,
+        type=int,
+        help="Define k (number of parents) for the requested run",
+    )
+
     args = parser.parse_args()
     return args
 
@@ -107,10 +131,9 @@ if __name__ == "__main__":
     args = handle_cmdline_args()
 
     random_states = range(args.nreplicas)
-    epsilons = [0.0001, 0.001, 0.01, 0.1, 0.4, 1.0, 4.0, 10.0]
 
     all_params = pd.DataFrame(
-        data=product(random_states, epsilons), columns=["random_state", "epsilon"]
+        data=product(random_states, [args.epsilon], [args.k]), columns=["random_state", "epsilon", "k"]
     )
 
     for i, params in all_params.iterrows():
