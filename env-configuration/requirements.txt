@@ -4,9 +4,11 @@ pytest
 sdv
 uuid
 dython
-DataSynthesizer
+# DataSynthesizer
 featuretools
 tensorboard
 tensorflow
 tensorflow-estimator
 shap
+ipython
+

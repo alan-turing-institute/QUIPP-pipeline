@@ -9,7 +9,12 @@ import pulumi_azure as azure
 SSH_admin_key = Path("~/.ssh/id_rsa.pub").expanduser()
 cloud_init = Path("vm_config.yaml")
 name_prefix = "quippauto"
-vm_size = ["Standard_F32s_v2"]
+vm_size = [
+    "Standard_F32s_v2",
+    "Standard_F72s_v2",
+    "Standard_F72s_v2",
+    "Standard_F72s_v2",
+]
 # vm_size = ["Standard_F72s_v2", "Standard_F72s_v2", "Standard_F72s_v2", "Standard_F32s_v2"]
 
 for vm, vm_s in enumerate(vm_size):
@@ -37,7 +42,7 @@ for vm, vm_s in enumerate(vm_size):
         resource_group_name=example_resource_group.name,
         location=example_resource_group.location,
         allocation_method="Dynamic",
-        domain_name_label = vm_name.replace("_", "-"),
+        domain_name_label=vm_name.replace("_", "-"),
     )
 
     example_network_interface = azure.network.NetworkInterface(
