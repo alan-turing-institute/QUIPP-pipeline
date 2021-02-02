@@ -9,7 +9,7 @@ from pathlib import Path
 def input_json(random_state, sample_frac):
     return {
         "enabled": True,
-        "dataset": "datasets/adult_dataset/adult",
+        "dataset": "datasets/appointment_noshows/KaggleV2-May-2016-cleaned",
         "synth-method": "subsample",
         "parameters": {
             "enabled": True,
@@ -28,36 +28,39 @@ def input_json(random_state, sample_frac):
             },
         },
         "utility_parameters_correlations": {"enabled": True},
-        "utility_parameters_feature_importance": {
+        "utility_parameters_feature_importance":
+        {
             "enabled": True,
-            "label_column": "label",
+            "entity_index": "appointment_id",
+            "time_index": "scheduled_time",
+            "label_column": "no_show",
+            "secondary_time_index": {"appointment_day": ["no_show", "sms_received"]},
             "normalized_entities": [
-                {
-                    "new_entity_id": "education",
-                    "index": "education-num",
-                    "additional_variables": ["education"],
-                    "make_time_index": False,
+                {"new_entity_id": "patients",
+                 "index": "patient_id",
+                 "additional_variables": ["scholarship",
+                                          "hypertension",
+                                          "diabetes",
+                                          "alcoholism",
+                                          "handicap"]
                 },
-                {
-                    "new_entity_id": "Workclass",
-                    "index": "workclass",
-                    "additional_variables": [],
-                    "make_time_index": False,
+                {"new_entity_id": "locations",
+                 "index": "neighborhood",
+                 "make_time_index": False
                 },
-                {
-                    "new_entity_id": "Occupation",
-                    "index": "occupation",
-                    "additional_variables": [],
-                    "make_time_index": False,
+                {"new_entity_id": "ages",
+                 "index": "age",
+                 "make_time_index": False
                 },
+                {"new_entity_id": "genders",
+                 "index": "gender",
+                 "make_time_index": False
+                }
             ],
-            "max_depth": 2,
-            "features_to_exclude": ["education-num"],
-            "drop_na": "columns",
-            "categorical_enconding": "labels",
-            "compute_shapley": True,
-            "skip_feature_engineering": False
-        },
+            "aggPrimitives": ["std", "min", "max", "mean", "last", "count"],
+            "tranPrimitives": ["percentile"],
+            "features_to_exclude": ["patient_id"]
+        }
     }
 
 

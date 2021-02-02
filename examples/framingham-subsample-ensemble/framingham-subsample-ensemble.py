@@ -9,7 +9,7 @@ from pathlib import Path
 def input_json(random_state, sample_frac):
     return {
         "enabled": True,
-        "dataset": "datasets/adult_dataset/adult",
+        "dataset": "datasets/framingham/framingham_cleaned",
         "synth-method": "subsample",
         "parameters": {
             "enabled": True,
@@ -30,34 +30,45 @@ def input_json(random_state, sample_frac):
         "utility_parameters_correlations": {"enabled": True},
         "utility_parameters_feature_importance": {
             "enabled": True,
-            "label_column": "label",
-            "normalized_entities": [
-                {
-                    "new_entity_id": "education",
-                    "index": "education-num",
-                    "additional_variables": ["education"],
-                    "make_time_index": False,
-                },
-                {
-                    "new_entity_id": "Workclass",
-                    "index": "workclass",
-                    "additional_variables": [],
-                    "make_time_index": False,
-                },
-                {
-                    "new_entity_id": "Occupation",
-                    "index": "occupation",
-                    "additional_variables": [],
-                    "make_time_index": False,
-                },
+            "label_column": "TenYearCHD",
+            "aggPrimitives": [
+                "mean", "max", "min"
             ],
+            "tranPrimitives": [],
             "max_depth": 2,
-            "features_to_exclude": ["education-num"],
-            "drop_na": "columns",
+            "features_to_exclude": [],
+            "drop_na": "rows",
+            "normalized_entities": [
+                {"new_entity_id": "edu",
+                 "index": "education",
+                 "make_time_index": False
+                },
+                {"new_entity_id": "smoking",
+                 "index": "cigsPerDay",
+                 "additional_variables": ["currentSmoker"],
+                 "make_time_index": False
+                },
+                {"new_entity_id": "sex",
+                 "index": "male",
+                 "make_time_index": False
+                },
+                {"new_entity_id": "lifeyears",
+                 "index": "age",
+                 "make_time_index": False
+                },
+                {"new_entity_id": "hypertension",
+                 "index": "prevalentHyp",
+                 "make_time_index": False
+                },
+                {"new_entity_id": "diabetic",
+                 "index": "diabetes",
+                 "make_time_index": False
+                }
+                ],
             "categorical_enconding": "labels",
             "compute_shapley": True,
             "skip_feature_engineering": False
-        },
+        }
     }
 
 
