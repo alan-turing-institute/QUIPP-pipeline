@@ -6,7 +6,9 @@ uuid
 dython
 #DataSynthesizer
 featuretools
-tensorboard
-tensorflow
-tensorflow-estimator
+#tensorboard
+#tensorflow
+#tensorflow-estimator
 shap
+ipython
+numpy>=1.20
