@@ -11,74 +11,82 @@ from pathlib import Path
 def input_json(random_state, epsilon, k):
     return {
         "enabled": True,
-        "dataset": "datasets/framingham/framingham_cleaned",
+        "dataset": "datasets/appointment_noshows/KaggleV2-May-2016-cleaned",
         "synth-method": "PrivBayes",
-        "parameters": {
+        "parameters":
+        {
             "enabled": True,
-            "num_samples_to_synthesize": 4240,
-            "random_state": int(random_state),
+            "num_samples_to_synthesize": 110527,
+            "random_state": 1456,
             "category_threshold": 20,
             "epsilon": epsilon,
             "k": int(k),
-            "keys": [],
+            "keys": ["appointment_id"],
             "histogram_bins": 10,
             "preconfigured_bn": {},
             "save_description": False
         },
-        "privacy_parameters_disclosure_risk": {"enabled": False},
-        "utility_parameters_classifiers": {
+        "privacy_parameters_disclosure_risk":
+        {
             "enabled": False,
+            "num_samples_intruder": 2000,
+            "vars_intruder": ["gender", "age", "neighborhood"]
+        },
+        "utility_parameters_classifiers":
+        {
+            "enabled": False,
+            "input_columns": ["gender", "neighborhood", "scholarship", "handicap"],
+            "label_column": "no_show",
+            "test_train_ratio": 0.2,
+            "num_leaked_rows": 0,
             "classifier": {
-                "LogisticRegression": {"mode": "main", "params_main": {"max_iter": 1000}}
+            "LogisticRegression":  {"mode": "main",
+                                        "params_main": {"max_iter": 1000}
+                                           }
             }
         },
-        "utility_parameters_correlations": {"enabled": True},
-        "utility_parameters_feature_importance": {
+        "utility_parameters_correlations":
+        {
+            "enabled": True
+        },
+        "utility_parameters_feature_importance":
+        {
             "enabled": True,
-            "label_column": "TenYearCHD",
-            "aggPrimitives": [
-                "mean", "max", "min"
-            ],
-            "tranPrimitives": [],
-            "max_depth": 2,
-            "features_to_exclude": [],
-            "drop_na": "rows",
+            "entity_index": "appointment_id",
+            "time_index": "scheduled_time",
+            "label_column": "no_show",
+            "secondary_time_index": {"appointment_day": ["no_show", "sms_received"]},
             "normalized_entities": [
-                {"new_entity_id": "edu",
-                 "index": "education",
+                {"new_entity_id": "patients",
+                 "index": "patient_id",
+                 "additional_variables": ["scholarship",
+                                          "hypertension",
+                                          "diabetes",
+                                          "alcoholism",
+                                          "handicap"]
+                },
+                {"new_entity_id": "locations",
+                 "index": "neighborhood",
                  "make_time_index": False
                 },
-                {"new_entity_id": "smoking",
-                 "index": "cigsPerDay",
-                 "additional_variables": ["currentSmoker"],
-                 "make_time_index": False
-                },
-                {"new_entity_id": "sex",
-                 "index": "male",
-                 "make_time_index": False
-                },
-                {"new_entity_id": "lifeyears",
+                {"new_entity_id": "ages",
                  "index": "age",
                  "make_time_index": False
                 },
-                {"new_entity_id": "hypertension",
-                 "index": "prevalentHyp",
-                 "make_time_index": False
-                },
-                {"new_entity_id": "diabetic",
-                 "index": "diabetes",
+                {"new_entity_id": "genders",
+                 "index": "gender",
                  "make_time_index": False
                 }
-                ],
-            "categorical_enconding": "labels",
-            "compute_shapley": True,
-            "skip_feature_engineering": False
+            ],
+            "aggPrimitives": ["std", "min", "max", "mean", "last", "count"],
+            "tranPrimitives": ["percentile"],
+            "features_to_exclude": ["patient_id"]
         }
     }
 
 
 def filename_stem(i):
-    return f"privbayes-framingham-ensemble-{i:04}"
+    return f"privbayes-noshows-ensemble-{i:04}"
 
 
 def input_path(i):
@@ -135,7 +143,7 @@ def handle_cmdline_args():
         "--epsilons",
         dest="epsilons",
         required=True,
-        help="Define list of epsilons for the requested run",
+        help="Define epsilon for the requested run",
     )
 
     parser.add_argument(

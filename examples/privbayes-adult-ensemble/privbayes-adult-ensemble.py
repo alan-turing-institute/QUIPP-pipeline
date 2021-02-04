@@ -8,7 +8,7 @@ from itertools import product
 from pathlib import Path
 
 
-def input_json(random_state, epsilon):
+def input_json(random_state, epsilon, k):
     return {
         "enabled": True,
         "dataset": "datasets/adult_dataset/adult",
@@ -19,7 +19,7 @@ def input_json(random_state, epsilon):
             "random_state": int(random_state),
             "category_threshold": 20,
             "epsilon": epsilon,
-            "k": 3,
+            "k": int(k),
             "keys": ["appointment_id"],
             "histogram_bins": 10,
             "preconfigured_bn": {},
@@ -60,6 +60,8 @@ def input_json(random_state, epsilon):
             "features_to_exclude": ["education-num"],
             "drop_na": "columns",
             "categorical_enconding": "labels",
+            "compute_shapley": True,
+            "skip_feature_engineering": False
         },
     }
 
@@ -123,6 +125,23 @@ def handle_cmdline_args():
         help="Write out input files, even if they exist",
     )
 
+    parser.add_argument(
+        "-e",
+        "--epsilons",
+        dest="epsilons",
+        required=True,
+        help="Define epsilon for the requested run",
+    )
+
+    parser.add_argument(
+        "-k",
+        "--parents",
+        dest="k",
+        required=True,
+        type=int,
+        help="Define k (number of parents) for the requested run",
+    )
+
     args = parser.parse_args()
     return args
 
@@ -131,10 +150,9 @@ if __name__ == "__main__":
     args = handle_cmdline_args()
 
     random_states = range(args.nreplicas)
-    epsilons = [0.0001, 0.001, 0.01, 0.1, 0.4, 1.0, 4.0, 10.0]
 
     all_params = pd.DataFrame(
-        data=product(random_states, epsilons), columns=["random_state", "epsilon"]
+        data=product(random_states, map(float, args.epsilons.strip('[]').split(',')), [args.k]), columns=["random_state", "epsilon", "k"]
     )
 
     for i, params in all_params.iterrows():

@@ -51,12 +51,12 @@ def input_json(random_state, sample_frac):
                     "make_time_index": False,
                 },
             ],
-            "aggPrimitives": ["std", "min", "max", "mean", "last", "count"],
-            "tranPrimitives": ["percentile"],
             "max_depth": 2,
             "features_to_exclude": ["education-num"],
             "drop_na": "columns",
             "categorical_enconding": "labels",
+            "compute_shapley": True,
+            "skip_feature_engineering": False
         },
     }
 
@@ -114,6 +114,14 @@ def handle_cmdline_args():
         help="Write out input files, even if they exist",
     )
 
+    parser.add_argument(
+        "-s",
+        "--sample-fractions",
+        dest="sample_fracs",
+        required=True,
+        help="The list of fraction of samples used",
+    )
+
     args = parser.parse_args()
     return args
 
@@ -122,10 +130,9 @@ if __name__ == "__main__":
     args = handle_cmdline_args()
 
     random_states = range(args.nreplicas)
-    sample_fracs = [1.0, 0.4, 0.1, 0.04, 0.01, 0.004, 0.001]
 
     all_params = pd.DataFrame(
-        data=product(random_states, sample_fracs), columns=["random_state", "sample_frac"]
+        data=product(random_states, map(float, args.sample_fracs.strip('[]').split(','))), columns=["random_state", "sample_frac"]
     )
 
     for i, params in all_params.iterrows():

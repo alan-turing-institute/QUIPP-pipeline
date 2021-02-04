@@ -32,6 +32,7 @@ class SynthesizerPrivBayes(SynthesizerBase):
         self.describer = None
         self.description_file = None
         self.preconfigured_bn = None
+        self.user_pool = 1
 
         # instantiate SynthesizerBase from Base directory
         super().__init__()
@@ -46,6 +47,8 @@ class SynthesizerPrivBayes(SynthesizerBase):
         self.histogram_bins = self.parameters['parameters']['histogram_bins']
         self.random_state = self.parameters['parameters']['random_state']
         self.preconfigured_bn = self.parameters['parameters']['preconfigured_bn']
+        if self.parameters['parameters'].get('user_pool'):
+            self.user_pool = self.parameters['parameters']['user_pool']
 
         self.num_samples_to_synthesize = self.parameters['parameters']['num_samples_to_synthesize']
         
@@ -138,7 +141,8 @@ class SynthesizerPrivBayes(SynthesizerBase):
                                                                      attribute_to_is_categorical=self.categorical_attributes,
                                                                      attribute_to_is_candidate_key=self.candidate_keys,
                                                                      seed=self.random_state,
-                                                                     bayesian_network=self.preconfigured_bn
+                                                                     bayesian_network=self.preconfigured_bn,
+                                                                     user_pool=self.user_pool
                                                                      )
 
         # write and print output
