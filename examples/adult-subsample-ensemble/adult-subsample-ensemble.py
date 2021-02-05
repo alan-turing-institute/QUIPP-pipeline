@@ -53,7 +53,7 @@ def input_json(random_state, sample_frac):
             ],
             "max_depth": 2,
             "features_to_exclude": ["education-num"],
-            "drop_na": "columns",
+            "drop_na": "rows",
             "categorical_enconding": "labels",
             "compute_shapley": True,
             "skip_feature_engineering": False
