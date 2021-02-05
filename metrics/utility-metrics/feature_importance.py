@@ -145,7 +145,7 @@ def featuretools_importances(df, data_meta, utility_params_ft, rs):
     try:
         auc = roc_auc_score(y_test, probs[:, 1])
     except:
-        auc = 0.5
+        auc = float('NaN')
         print("AUC set to 0.5 because exception happened when calculating it")
     y_pred = clf.predict(fm_test)
     f1 = f1_score(y_test, y_pred, average='weighted')
