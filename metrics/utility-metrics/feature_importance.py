@@ -17,6 +17,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, roc_auc_score, f1_score
 from sklearn.inspection import permutation_importance
 from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics.pairwise import cosine_similarity
 from typing import Union
 
 sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir, "utilities"))
@@ -481,8 +482,11 @@ def compare_features(rank_orig_features: list, rank_rlsd_features: list,
                                 left_on="rank_orig_features",
                                 right_on="rank_rlsd_features")
 
-        diff_orig_rlsd_scores = (orig_rlsd_df["score_orig_features"] - orig_rlsd_df["score_rlsd_features"]).to_numpy()
-        utility_collector["l2_norm"] = np.sqrt(np.sum(diff_orig_rlsd_scores ** 2))
+        score_orig_features_array = orig_rlsd_df["score_orig_features"].to_numpy() 
+        score_rlsd_features_array = orig_rlsd_df["score_rlsd_features"].to_numpy()
+
+        utility_collector["l2_norm"] = np.sqrt(np.sum((score_orig_features_array - score_rlsd_features_array) ** 2))
+        utility_collector["cosine_sim"] = cosine_similarity(score_orig_features_array.reshape(1, -1), score_rlsd_features_array.reshape(1, -1))[0][0]
 
         # KL divergence
         orig_sf = orig_rlsd_df["score_orig_features"].to_numpy() + 1e-20
