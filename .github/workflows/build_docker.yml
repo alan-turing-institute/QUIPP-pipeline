@@ -4,6 +4,14 @@ jobs:
   run_script:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - name: Build python=3.8 and R=4.0.4 docker image
-        run: docker build -f dockerfiles/python3.8-R4.0.4.Dockerfile -t quipp:base env-configuration
+      - name: Login to DockerHub
+        uses: docker/login-action@v1 
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PAC }}
+      # - uses: actions/checkout@v1
+      #   name: Build python=3.8 and R=4.0.4 docker image
+
+      #   run: docker login 
+      #   run: docker build -f dockerfiles/python3.8-R4.0.4.Dockerfile -t quipp:base env-configuration
+
