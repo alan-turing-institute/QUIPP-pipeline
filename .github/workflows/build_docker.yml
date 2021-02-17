@@ -1,10 +1,5 @@
 name: Build QUiPP pipeline docker images
-on:
-  push:
-    branches:
-      - master
-      - develop
-
+on: [push]
 jobs:
   run_script:
     runs-on: ubuntu-latest
