@@ -9,9 +9,14 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PAC }}
-      # - uses: actions/checkout@v1
-      #   name: Build python=3.8 and R=4.0.4 docker image
-
-      #   run: docker login 
-      #   run: docker build -f dockerfiles/python3.8-R4.0.4.Dockerfile -t quipp:base env-configuration
-
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: env-configuration
+          file: dockerfiles/python3.8-R4.0.4.Dockerfile
+          push: true
+          tags: oscartgiles/quipp:latest
+      -
+        name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
