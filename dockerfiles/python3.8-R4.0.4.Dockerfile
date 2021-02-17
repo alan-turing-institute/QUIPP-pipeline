@@ -5,8 +5,8 @@ FROM python:3.8
 RUN apt update
 COPY . /env-configuration
 
-# Install anything in apt.txt
-RUN cat /env-configuration/apt.txt | xargs -I % apt install % -y
+# Install anything in apt.txt and remove files no longer needed (make the image smaller)
+RUN apt update && cat /env-configuration/apt.txt | xargs -I % apt install --no-install-recommends % -y && rm -rf /var/lib/apt/lists/*
 
 # Install R 4.0.4
 RUN bash /env-configuration/R/R-4.0.4-DebianBuster.sh
