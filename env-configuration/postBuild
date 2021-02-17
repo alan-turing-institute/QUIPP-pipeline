@@ -10,4 +10,4 @@ cmake ../source &&
 make &&
 cd ../../
 
-rm README.md apt.txt runtime.txt install.R requirements.txt postBuild
+# rm README.md apt.txt runtime.txt install.R requirements.txt postBuild
