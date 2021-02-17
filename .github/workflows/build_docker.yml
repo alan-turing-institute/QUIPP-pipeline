@@ -13,8 +13,8 @@ jobs:
         id: docker_build
         uses: docker/build-push-action@v2
         with:
-          context: env-configuration
-          file: dockerfiles/python3.8-R4.0.4.Dockerfile
+          context: ./env-configuration
+          file: ./dockerfiles/python3.8-R4.0.4.Dockerfile
           push: true
           tags: oscartgiles/quipp:latest
       -
