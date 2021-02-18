@@ -25,7 +25,7 @@ jobs:
           context: ./env-configuration
           file: ./dockerfiles/python3.8-R4.0.4.Dockerfile
           push: true
-          tags: oscartgiles/quipp:latest
+          tags: ${{ secrets.DOCKER_REPO }}:latest
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}f
