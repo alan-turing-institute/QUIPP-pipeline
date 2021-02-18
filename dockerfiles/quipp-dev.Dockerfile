@@ -1,4 +1,5 @@
-FROM oscartgiles/quipp:latest
+# Latest version of the quipp pipeline
+FROM turinginst/quipp-env:base
 
 COPY . /quipp-pipeline
 

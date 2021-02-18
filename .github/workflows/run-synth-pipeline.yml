@@ -18,7 +18,7 @@ jobs:
         password: ${{ secrets.DOCKER_PAC }}
     - 
       name: Build pipeline
-      run: docker build -f dockerfiles/quipp-dev.Dockerfile -t oscartgiles/quipp-pipeline:latest .
+      run: docker build -f dockerfiles/quipp-dev.Dockerfile -t turinginst/quipp-env:latest .
     -
       name: Run pipeline
-      run: docker run oscartgiles/quipp-pipeline:latest make
+      run: docker run turinginst/quipp-env:latest make

@@ -1,4 +1,4 @@
-name: Build QUiPP pipeline docker images
+name: Build QUiPP pipeline base image
 on: 
   push:
     paths:
@@ -25,7 +25,7 @@ jobs:
           context: ./env-configuration
           file: ./dockerfiles/python3.8-R4.0.4.Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_REPO }}:latest
+          tags: turinginst/quipp-env:base
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}f

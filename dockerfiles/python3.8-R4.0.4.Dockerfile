@@ -15,7 +15,7 @@ RUN bash /env-configuration/R/R-4.0.4-DebianBuster.sh
 RUN pip install -r /env-configuration/requirements.txt
 
 # # Install R dependencies
-# RUN Rscript env-configuration/install.R
+RUN Rscript env-configuration/install.R
 
 # Install SGF
 RUN bash /env-configuration/postBuild
