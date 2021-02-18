@@ -1,4 +1,5 @@
-# Docker image with all QUiPP dependenies installed
+FROM oscartgiles/quipp:latest
 
+COPY . /quipp-pipeline
 
-
+WORKDIR /quipp-pipeline
