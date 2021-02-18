@@ -11,14 +11,14 @@ RUN apt update && cat /env-configuration/apt.txt | xargs -I % apt install --no-i
 # Install R 4.0.4
 RUN bash /env-configuration/R/R-4.0.4-DebianBuster.sh
 
-# Install python dependencies
-RUN pip install -r /env-configuration/requirements.txt
+# # Install python dependencies
+# RUN pip install -r /env-configuration/requirements.txt
 
-# Install R dependencies
-RUN Rscript env-configuration/install.R
+# # Install R dependencies
+# RUN Rscript env-configuration/install.R
 
-# Install SGF
-RUN bash /env-configuration/postBuild
+# # Install SGF
+# RUN bash /env-configuration/postBuild
 
 # Create a user
 RUN groupadd -r jovyan && useradd --no-log-init -r --create-home -g jovyan -u 1000 jovyan
