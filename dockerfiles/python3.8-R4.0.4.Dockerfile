@@ -19,3 +19,9 @@ RUN Rscript env-configuration/install.R
 
 # Install SGF
 RUN bash /env-configuration/postBuild
+
+# Create a user
+RUN groupadd -r jovyan && useradd --no-log-init -r --create-home -g jovyan -u 1000 jovyan
+USER jovyan
+
+WORKDIR /home/jovyan
