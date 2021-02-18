@@ -24,4 +24,6 @@ RUN bash /env-configuration/postBuild
 RUN groupadd -r jovyan && useradd --no-log-init -r --create-home -g jovyan -u 1000 jovyan
 USER jovyan
 
+RUN chown -R 1000 /home/jovyan
+
 WORKDIR /home/jovyan
