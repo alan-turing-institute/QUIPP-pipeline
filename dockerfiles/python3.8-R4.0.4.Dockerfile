@@ -18,7 +18,7 @@ RUN pip install -r /env-configuration/requirements.txt
 RUN Rscript env-configuration/install.R
 
 # Install SGF
-RUN bash /env-configuration/postBuild
+RUN bash /env-configuration/postBuild && rm -R /env-configuration/
 
 # Create a user
 RUN groupadd -r jovyan && useradd --no-log-init -r --create-home -g jovyan -u 1000 jovyan
