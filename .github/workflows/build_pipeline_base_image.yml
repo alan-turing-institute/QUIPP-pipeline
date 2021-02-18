@@ -28,4 +28,4 @@ jobs:
           tags: turinginst/quipp-env:base
       -
         name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}f
+        run: echo ${{ steps.docker_build.outputs.digest }}
