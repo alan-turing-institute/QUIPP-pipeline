@@ -17,7 +17,9 @@ jobs:
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PAC }}
-
     - 
       name: Pull and run quipp-pipeline
-      run: docker pull oscartgiles/quipp:latest && docker run -v $(pwd):/home/jovyan/ make
+      run: docker pull oscartgiles/quipp:latest 
+    -
+      name: Run pipeline
+      run: docker run -v $(pwd):/home/jovyan/ make
