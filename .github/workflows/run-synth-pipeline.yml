@@ -21,4 +21,4 @@ jobs:
       run: docker pull ${{ secrets.DOCKER_REPO }}:latest 
     -
       name: Run pipeline
-      run: docker run -v $(pwd):/home/jovyan/ ${{ secrets.DOCKER_REPO }}:latest  make
+      run: docker run -v $(GITHUB_WORKSPACE):/home/jovyan/ ${{ secrets.DOCKER_REPO }}:latest  make
