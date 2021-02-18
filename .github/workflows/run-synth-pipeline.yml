@@ -22,4 +22,4 @@ jobs:
       run: docker pull oscartgiles/quipp:latest 
     -
       name: Run pipeline
-      run: docker run -v $(pwd):/home/jovyan/ make
+      run: docker run -v $(pwd):/home/jovyan/ oscartgiles/quipp:latest  make
