@@ -97,7 +97,9 @@ class FileShare:
 
 
 def render_cloud_init_template(
-    all_users: List[User], mount_fileshare: FileShare, repo_branch: str = "feature/152-add-noshows-example"
+    all_users: List[User],
+    mount_fileshare: FileShare,
+    repo_branch: str = "feature/152-add-noshows-example",
 ) -> str:
     """Render the cloud_init.yaml file
 
@@ -117,7 +119,7 @@ def render_cloud_init_template(
 
     return template.render(
         all_users=all_users,
-        repo_branch = repo_branch,
+        repo_branch=repo_branch,
         fileshare_resource_group=mount_fileshare.resource_group,
         fileshare_storage_account_name=mount_fileshare.storage_account,
         fileshare_name=mount_fileshare.fileshare_name,
@@ -204,18 +206,12 @@ if __name__ == "__main__":
     # VM Configurations
 
     # Require an admin user
-    admin_user = User(
-        "ogiles",
-        public_key="",
-    )
+    admin_user = User("ogiles", public_key="",)
 
     # All users including admin
     all_users = [
         admin_user,
-        User(
-            "ostrickson",
-            public_key="",
-        ),
+        User("ostrickson", public_key="",),
     ]
 
     # Render cloud init template
@@ -237,7 +233,7 @@ if __name__ == "__main__":
             location="UK West",
             admin_user=admin_user,
             cloud_init=cloud_init,
-        )
+        ),
     ]
 
     # Create all VMs
