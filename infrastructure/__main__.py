@@ -1,74 +1,81 @@
 """A Python Pulumi program"""
 
+from dataclasses import dataclass, field
 from pathlib import Path
 import base64
 import pulumi
 import pulumi_azure as azure
 
+@dataclass
+class VM:
+    """Class detailing VM configuration
+    """
+    name: str
+    size: str = "Standard_A1_v2"
+    location: str = "North Europe"
+    admin_username: str = "adminuser"
+    domain_name_label: str = field(init=False)
 
-SSH_admin_key = Path("~/.ssh/id_rsa.pub").expanduser()
-cloud_init = Path("vm_config.yaml")
-name_prefix = "quippauto"
-vm_size = [
-    "Standard_F32s_v2",
-    "Standard_F72s_v2",
-    "Standard_F72s_v2",
-    "Standard_F72s_v2",
-]
-# vm_size = ["Standard_F72s_v2", "Standard_F72s_v2", "Standard_F72s_v2", "Standard_F32s_v2"]
+    def __post_init__(self):
+        # Ensure domain name is unique
+        self.domain_name_label = f"{self.name}".replace("_", "-")
 
-for vm, vm_s in enumerate(vm_size):
 
-    vm_name = name_prefix + f"_{vm}"
+def create_vm(vm_conf: VM):
+    """Provision a vm based on vm_conf.
+    Each VM has its own resource group and vnet
 
-    example_resource_group = azure.core.ResourceGroup(vm_name, location="North Europe")
+    Args:
+        vm_conf (VM): A VM configuration
+    """
+    resource_group = azure.core.ResourceGroup(vm_conf.name, location=vm_conf.location)
 
-    example_virtual_network = azure.network.VirtualNetwork(
-        f"{vm_name}_network",
+    virtual_network = azure.network.VirtualNetwork(
+        f"{vm_conf.name}_network",
         address_spaces=["10.0.0.0/16"],
-        location=example_resource_group.location,
-        resource_group_name=example_resource_group.name,
+        location=resource_group.location,
+        resource_group_name=resource_group.name,
     )
 
-    example_subnet = azure.network.Subnet(
-        f"{vm_name}_subnet",
-        resource_group_name=example_resource_group.name,
-        virtual_network_name=example_virtual_network.name,
+    subnet = azure.network.Subnet(
+        f"{vm_conf.name}_subnet",
+        resource_group_name=resource_group.name,
+        virtual_network_name=virtual_network.name,
         address_prefixes=["10.0.2.0/24"],
     )
 
     public_ip = azure.network.PublicIp(
-        f"{vm_name}-server-ip",
-        resource_group_name=example_resource_group.name,
-        location=example_resource_group.location,
+        f"{vm_conf.name}-server-ip",
+        resource_group_name=resource_group.name,
+        location=resource_group.location,
         allocation_method="Dynamic",
-        domain_name_label=vm_name.replace("_", "-"),
+        domain_name_label=vm_conf.domain_name_label
     )
 
-    example_network_interface = azure.network.NetworkInterface(
-        f"{vm_name}_nic",
-        location=example_resource_group.location,
-        resource_group_name=example_resource_group.name,
+    network_interface = azure.network.NetworkInterface(
+        f"{vm_conf.name}_nic",
+        location=resource_group.location,
+        resource_group_name=resource_group.name,
         ip_configurations=[
             azure.network.NetworkInterfaceIpConfigurationArgs(
                 name="internal",
-                subnet_id=example_subnet.id,
+                subnet_id=subnet.id,
                 private_ip_address_allocation="Dynamic",
                 public_ip_address_id=public_ip.id,
             )
         ],
     )
 
-    example_linux_virtual_machine = azure.compute.LinuxVirtualMachine(
-        f"{vm_name}_vm".replace("_", "-"),
-        resource_group_name=example_resource_group.name,
-        location=example_resource_group.location,
-        size=vm_s,
-        admin_username="adminuser",
-        network_interface_ids=[example_network_interface.id],
+    linux_virtual_machine = azure.compute.LinuxVirtualMachine(
+        f"{vm_conf.name}_vm".replace("_", "-"),
+        resource_group_name=resource_group.name,
+        location=resource_group.location,
+        size=vm_conf.size,
+        admin_username=vm_conf.admin_username,
+        network_interface_ids=[network_interface.id],
         admin_ssh_keys=[
             azure.compute.LinuxVirtualMachineAdminSshKeyArgs(
-                username="adminuser",
+                username=vm_conf.admin_username,
                 public_key=(lambda path: path.open().read())(SSH_admin_key),
             ),
         ],
@@ -85,3 +92,13 @@ for vm, vm_s in enumerate(vm_size):
             lambda path: base64.b64encode(cloud_init.open("rb").read()).decode("ascii")
         )(cloud_init),
     )
+
+
+# VM Configurations
+stack_vms = [VM("large-b", size = "Standard_A2_v2")]
+SSH_admin_key = Path("~/.ssh/id_rsa.pub").expanduser()
+cloud_init = Path("vm_config.yaml")
+
+# Create all VMs
+for i in stack_vms:
+    create_vm(i)
