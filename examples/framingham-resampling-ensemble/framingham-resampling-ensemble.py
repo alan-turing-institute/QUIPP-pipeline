@@ -60,7 +60,7 @@ def input_json(random_state):
             "tranPrimitives": [],
             "max_depth": 2,
             "features_to_exclude": [],
-            "drop_na": "rows",
+            "drop_na": True,
             "normalized_entities": [
                 {"new_entity_id": "edu",
                  "index": "education",
