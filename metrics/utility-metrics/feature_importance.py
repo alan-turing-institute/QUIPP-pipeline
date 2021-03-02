@@ -16,7 +16,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, roc_auc_score, f1_score
 from sklearn.inspection import permutation_importance
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import LabelEncoder, normalize
 from sklearn.metrics.pairwise import cosine_similarity
 from typing import Union
 
@@ -494,9 +494,14 @@ def compare_features(rank_orig_features: list, rank_rlsd_features: list,
                                      left_on="rank_orig_features",
                                      right_on="rank_rand_features")
 
-        score_orig_features_array = orig_rlsd_rand_df["score_orig_features"].to_numpy()
-        score_rlsd_features_array = orig_rlsd_rand_df["score_rlsd_features"].to_numpy()
-        score_rand_features_array = orig_rlsd_rand_df["score_rand_features"].to_numpy()
+        import ipdb; ipdb.set_trace()
+        score_orig_features_array = \
+            normalize(orig_rlsd_rand_df["score_orig_features"].to_numpy().reshape(-1, 1), axis=0)
+        score_rlsd_features_array = \
+            normalize(orig_rlsd_rand_df["score_rlsd_features"].to_numpy().reshape(-1, 1), axis=0)
+        score_rand_features_array = \
+            normalize(orig_rlsd_rand_df["score_rand_features"].to_numpy().reshape(-1, 1), axis=0)
+
 
         utility_collector["l2_norm"] = np.sqrt(np.sum((score_orig_features_array - score_rlsd_features_array) ** 2))
         utility_collector["l2_norm_rand"] = np.sqrt(np.sum((score_orig_features_array - score_rand_features_array) ** 2))
