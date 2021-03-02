@@ -132,7 +132,7 @@ def featuretools_importances(df, data_meta, utility_params_ft, rs):
     fm_train, fm_test, y_train, y_test = train_test_split(fm, Y, test_size=0.30, shuffle=False)
 
     # train Random Forest model
-    ne = utility_params_ft.get("rf_n_estimators"):
+    ne = utility_params_ft.get("rf_n_estimators")
     if ne is None:
         ne = 150
     clf = RandomForestClassifier(n_estimators=ne, max_depth=utility_params_ft.get("rf_max_depth"), random_state=rs)
