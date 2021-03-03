@@ -4,7 +4,7 @@ pytest
 sdv
 uuid
 dython
-#DataSynthesizer
+git+git://github.com/gmingas/DataSynthesizer.git
 featuretools
 #tensorboard
 #tensorflow

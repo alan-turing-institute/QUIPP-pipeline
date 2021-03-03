@@ -1,0 +1,6 @@
+name: quippVMs
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+description: Deploy VMs for QUiPP experiments

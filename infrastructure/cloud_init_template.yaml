@@ -1,0 +1,116 @@
+#cloud-config
+
+users:
+  - default
+  {% for user in all_users %}
+  - name: {{ user.name }}
+    groups: sudo
+    shell: /bin/bash
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    lock-password: true
+    ssh_authorized_keys:
+      - {{ user.public_key }}
+  {% endfor %}
+
+# Update package database on first boot (ie run apt-get update)
+package_update: true
+
+# List of packages to install with apt-get
+packages:
+  - git-all
+  - cifs-utils
+  - curl
+  - ca-certificates
+  - apt-transport-https
+  - lsb-release
+  - gnupg
+  - cmake
+  - jq
+
+# Run any additional commands
+runcmd:
+  # # Install Azure CLI
+  # - curl -sL https://packages.microsoft.com/keys/microsoft.asc |
+  #   gpg --dearmor |
+  #   sudo tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null
+  # - AZ_REPO=$(lsb_release -cs)
+  # - echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" |
+  #   sudo tee /etc/apt/sources.list.d/azure-cli.list
+  # - sudo apt-get update
+  # - sudo apt-get install azure-cli
+
+  # Install anaconda
+  - wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+  - bash Miniconda3-latest-Linux-x86_64.sh -b -p /miniconda
+  - source /miniconda/bin/activate
+  - conda init
+
+  # Install R 4.#.#
+  - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
+  - echo 'deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran40/' | sudo tee -a /etc/apt/sources.list
+  - sudo apt-get update
+  - sudo apt-get install -y r-base r-base-dev
+
+  # Set permissions on mount script
+  - sudo chgrp -R sudo /etc/mount_filestorage.sh
+  - sudo chmod 770 -R /etc/mount_filestorage.sh
+
+  # Mount file share
+  - bash /etc/mount_filestorage.sh
+
+  # Install dependencies
+  - git clone --branch {{ repo_branch }} https://github.com/alan-turing-institute/QUIPP-pipeline.git
+  - cd QUIPP-pipeline
+  - . /miniconda/bin/activate
+  - conda init
+  - conda create --name py38_quipp python=3.8 pip -y
+  - conda activate py38_quipp
+  - pip install -r env-configuration/requirements.txt
+  - sudo Rscript env-configuration/install.R
+
+  # Set permissions for anaconda
+  - sudo chgrp -R sudo /miniconda
+  - sudo chmod 770 -R /miniconda
+
+
+
+write_files:
+  - content: |
+      #!/bin/bash
+      resourceGroupName={{ fileshare_resource_group }}
+      storageAccountName={{ fileshare_storage_account_name }}
+      fileShareName={{ fileshare_name }}
+
+      mntPath="/mnt/$storageAccountName/$fileShareName"
+
+      sudo mkdir -p $mntPath
+
+      if [ ! -d "/etc/smbcredentials" ]; then
+          sudo mkdir "/etc/smbcredentials"
+      fi
+
+      storageAccountKey={{ storage_account_key }}
+
+      smbCredentialFile="/etc/smbcredentials/$storageAccountName.cred"
+      if [ ! -f $smbCredentialFile ]; then
+          echo "username=$storageAccountName" | sudo tee $smbCredentialFile > /dev/null
+          echo "password=$storageAccountKey" | sudo tee -a $smbCredentialFile > /dev/null
+      else 
+          echo "The credential file $smbCredentialFile already exists, and was not modified."
+      fi
+
+      sudo chmod 600 $smbCredentialFile
+
+      # This command assumes you have logged in with az login
+      httpEndpoint={{ http_endpoint }}
+      smbPath=$(echo $httpEndpoint | cut -c7-$(expr length $httpEndpoint))$fileShareName
+
+      # Mount
+      if [ -z "$(grep $smbPath\ $mntPath /etc/fstab)" ]; then
+          echo "$smbPath $mntPath cifs nofail,vers=3.0,credentials=$smbCredentialFile,serverino,file_mode=0777,dir_mode=0777" | sudo tee -a /etc/fstab > /dev/null
+      else
+          echo "/etc/fstab was not modified to avoid conflicting entries as this Azure file share was already present. You may want to double check /etc/fstab to ensure the configuration is as desired."
+      fi
+
+      sudo mount -a
+    path: /etc/mount_filestorage.sh
