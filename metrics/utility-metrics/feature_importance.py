@@ -494,7 +494,6 @@ def compare_features(rank_orig_features: list, rank_rlsd_features: list,
                                      left_on="rank_orig_features",
                                      right_on="rank_rand_features")
 
-        import ipdb; ipdb.set_trace()
         score_orig_features_array = \
             normalize(orig_rlsd_rand_df["score_orig_features"].to_numpy().reshape(-1, 1), axis=0)
         score_rlsd_features_array = \
