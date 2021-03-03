@@ -16,7 +16,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, roc_auc_score, f1_score
 from sklearn.inspection import permutation_importance
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import LabelEncoder, normalize
 from sklearn.metrics.pairwise import cosine_similarity
 from typing import Union
 
@@ -462,8 +462,9 @@ def compare_features(rank_orig_features: list, rank_rlsd_features: list,
     utility_collector["rbo_ext_0.8"] = orig_rlsd_sim.rbo_ext(p=0.8)
 
     # original against one random permutation
+    rank_rand_features = np.random.permutation(rank_orig_features[:target_index])
     orig_rand_sim = RankingSimilarity(rank_orig_features[:target_index],
-                                      np.random.permutation(rank_orig_features[:target_index]))
+                                      rank_rand_features)
 
     utility_collector["rbo_rand_0.6"] = orig_rand_sim.rbo(p=0.6)
     utility_collector["rbo_rand_0.8"] = orig_rand_sim.rbo(p=0.8)
@@ -483,20 +484,38 @@ def compare_features(rank_orig_features: list, rank_rlsd_features: list,
         tmp_rlsd_df = pd.DataFrame(score_rlsd_features, columns=["score_rlsd_features"])
         tmp_rlsd_df["rank_rlsd_features"] = rank_rlsd_features
 
+        tmp_rand_df = pd.DataFrame(score_orig_features, columns=["score_rand_features"])
+        tmp_rand_df["rank_rand_features"] = rank_rand_features
+
         orig_rlsd_df = pd.merge(tmp_orig_df, tmp_rlsd_df,
                                 left_on="rank_orig_features",
                                 right_on="rank_rlsd_features")
+        orig_rlsd_rand_df = pd.merge(orig_rlsd_df, tmp_rand_df,
+                                     left_on="rank_orig_features",
+                                     right_on="rank_rand_features")
 
-        score_orig_features_array = orig_rlsd_df["score_orig_features"].to_numpy() 
-        score_rlsd_features_array = orig_rlsd_df["score_rlsd_features"].to_numpy()
+        score_orig_features_array = \
+            normalize(orig_rlsd_rand_df["score_orig_features"].to_numpy().reshape(-1, 1), axis=0)
+        score_rlsd_features_array = \
+            normalize(orig_rlsd_rand_df["score_rlsd_features"].to_numpy().reshape(-1, 1), axis=0)
+        score_rand_features_array = \
+            normalize(orig_rlsd_rand_df["score_rand_features"].to_numpy().reshape(-1, 1), axis=0)
+
 
         utility_collector["l2_norm"] = np.sqrt(np.sum((score_orig_features_array - score_rlsd_features_array) ** 2))
-        utility_collector["cosine_sim"] = cosine_similarity(score_orig_features_array.reshape(1, -1), score_rlsd_features_array.reshape(1, -1))[0][0]
+        utility_collector["l2_norm_rand"] = np.sqrt(np.sum((score_orig_features_array - score_rand_features_array) ** 2))
+        utility_collector["cosine_sim"] = \
+            cosine_similarity(score_orig_features_array.reshape(1, -1), score_rlsd_features_array.reshape(1, -1))[0][0]
+        utility_collector["cosine_sim_rand"] = \
+            cosine_similarity(score_orig_features_array.reshape(1, -1), score_rand_features_array.reshape(1, -1))[0][0]
 
         # KL divergence
-        orig_sf = orig_rlsd_df["score_orig_features"].to_numpy() + 1e-20
-        rlsd_sf = orig_rlsd_df["score_rlsd_features"].to_numpy() + 1e-20
+        orig_sf = orig_rlsd_rand_df["score_orig_features"].to_numpy() + 1e-20
+        rlsd_sf = orig_rlsd_rand_df["score_rlsd_features"].to_numpy() + 1e-20
+        rand_sf = orig_rlsd_rand_df["score_rand_features"].to_numpy() + 1e-20
         utility_collector["kl_orig_rlsd"] = entropy(orig_sf, rlsd_sf)
+        utility_collector["kl_orig_rand"] = entropy(orig_sf, rand_sf)
+
     return utility_collector
 
 
