@@ -4,4 +4,6 @@ pytest
 sdv
 uuid
 dython
-DataSynthesizer
+# Use Gregs fork
+# DataSynthesizer
+git+git://github.com/gmingas/DataSynthesizer.git
