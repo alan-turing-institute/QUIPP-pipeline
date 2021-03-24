@@ -71,9 +71,10 @@
         "max_depth": 2,
         "target_entity": "household",
         "drop_na": true,
+        "drop_full_na_columns": true,
         "compute_shapley": true,
         "skip_feature_engineering": false,
-        "features_to_exclude": [],
-        "aggregate": true
+        "features_to_exclude": ["idhogar"],
+        "filter_hh": true
     }
 }
