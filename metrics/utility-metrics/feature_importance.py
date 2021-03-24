@@ -95,9 +95,14 @@ def featuretools_importances(df, data_meta, utility_params_ft, rs):
         else:
             max_depth = max_depth_param
 
+        if not utility_params_ft.get("target_entity"):
+            te = entity_id
+        else:
+            te = utility_params_ft.get("target_entity")
+
         fm, features = ft.dfs(
             entityset=es,
-            target_entity=entity_id,
+            target_entity=te,
             agg_primitives=utility_params_ft.get("aggPrimitives"),
             trans_primitives=utility_params_ft.get("tranPrimitives"),
             max_depth=max_depth,
@@ -105,6 +110,17 @@ def featuretools_importances(df, data_meta, utility_params_ft, rs):
             cutoff_time=cutoff_times,
         )
 
+    #  drop any columns derived from the label column
+    drop_cols = []
+    for col in fm:
+        if col == utility_params_ft["label_column"]:
+            pass
+        else:
+            if utility_params_ft["label_column"] in col:
+                drop_cols.append(col)
+    fm = fm[[x for x in fm if x not in drop_cols]]
+
+    # replace inf with nan
     fm = fm.replace([np.inf, -np.inf], np.nan)
 
     # drop null/nan values to allow sklearn to fit the RF model
@@ -113,23 +129,29 @@ def featuretools_importances(df, data_meta, utility_params_ft, rs):
 
     Y = fm.pop(utility_params_ft["label_column"])
 
-    ## create dummies or numerical labels for string categorical variables    
+    # create dummies or numerical labels for string categorical variables
     for col in fm.dtypes.index[[x is np.dtype("object") for x in fm.dtypes]]:
-        if utility_params_ft["categorical_enconding"] == "dummies":
+        if utility_params_ft.get("categorical_enconding") == "dummies":
             one_hot = pd.get_dummies(fm[col], prefix=col, prefix_sep="_")#.iloc[:, 0:-1]
             fm = fm.drop(col, axis=1)
             fm = fm.join(one_hot)
-        else:
+        elif utility_params_ft.get("categorical_enconding") == "labels":
             labelencoder = LabelEncoder()
             fm[col] = labelencoder.fit_transform(fm[col])
+        else:
+            pass
 
     # drop columns that the user wants to exclude
     ef = utility_params_ft.get("features_to_exclude")
     if ef is not None:
         fm = fm.drop(ef, axis=1)
 
+    if utility_params_ft.get("aggregate"):
+        fm_valid = fm.loc[fm['parentesco1'] == 1, ['idhogar', 'Target']].copy()
+        fm = fm[fm['idhogar'].isin(list(fm_valid['idhogar']))]
+
     # split data into train and test sets
-    fm_train, fm_test, y_train, y_test = train_test_split(fm, Y, test_size=0.30, shuffle=False)
+    fm_train, fm_test, y_train, y_test = train_test_split(fm, Y, test_size=0.30, random_state=rs)
 
     # train Random Forest model
     ne = utility_params_ft.get("rf_n_estimators")
