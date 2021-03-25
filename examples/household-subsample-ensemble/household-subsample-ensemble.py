@@ -58,9 +58,11 @@ def input_json(random_state, sample_frac):
                  }
             ],
             "max_depth": 2,
+            "aggPrimitives": ["min", "max", "count", "mode", "num_unique", "std", "sum"],
             "target_entity": "household",
             "drop_na": True,
-            "drop_full_na_columns": True,
+            "drop_na_columns_thresh": True,
+            "na_thresh": 0.30,
             "compute_shapley": True,
             "skip_feature_engineering": False,
             "features_to_exclude": ["idhogar"],
