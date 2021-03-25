@@ -32,7 +32,7 @@ def input_json(random_state):
                               130, 131, 132, 133, 134, 135, 136, 137, 138, 139,
                               140, 141, 142, 143],
             "synthesis_methods": [
-                "sample",
+                "",
                 "sample",
                 "sample",
                 "sample",
