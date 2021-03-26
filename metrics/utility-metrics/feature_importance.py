@@ -359,7 +359,7 @@ def feature_importance_metrics(
                 try:
                     auc_cross = roc_auc_score(y_test_orig, probs[:, 1])
                     f1_cross = f1_score(y_test_orig, y_pred, average='weighted')
-                except IndexError:
+                except:
                     auc_cross = float('NaN')
                     f1_cross = float('NaN')
                     print("Cross-AUC and Cross-F1 set to NaN because only one class is present "
