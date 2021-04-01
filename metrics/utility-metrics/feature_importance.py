@@ -39,7 +39,7 @@ def featuretools_importances(df, data_meta, utility_params_ft, rs):
         # It finds all households which have a head of household
         # This is later used to filter out the households without a head
         if utility_params_ft.get("filter_hh"):
-            valid_hh = df.loc[df['parentesco1'] == 1, ['idhogar', 'Target']].copy()
+            valid_hh = df.loc[df['parentesco'] == 0, ['idhogar', 'Target']].copy()
 
         data_json_type_to_vtype = {
             "Categorical": vtypes.Categorical,
@@ -63,6 +63,7 @@ def featuretools_importances(df, data_meta, utility_params_ft, rs):
         index = utility_params_ft.get("entity_index")
         if index is None:
             df['index_col'] = df.index
+            index = "index_col"
             index = "index_col"
 
         # drop nan
@@ -130,7 +131,7 @@ def featuretools_importances(df, data_meta, utility_params_ft, rs):
     fm = fm.replace([np.inf, -np.inf], np.nan)
 
     # drop null/nan values to allow sklearn to fit the RF model
-    if utility_params_ft.get("drop_na_columns_thresh"):
+    if utility_params_ft.get("drop_full_na_columns"):
         fm_temp = fm.dropna(axis=1, thresh=int(fm.shape[0] * utility_params_ft.get("na_thresh")))
         dropped_columns = list(set(fm.columns) - set(fm_temp.columns))
         fm.dropna(axis=1, thresh=int(fm.shape[0] * utility_params_ft.get("na_thresh")), inplace=True)
