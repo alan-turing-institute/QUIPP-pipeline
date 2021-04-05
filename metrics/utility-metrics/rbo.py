@@ -9,7 +9,9 @@ which is licensed under MIT License
 """
 
 import numpy as np
-
+from pulp import LpMaximize, LpProblem, LpStatus, lpSum, LpVariable, constants, value
+import pulp
+pulp.LpSolverDefault.msg = 1
 
 class RankingSimilarity(object):
     """
@@ -280,6 +282,214 @@ class RankingSimilarity(object):
                   'the evaluation.'.format(d, top_w))
 
         return self._bound_range(top_w)
+
+    def correlated_rank_similarity(self, correlation_matrix, k=None, p=1.0, ext=False):
+        """
+        RBO adapted to use doubly-stochastic correlated rank similarity
+        instead of the overlap used in the RBO paper.
+
+        Args:
+            correlation_matrix (pandas.DataFrame):
+                The correlation or strength of association between all features
+            k (int), default None:
+                The depth of evaluation.
+            p (float), default 1.0: Weight of each agreement at depth d:
+                p**(d-1). When set to 1.0, there is no weight, returns
+                to average "correlated overlap".
+            ext (Boolean) default False: If True, we will extrapolate the correlated rank,
+                as in Eq. (23) of the original RBO paper.
+
+        Returns:
+            The correlated rank similarity at depth k (or extrapolated beyond)
+        """
+
+        if not self.N_S and not self.N_T:
+            return 1  # both lists are empty
+
+        if not self.N_S or not self.N_T:
+            return 0  # one list empty, one non-empty
+
+        self.p = p
+
+        if k is None:
+            k = float('inf')
+        k = min(self.N_S, self.N_T, k)
+
+        X, A, AO = np.zeros(k), np.zeros(k), np.zeros(k)
+
+        if p == 1.0:
+            weights = np.ones(k)
+        else:
+            assert (0.0 < p < 1.0), "p not >0.0 and <1.0"
+            weights = np.array([1.0 * (1 - p) * p ** d for d in range(k)])
+
+        for d in range(0, k):
+            X[d], _ = self.lp_optimiser(d, correlation_matrix)
+
+            A[d] = X[d] / (d + 1)
+
+            if p == 1.0:  # equivalent to average overlap in equation 4 of the RBO paper
+                AO[d] = A[:(d + 1)].sum() / (d + 1)
+            else:  # weighted average - i.e. equivalent to RBO in equation 7 of the RBO paper
+                AO[d] = (A[:(d + 1)] * weights[:(d + 1)]).sum()
+
+        print(AO, A, X, weights)
+
+        if ext and p < 1:
+            return self._bound_range(AO[-1] + A[-1] * p ** k)
+        else:
+            return self._bound_range(AO[-1])
+
+    def correlated_rank_similarity_ext(self, correlation_matrix, p=0.98):
+        """
+        Extrapolated RBO adapted to use doubly-stochastic correlated rank similarity
+        instead of the overlap used in the RBO paper. This version implements an equivalent
+        metric to equation 32 in the RBO paper, where uneven lists and ties are taken into
+        account.
+
+        Args:
+            correlation_matrix (pandas.DataFrame):
+                The correlation or strength of association between all features
+            p (float), default 0.98: Weight of each agreement at depth d:
+                p**(d-1). When set to 1.0, there is no weight, returns
+                to average "correlated overlap".
+
+        Returns:
+            The extrapolated correlated rank similarity
+        """
+
+        assert (0.0 < p < 1.0), "p is not >0.0 and <1.0"
+        self.p = p
+
+        if not self.N_S and not self.N_T:
+            return 1  # both lists are empty
+
+        if not self.N_S or not self.N_T:
+            return 0  # one list empty, one non-empty
+
+        # since we are dealing with un-even lists, we need to figure out the
+        # long (L) and short (S) list first. The name S might be confusing
+        # but in this function, S refers to short list, L refers to long list
+        if len(self.S) > len(self.T):
+            L, S = self.S, self.T
+        else:
+            S, L = self.S, self.T
+
+        s, l = len(S), len(L)
+
+        # initilize the overlap and rbo arrays
+        # the agreement can be simply calculated from the overlap
+        X, A, rbo = np.zeros(l), np.zeros(l), np.zeros(l)
+        weights = np.array([1.0 * (1 - p) * p ** d for d in range(l)])
+        disjoint = 0
+
+        # start the calculation
+        PP = ProgressPrintOut(l) if self.verbose else NoPrintOut()
+
+        for d in range(1, l):
+            PP.printout(d, delta=1)
+
+            if d < s:  # still overlapping in length
+
+                X[d], _ = self.lp_optimiser(d, correlation_matrix)
+
+                # Eq. (28) that handles the tie. len() is O(1)
+                A[d] = 2.0 * X[d] / (len(self.S[:(d + 1)]) + len(self.L[:(d + 1)]))
+
+                rbo[d] = (weights[:(d + 1)] * A[:(d + 1)]).sum()
+
+                ext_term = 1.0 * A[d] * p ** (d + 1)  # the extrapolate term
+
+            else:  # the short list has fallen off the cliff
+
+                X[d], _ = self.lp_optimiser(d, correlation_matrix)
+
+                A[d] = 1.0 * X[d] / (d + 1)
+
+                rbo[d] = (weights[:(d + 1)] * A[:(d + 1)]).sum()
+
+                X_s = X[s - 1]  # this the last common overlap
+
+                # second term in first parenthesis of Eq. (32)
+                disjoint += 1.0 * (1 - p) * (p ** d) * (X_s * (d + 1 - s) / (d + 1) / s)
+
+                ext_term = 1.0 * ((X[d] - X_s) / (d + 1) + X[s - 1] / s) * \
+                           p ** (d + 1)  # last term in Eq. (32)
+
+        return self._bound_range(rbo[-1] + disjoint + ext_term)
+
+    def lp_optimiser(self, d, correlation_matrix):
+        """Solves the doubly stochastic LP problem given used in the
+        correlated rank metric.
+
+        Args:
+            d (int):
+                The depth of evaluation.
+            correlation_matrix (pandas.DataFrame):
+                The correlation or strength of association between all features
+
+        Returns:
+            score (float):
+                The optimal correlated rank score at depth d
+            opt_W (np.array):
+                The optimal doubly stochastic matrix W
+
+        """
+
+        # if d is larger than the length of the smaller list
+        # this happens when working with uneven lists and want
+        # to explore them fully
+        if self.N_S != self.N_T and d >= min(self.N_S, self.N_T):
+            if self.N_S > self.N_T:
+                d1 = d
+                d2 = small_len = self.N_T - 1
+            else:
+                d1 = small_len = self.N_S - 1
+                d2 = d
+        else:
+            d1 = d2 = small_len = d
+
+        # Define the LP problem
+        prob = LpProblem("Doubly-stochastic", LpMaximize)
+        variable_names = [self.S[i] + "_" + self.T[j]
+                          for i in range(d1 + 1)
+                          for j in range(d2 + 1)]
+        W = LpVariable.matrix("X", variable_names, cat='Continuous', lowBound=0, upBound=1)
+        W_np = np.array(W).reshape(d1 + 1, d2 + 1)
+
+        # Reorder the correlations
+        corr_subset = np.eye(small_len + 1)
+        # if uneven lists and we are beyond the maximum index of the small one,
+        # then add rows or columns to the corr_subset matrix
+        if self.N_S != self.N_T and d >= min(self.N_S, self.N_T):
+            if self.N_S > self.N_T:
+                corr_subset = np.vstack((corr_subset, np.zeros((d1 - d2, small_len + 1))))
+            else:
+                corr_subset = np.hstack((corr_subset, np.zeros((small_len + 1, d2 - d1))))
+
+        for i, var1 in enumerate(self.S[:(d1 + 1)]):
+            for j, var2 in enumerate(self.T[:(d2 + 1)]):
+                corr_subset[i][j] = correlation_matrix[var1][var2]
+
+        # Objective function
+        obj_func = lpSum(W_np * corr_subset ** 0.5), "main objective"
+        prob += obj_func
+
+        # Constraints
+        for i in range(d1 + 1):
+            prob += lpSum(W_np[i][j] for j in range(d2 + 1)) == 1, "Double stochastic row" + str(i)
+        for i in range(d2 + 1):
+            prob += lpSum(W_np[j][i] for j in range(d1 + 1)) == 1, "Double stochastic col" + str(i)
+
+        # Solve and print result
+        prob.solve()
+        print(LpStatus[prob.status])
+
+        # Get W and score
+        opt_W = np.array([v.varValue for v in W]).reshape(d1 + 1, d2 + 1)
+        opt_score = value(prob.objective)
+
+        return opt_score, opt_W
 
 
 class ProgressPrintOut(object):
