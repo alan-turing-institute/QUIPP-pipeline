@@ -9,7 +9,7 @@ which is licensed under MIT License
 """
 
 import numpy as np
-from pulp import LpMaximize, LpProblem, LpStatus, lpSum, LpVariable, constants, value
+from pulp import LpMaximize, LpProblem, LpStatus, lpSum, LpVariable, constants, value, PULP_CBC_CMD
 import pulp
 pulp.LpSolverDefault.msg = 1
 
@@ -333,8 +333,6 @@ class RankingSimilarity(object):
             else:  # weighted average - i.e. equivalent to RBO in equation 7 of the RBO paper
                 AO[d] = (A[:(d + 1)] * weights[:(d + 1)]).sum()
 
-        print(AO, A, X, weights)
-
         if ext and p < 1:
             return self._bound_range(AO[-1] + A[-1] * p ** k)
         else:
@@ -384,17 +382,14 @@ class RankingSimilarity(object):
         disjoint = 0
 
         # start the calculation
-        PP = ProgressPrintOut(l) if self.verbose else NoPrintOut()
-
         for d in range(1, l):
-            PP.printout(d, delta=1)
 
             if d < s:  # still overlapping in length
 
                 X[d], _ = self.lp_optimiser(d, correlation_matrix)
 
                 # Eq. (28) that handles the tie. len() is O(1)
-                A[d] = 2.0 * X[d] / (len(self.S[:(d + 1)]) + len(self.L[:(d + 1)]))
+                A[d] = 2.0 * X[d] / (len(S[:(d + 1)]) + len(L[:(d + 1)]))
 
                 rbo[d] = (weights[:(d + 1)] * A[:(d + 1)]).sum()
 
@@ -482,8 +477,8 @@ class RankingSimilarity(object):
             prob += lpSum(W_np[j][i] for j in range(d1 + 1)) == 1, "Double stochastic col" + str(i)
 
         # Solve and print result
-        prob.solve()
-        print(LpStatus[prob.status])
+        prob.solve(PULP_CBC_CMD(msg=False))
+        #print(LpStatus[prob.status])
 
         # Get W and score
         opt_W = np.array([v.varValue for v in W]).reshape(d1 + 1, d2 + 1)

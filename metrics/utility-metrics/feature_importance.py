@@ -19,7 +19,7 @@ from sklearn.inspection import permutation_importance
 from sklearn.preprocessing import LabelEncoder, normalize
 from sklearn.metrics.pairwise import cosine_similarity
 from typing import Union
-import dython.nominal.associations as associations
+from dython.nominal import associations
 from pulp import LpMaximize, LpProblem, LpStatus, lpSum, LpVariable, constants, value
 import pulp
 pulp.LpSolverDefault.msg = 1
@@ -362,6 +362,14 @@ def feature_importance_metrics(
 
             print('Cross-AUC score of {:.3f} and weighted Cross-F1 of {:.3f}'.format(auc_cross, f1_cross))
 
+            # Correlation matrix needed for correlated rank similarity
+            categorical_columns = [c["name"] for c in orig_metadata["columns"]
+                                   if (c["type"] in ["Categorical", "Ordinal"]
+                                   and c["name"] in X_train_orig.columns)]
+            categorical_columns.extend([c for c in X_train_orig.columns if "MODE" in c])
+            correlation_matrix = associations(X_train_orig, nominal_columns=categorical_columns,
+                                              plot=False)["corr"].abs()
+
             rank_rlsd_features_builtin = [i[1] for i in rlsd_feature_importances_builtin]
             score_rlsd_features_builtin = [i[0] for i in rlsd_feature_importances_builtin]
             rank_rlsd_features_permutation = [i[1] for i in rlsd_feature_importances_permutation]
@@ -371,7 +379,7 @@ def feature_importance_metrics(
 
             utility_collector_builtin = compare_features(rank_orig_features_builtin,
                                                          rank_rlsd_features_builtin,
-                                                         X_train_orig,
+                                                         correlation_matrix,
                                                          score_orig_features_builtin,
                                                          score_rlsd_features_builtin,
                                                          utility_collector_builtin,
@@ -388,7 +396,7 @@ def feature_importance_metrics(
 
             utility_collector_permutation = compare_features(rank_orig_features_permutation,
                                                              rank_rlsd_features_permutation,
-                                                             X_train_orig,
+                                                             correlation_matrix,
                                                              score_orig_features_permutation,
                                                              score_rlsd_features_permutation,
                                                              utility_collector_permutation, percentage_threshold)
@@ -404,7 +412,7 @@ def feature_importance_metrics(
             if utility_params.get("compute_shapley"):
                 utility_collector_shapley = compare_features(rank_orig_features_shapley,
                                                              rank_rlsd_features_shapley,
-                                                             X_train_orig,
+                                                             correlation_matrix,
                                                              score_orig_features_shapley,
                                                              score_rlsd_features_shapley,
                                                              utility_collector_shapley, percentage_threshold)
@@ -502,7 +510,7 @@ def feature_importance_metrics(
 
 
 def compare_features(rank_orig_features: list, rank_rlsd_features: list,
-                     X_train_orig: pd.DataFrame,
+                     correlation_matrix: pd.DataFrame,
                      score_orig_features: Union[None, list] = None,
                      score_rlsd_features: Union[None, list] = None,
                      utility_collector: dict = {},
@@ -517,9 +525,8 @@ def compare_features(rank_orig_features: list, rank_rlsd_features: list,
         ranked features from the original dataset
     rank_rlsd_features : list
         ranked features from the synthetic/released dataset
-    X_train_orig : pd.DataFrame
-        A dataframe that contains the original training dataset. This is needed
-        to calculate correlations/correlation-like measures between variables.
+    correlation_matrix : pd.DataFrame
+        Correlations/correlation-like measures between variables.
     score_orig_features : Union[None, list], optional
         scores of the ranked features from the original dataset, by default None
     score_rlsd_features : Union[None, list], optional
@@ -539,9 +546,6 @@ def compare_features(rank_orig_features: list, rank_rlsd_features: list,
         target_index = np.argmax(np.cumsum(score_orig_features) > percentage_threshold)
     else:
         target_index = len(rank_orig_features)
-
-    # Correlation matrix needed for correlated rank similarity
-    correlation_matrix = associations(X_train_orig)
 
     # RBO - orig vs. rlsd
     orig_rlsd_sim = RankingSimilarity(rank_orig_features[:target_index],
