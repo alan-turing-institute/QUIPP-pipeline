@@ -12,3 +12,4 @@ featuretools
 shap
 ipython
 numpy>=1.20
+pulp
