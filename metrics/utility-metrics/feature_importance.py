@@ -564,10 +564,6 @@ def compare_features(rank_orig_features: list, rank_rlsd_features: list,
     # Correlated rank - orig vs. rlsd - all variations
     utility_collector["corr_rank_0.6"] = orig_rlsd_sim.correlated_rank_similarity(correlation_matrix, p=0.6)
     utility_collector["corr_rank_0.8"] = orig_rlsd_sim.correlated_rank_similarity(correlation_matrix, p=0.8)
-    utility_collector["corr_rank_ext_0.6"] = orig_rlsd_sim.correlated_rank_similarity_ext(correlation_matrix,
-                                                                                          p=0.6)
-    utility_collector["corr_rank_ext_0.8"] = orig_rlsd_sim.correlated_rank_similarity_ext(correlation_matrix,
-                                                                                          p=0.8)
     utility_collector["corr_rank_ext2_0.6"] = orig_rlsd_sim.correlated_rank_similarity(correlation_matrix,
                                                                                        p=0.6, ext=True)
     utility_collector["corr_rank_ext2_0.8"] = orig_rlsd_sim.correlated_rank_similarity(correlation_matrix,
@@ -591,10 +587,6 @@ def compare_features(rank_orig_features: list, rank_rlsd_features: list,
     # Correlated rank - orig against one random permutation - all variations
     utility_collector["corr_rank_rand_0.6"] = orig_rand_sim.correlated_rank_similarity(correlation_matrix, p=0.6)
     utility_collector["corr_rank_rand_0.8"] = orig_rand_sim.correlated_rank_similarity(correlation_matrix, p=0.8)
-    utility_collector["corr_rank_rand_ext_0.6"] = orig_rand_sim.correlated_rank_similarity_ext(correlation_matrix,
-                                                                                               p=0.6)
-    utility_collector["corr_rank_rand_ext_0.8"] = orig_rand_sim.correlated_rank_similarity_ext(correlation_matrix,
-                                                                                               p=0.8)
     utility_collector["corr_rank_rand_ext2_0.6"] = orig_rand_sim.correlated_rank_similarity(correlation_matrix,
                                                                                             p=0.6, ext=True)
     utility_collector["corr_rank_rand_ext2_0.8"] = orig_rand_sim.correlated_rank_similarity(correlation_matrix,
@@ -617,10 +609,6 @@ def compare_features(rank_orig_features: list, rank_rlsd_features: list,
     # Correlated rank - original vs. lower bound - all variations
     utility_collector["corr_rank_lower_0.6"] = orig_lower_sim.correlated_rank_similarity(correlation_matrix, p=0.6)
     utility_collector["corr_rank_lower_0.8"] = orig_lower_sim.correlated_rank_similarity(correlation_matrix, p=0.8)
-    utility_collector["corr_rank_lower_ext_0.6"] = orig_lower_sim.correlated_rank_similarity_ext(correlation_matrix,
-                                                                                                 p=0.6)
-    utility_collector["corr_rank_lower_ext_0.8"] = orig_lower_sim.correlated_rank_similarity_ext(correlation_matrix,
-                                                                                                 p=0.8)
     utility_collector["corr_rank_lower_ext2_0.6"] = orig_lower_sim.correlated_rank_similarity(correlation_matrix,
                                                                                               p=0.6, ext=True)
     utility_collector["corr_rank_lower_ext2_0.8"] = orig_lower_sim.correlated_rank_similarity(correlation_matrix,
