@@ -2,25 +2,30 @@ import argparse
 import json
 import matplotlib.pyplot as plt
 import subprocess
+import seaborn as sns
 import pandas as pd
 from itertools import product
 from pathlib import Path
 
-def input_json(random_state, sample_frac):
+
+def input_json(random_state, epsilon, k):
     return {
         "enabled": True,
-        "dataset": "datasets/adult_dataset/adult",
-        "synth-method": "subsample",
+        "dataset": "datasets/adult_dataset_small/adult_small",
+        "synth-method": "PrivBayes",
         "parameters": {
             "enabled": True,
-            "frac_samples_to_synthesize": sample_frac,
+            "num_samples_to_synthesize": 32562,
             "random_state": int(random_state),
+            "category_threshold": 20,
+            "epsilon": epsilon,
+            "k": int(k),
+            "keys": ["appointment_id"],
+            "histogram_bins": 10,
+            "preconfigured_bn": {},
+            "save_description": False
         },
-        "privacy_parameters_disclosure_risk": {
-            "enabled": False,
-            "num_samples_intruder": 5000,
-            "vars_intruder": ["gender", "age", "neighborhood"],
-        },
+        "privacy_parameters_disclosure_risk": {"enabled": False},
         "utility_parameters_classifiers": {
             "enabled": False,
             "classifier": {
@@ -62,11 +67,17 @@ def input_json(random_state, sample_frac):
 
 
 def filename_stem(i):
-    return f"adult-subsample-ensemble-{i:04}"
+    return f"privbayes-adult_small-ensemble-{i:04}"
 
 
 def input_path(i):
     return Path(f"../../run-inputs/{filename_stem(i)}.json")
+
+
+def feature_importance_path(i):
+    return Path(
+        f"../../synth-output/{filename_stem(i)}/utility_feature_importance.json"
+    )
 
 
 def write_input_file(i, params, force=False):
@@ -115,11 +126,20 @@ def handle_cmdline_args():
     )
 
     parser.add_argument(
-        "-s",
-        "--sample-fractions",
-        dest="sample_fracs",
+        "-e",
+        "--epsilons",
+        dest="epsilons",
         required=True,
-        help="The list of fraction of samples used",
+        help="Define epsilon for the requested run",
+    )
+
+    parser.add_argument(
+        "-k",
+        "--parents",
+        dest="k",
+        required=True,
+        type=int,
+        help="Define k (number of parents) for the requested run",
     )
 
     args = parser.parse_args()
@@ -132,7 +152,7 @@ if __name__ == "__main__":
     random_states = range(args.nreplicas)
 
     all_params = pd.DataFrame(
-        data=product(random_states, map(float, args.sample_fracs.strip('[]').split(','))), columns=["random_state", "sample_frac"]
+        data=product(random_states, map(float, args.epsilons.strip('[]').split(',')), [args.k]), columns=["random_state", "epsilon", "k"]
     )
 
     for i, params in all_params.iterrows():
@@ -141,4 +161,4 @@ if __name__ == "__main__":
 
     if args.run:
         all_targets = [f"run-{filename_stem(i)}" for i, _ in all_params.iterrows()]
-        subprocess.run(["make", "-j72", "-C../.."] + all_targets)
+        subprocess.run(["make", "-k", "-j72", "-C../.."] + all_targets)

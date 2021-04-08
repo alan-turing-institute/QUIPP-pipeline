@@ -70,8 +70,122 @@ def main(output_dir: str, output_filename: str):
     data.loc[(data['tipovivi1'] == 1), 'v2a1'] = 0
     data['rez_esc'] = data['rez_esc'].fillna(0)
 
+    # make two copies
+    data1 = data.copy()
+    data2 = data.copy()
+
+    # create large dataset
     # drop some columns with little predictive contribution to make dataset more manageable
-    data.drop(columns=["planpri", "public", "noelec", "coopele", "v14a", "hacapo", "hacdor", "male",
+    data1.drop(columns=["planpri", "public", "noelec", "coopele", "v14a", "hacapo", "hacdor", "male",
+                       "hogar_mayor", "hogar_total", "tipovivi1", "tipovivi2", "tipovivi3", "tipovivi4",
+                       "tipovivi5", "area1", "area2", "SQBage", "SQBhogar_total", "SQBedjefe",
+                       "SQBhogar_nin", "SQBovercrowding", "SQBmeaned", "tamhog",
+                       "tamviv", "computer", "refrig", "sanitario1", "sanitario2", "sanitario3",
+                       "sanitario5", "sanitario6", "abastaguadentro", "abastaguafuera", "abastaguano",
+                       "elimbasu1", "elimbasu2", "elimbasu3", "elimbasu4", "elimbasu5", "elimbasu6", "r4h1",
+                       "r4h2", "r4h3", "techozinc", "techoentrepiso", "techocane",
+                       "techootro", "hogar_adul", "lugar1", "lugar2", "lugar3", "lugar4", "lugar5", "lugar6",
+                       "edjefa", "v2a1", "v18q1"], inplace=True)
+
+    # convert one-hot encoding to label encoding
+    onehot_cols = [col for col in data1 if col.startswith('pared')]
+    data1["pared"] = np.where(data1[onehot_cols])[1]
+    data1.drop(columns=onehot_cols, inplace=True)
+    onehot_cols = [col for col in data1 if col.startswith('piso')]
+    data1["piso"] = np.where(data1[onehot_cols])[1]
+    data1.drop(columns=onehot_cols, inplace=True)
+    #onehot_cols = [col for col in data1 if col.startswith('techo')]
+    #data1.drop(data1[(data1[onehot_cols].T == 0).all()].index, inplace=True)
+    #data1["techo"] = np.where(data1[onehot_cols])[1]
+    #data1.drop(columns=onehot_cols, inplace=True)
+    onehot_cols = [col for col in data1 if col.startswith('energcocinar')]
+    data1["energcocinar"] = np.where(data1[onehot_cols])[1]
+    data1.drop(columns=onehot_cols, inplace=True)
+    onehot_cols = [col for col in data1 if col.startswith('epared')]
+    data1["epared"] = np.where(data1[onehot_cols])[1]
+    data1.drop(columns=onehot_cols, inplace=True)
+    onehot_cols = [col for col in data1 if col.startswith('etecho')]
+    data1["etecho"] = np.where(data1[onehot_cols])[1]
+    data1.drop(columns=onehot_cols, inplace=True)
+    onehot_cols = [col for col in data1 if col.startswith('eviv')]
+    data1["eviv"] = np.where(data1[onehot_cols])[1]
+    data1.drop(columns=onehot_cols, inplace=True)
+    onehot_cols = [col for col in data1 if col.startswith('estadocivil')]
+    data1["estadocivil"] = np.where(data1[onehot_cols])[1]
+    data1.drop(columns=onehot_cols, inplace=True)
+    onehot_cols = [col for col in data1 if col.startswith('parentesco')]
+    data1["parentesco"] = np.where(data1[onehot_cols])[1]
+    data1.drop(columns=onehot_cols, inplace=True)
+    onehot_cols = [col for col in data1 if col.startswith('instlevel')]
+    data1.drop(data1[(data1[onehot_cols].T == 0).all()].index, inplace=True)
+    data1["instlevel"] = np.where(data1[onehot_cols])[1]
+    data1.drop(columns=onehot_cols, inplace=True)
+    #onehot_cols = [col for col in data1 if col.startswith('lugar')]
+    #data1["lugar"] = np.where(data1[onehot_cols])[1]
+    #data1.drop(columns=onehot_cols, inplace=True)
+
+    # put target column at the end of the data frame
+    target_col = data1['Target']
+    data1.drop(labels=['Target'], axis=1, inplace=True)
+    data1.insert(data1.shape[1], 'Target', target_col)
+
+    # construct metadata1 json file
+    meta_hp_dataset = {"columns": [], "provenance": []}
+    meta_hp_dataset["columns"].append({"name": "Id", "type": "String"})
+    meta_hp_dataset["columns"].append({"name": "rooms", "type": "DiscreteNumerical"})
+    meta_hp_dataset["columns"].append({"name": "v18q", "type": "Categorical"})
+    meta_hp_dataset["columns"].append({"name": "r4m1", "type": "DiscreteNumerical"})
+    meta_hp_dataset["columns"].append({"name": "r4m2", "type": "DiscreteNumerical"})
+    meta_hp_dataset["columns"].append({"name": "r4m3", "type": "DiscreteNumerical"})
+    meta_hp_dataset["columns"].append({"name": "r4t1", "type": "DiscreteNumerical"})
+    meta_hp_dataset["columns"].append({"name": "r4t2", "type": "DiscreteNumerical"})
+    meta_hp_dataset["columns"].append({"name": "r4t3", "type": "DiscreteNumerical"})
+    meta_hp_dataset["columns"].append({"name": "escolari", "type": "DiscreteNumerical"})
+    meta_hp_dataset["columns"].append({"name": "rez_esc", "type": "DiscreteNumerical"})
+    meta_hp_dataset["columns"].append({"name": "hhsize", "type": "DiscreteNumerical"})
+    meta_hp_dataset["columns"].append({"name": "cielorazo", "type": "Categorical"})
+    meta_hp_dataset["columns"].append({"name": "dis", "type": "Categorical"})
+    meta_hp_dataset["columns"].append({"name": "female", "type": "Categorical"})
+    meta_hp_dataset["columns"].append({"name": "idhogar", "type": "String"})
+    meta_hp_dataset["columns"].append({"name": "hogar_nin", "type": "DiscreteNumerical"})
+    meta_hp_dataset["columns"].append({"name": "dependency", "type": "ContinuousNumerical"})
+    meta_hp_dataset["columns"].append({"name": "edjefe", "type": "DiscreteNumerical"})
+    meta_hp_dataset["columns"].append({"name": "meaneduc", "type": "ContinuousNumerical"})
+    meta_hp_dataset["columns"].append({"name": "bedrooms", "type": "DiscreteNumerical"})
+    meta_hp_dataset["columns"].append({"name": "overcrowding", "type": "ContinuousNumerical"})
+    meta_hp_dataset["columns"].append({"name": "television", "type": "Categorical"})
+    meta_hp_dataset["columns"].append({"name": "mobilephone", "type": "Categorical"})
+    meta_hp_dataset["columns"].append({"name": "qmobilephone", "type": "DiscreteNumerical"})
+    meta_hp_dataset["columns"].append({"name": "age", "type": "DiscreteNumerical"})
+    meta_hp_dataset["columns"].append({"name": "SQBescolari", "type": "DiscreteNumerical"})
+    meta_hp_dataset["columns"].append({"name": "SQBdependency", "type": "ContinuousNumerical"})
+    meta_hp_dataset["columns"].append({"name": "agesq", "type": "DiscreteNumerical"})
+    meta_hp_dataset["columns"].append({"name": "pared", "type": "Categorical"})
+    meta_hp_dataset["columns"].append({"name": "piso", "type": "Categorical"})
+    meta_hp_dataset["columns"].append({"name": "energcocinar", "type": "Categorical"})
+    meta_hp_dataset["columns"].append({"name": "epared", "type": "Categorical"})
+    meta_hp_dataset["columns"].append({"name": "etecho", "type": "Categorical"})
+    meta_hp_dataset["columns"].append({"name": "eviv", "type": "Categorical"})
+    meta_hp_dataset["columns"].append({"name": "estadocivil", "type": "Categorical"})
+    meta_hp_dataset["columns"].append({"name": "parentesco", "type": "Categorical"})
+    meta_hp_dataset["columns"].append({"name": "instlevel", "type": "Categorical"})
+    meta_hp_dataset["columns"].append({"name": "Target", "type": "DiscreteNumerical"})
+
+    data_file = os.path.join(output_dir, output_filename + "_large") + ".csv"
+    data1.to_csv(data_file, index=False)
+    print('dataset written out to: ' + data_file)
+
+    print('preparing metadata...')
+    parameters = {}
+    meta_hp_dataset["provenance"] = generate_provenance_json(__file__, parameters)
+
+    metadata_file = os.path.join(output_dir, output_filename + "_large") + ".json"
+    with open(metadata_file, "w") as mf:
+        json.dump(meta_hp_dataset, mf, indent=4, sort_keys=True)
+    print('metadata file written out to: ' + metadata_file)
+
+    # create small dataset
+    data2.drop(columns=["planpri", "public", "noelec", "coopele", "v14a", "hacapo", "hacdor", "male",
                        "hogar_mayor", "hogar_total", "tipovivi1", "tipovivi2", "tipovivi3", "tipovivi4",
                        "tipovivi5", "area1", "area2", "SQBescolari", "SQBage", "SQBhogar_total", "SQBedjefe",
                        "SQBhogar_nin", "SQBovercrowding", "SQBdependency", "SQBmeaned", "agesq", "tamhog",
@@ -84,49 +198,49 @@ def main(output_dir: str, output_filename: str):
                        "edjefa", "hhsize", "v2a1", "v18q1", "rez_esc"], inplace=True)
 
     # convert one-hot encoding to label encoding
-    onehot_cols = [col for col in data if col.startswith('pared')]
-    data["pared"] = np.where(data[onehot_cols])[1]
-    data.drop(columns=onehot_cols, inplace=True)
-    onehot_cols = [col for col in data if col.startswith('piso')]
-    data["piso"] = np.where(data[onehot_cols])[1]
-    data.drop(columns=onehot_cols, inplace=True)
-    #onehot_cols = [col for col in data if col.startswith('techo')]
-    #data.drop(data[(data[onehot_cols].T == 0).all()].index, inplace=True)
-    #data["techo"] = np.where(data[onehot_cols])[1]
-    #data.drop(columns=onehot_cols, inplace=True)
-    #onehot_cols = [col for col in data if col.startswith('energcocinar')]
-    #data["energcocinar"] = np.where(data[onehot_cols])[1]
-    #data.drop(columns=onehot_cols, inplace=True)
-    onehot_cols = [col for col in data if col.startswith('epared')]
-    data["epared"] = np.where(data[onehot_cols])[1]
-    data.drop(columns=onehot_cols, inplace=True)
-    onehot_cols = [col for col in data if col.startswith('etecho')]
-    data["etecho"] = np.where(data[onehot_cols])[1]
-    data.drop(columns=onehot_cols, inplace=True)
-    onehot_cols = [col for col in data if col.startswith('eviv')]
-    data["eviv"] = np.where(data[onehot_cols])[1]
-    data.drop(columns=onehot_cols, inplace=True)
-    onehot_cols = [col for col in data if col.startswith('estadocivil')]
-    data["estadocivil"] = np.where(data[onehot_cols])[1]
-    data.drop(columns=onehot_cols, inplace=True)
-    onehot_cols = [col for col in data if col.startswith('parentesco')]
-    data["parentesco"] = np.where(data[onehot_cols])[1]
-    data.drop(columns=onehot_cols, inplace=True)
-    onehot_cols = [col for col in data if col.startswith('instlevel')]
-    data.drop(data[(data[onehot_cols].T == 0).all()].index, inplace=True)
-    data["instlevel"] = np.where(data[onehot_cols])[1]
-    data.drop(columns=onehot_cols, inplace=True)
-    #onehot_cols = [col for col in data if col.startswith('lugar')]
-    #data["lugar"] = np.where(data[onehot_cols])[1]
-    #data.drop(columns=onehot_cols, inplace=True)
+    onehot_cols = [col for col in data2 if col.startswith('pared')]
+    data2["pared"] = np.where(data2[onehot_cols])[1]
+    data2.drop(columns=onehot_cols, inplace=True)
+    onehot_cols = [col for col in data2 if col.startswith('piso')]
+    data2["piso"] = np.where(data2[onehot_cols])[1]
+    data2.drop(columns=onehot_cols, inplace=True)
+    # onehot_cols = [col for col in data2 if col.startswith('techo')]
+    # data2.drop(data2[(data2[onehot_cols].T == 0).all()].index, inplace=True)
+    # data2["techo"] = np.where(data2[onehot_cols])[1]
+    # data2.drop(columns=onehot_cols, inplace=True)
+    # onehot_cols = [col for col in data2 if col.startswith('energcocinar')]
+    # data2["energcocinar"] = np.where(data2[onehot_cols])[1]
+    # data2.drop(columns=onehot_cols, inplace=True)
+    onehot_cols = [col for col in data2 if col.startswith('epared')]
+    data2["epared"] = np.where(data2[onehot_cols])[1]
+    data2.drop(columns=onehot_cols, inplace=True)
+    onehot_cols = [col for col in data2 if col.startswith('etecho')]
+    data2["etecho"] = np.where(data2[onehot_cols])[1]
+    data2.drop(columns=onehot_cols, inplace=True)
+    onehot_cols = [col for col in data2 if col.startswith('eviv')]
+    data2["eviv"] = np.where(data2[onehot_cols])[1]
+    data2.drop(columns=onehot_cols, inplace=True)
+    onehot_cols = [col for col in data2 if col.startswith('estadocivil')]
+    data2["estadocivil"] = np.where(data2[onehot_cols])[1]
+    data2.drop(columns=onehot_cols, inplace=True)
+    onehot_cols = [col for col in data2 if col.startswith('parentesco')]
+    data2["parentesco"] = np.where(data2[onehot_cols])[1]
+    data2.drop(columns=onehot_cols, inplace=True)
+    onehot_cols = [col for col in data2 if col.startswith('instlevel')]
+    data2.drop(data2[(data2[onehot_cols].T == 0).all()].index, inplace=True)
+    data2["instlevel"] = np.where(data2[onehot_cols])[1]
+    data2.drop(columns=onehot_cols, inplace=True)
+    # onehot_cols = [col for col in data2 if col.startswith('lugar')]
+    # data2["lugar"] = np.where(data2[onehot_cols])[1]
+    # data2.drop(columns=onehot_cols, inplace=True)
 
     # put target column at the end of the data frame
-    target_col = data['Target']
-    data.drop(labels=['Target'], axis=1, inplace=True)
-    data.insert(data.shape[1], 'Target', target_col)
+    target_col = data2['Target']
+    data2.drop(labels=['Target'], axis=1, inplace=True)
+    data2.insert(data2.shape[1], 'Target', target_col)
 
     # construct metadata json file
-    meta_hp_dataset = {"columns": [], "provenance": []}
+    meta_hp_data2set = {"columns": [], "provenance": []}
     meta_hp_dataset["columns"].append({"name": "Id", "type": "String"})
     meta_hp_dataset["columns"].append({"name": "rooms", "type": "DiscreteNumerical"})
     meta_hp_dataset["columns"].append({"name": "v18q", "type": "Categorical"})
@@ -158,7 +272,7 @@ def main(output_dir: str, output_filename: str):
     meta_hp_dataset["columns"].append({"name": "Target", "type": "DiscreteNumerical"})
 
     data_file = os.path.join(output_dir, output_filename) + ".csv"
-    data.to_csv(data_file, index=False)
+    data2.to_csv(data_file, index=False)
     print('dataset written out to: ' + data_file)
 
     print('preparing metadata...')
