@@ -240,7 +240,7 @@ def main(output_dir: str, output_filename: str):
     data2.insert(data2.shape[1], 'Target', target_col)
 
     # construct metadata json file
-    meta_hp_data2set = {"columns": [], "provenance": []}
+    meta_hp_dataset = {"columns": [], "provenance": []}
     meta_hp_dataset["columns"].append({"name": "Id", "type": "String"})
     meta_hp_dataset["columns"].append({"name": "rooms", "type": "DiscreteNumerical"})
     meta_hp_dataset["columns"].append({"name": "v18q", "type": "Categorical"})
