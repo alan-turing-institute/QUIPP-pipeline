@@ -21,4 +21,7 @@ jobs:
       run: docker build -f dockerfiles/quipp-dev.Dockerfile -t turinginst/quipp-env:latest .
     -
       name: Run pipeline
-      run: docker run turinginst/quipp-env:latest make
+      env: 
+        KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+        KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+      run: docker run -e KAGGLE_USERNAME=$KAGGLE_USERNAME -e KAGGLE_KEY=$KAGGLE_KEY turinginst/quipp-env:latest make

@@ -52,6 +52,7 @@ ADD_PROVENANCE = $(PROVENANCE_DEF) && provenance
 ## set data file paths
 AE_DEIDENTIFIED_DATA = generator-outputs/odi-nhs-ae/hospital_ae_data_deidentify.csv generator-outputs/odi-nhs-ae/hospital_ae_data_deidentify.json
 LONDON_POSTCODES = generators/odi-nhs-ae/data/London\ postcodes.csv
+HH_DATA = generators/household_poverty/data\ train.csv
 HP_DATA_CLEAN = generator-outputs/household_poverty/train_cleaned.csv generator-outputs/household_poverty/train_cleaned.json
 generated-data: $(AE_DEIDENTIFIED_DATA) $(HP_DATA_CLEAN)
 
@@ -62,6 +63,13 @@ $(LONDON_POSTCODES):
 	curl -o "./data/London postcodes.csv" \
 		https://www.doogal.co.uk/UKPostcodesCSV.ashx?region=E12000007
 
+# download the Household poverty dataset from Kaggle using API
+$(HH_DATA):
+	cd generators/household_poverty/data/ && \
+	kaggle competitions download -c costa-rican-household-poverty-prediction && \
+	unzip costa-rican-household-poverty-prediction.zip -d unzipped && \
+	cp unzipped/train.csv .
+
 # make the "A&E deidentified" generated dataset
 # this is currently the only generated dataset, so it is handled with
 # its own rule
@@ -70,12 +78,10 @@ $(AE_DEIDENTIFIED_DATA) &: $(LONDON_POSTCODES)
     mkdir -p generator-outputs/household_poverty/ && \
 	cd generator-outputs/odi-nhs-ae/ && \
 	$(PYTHON) $(QUIPP_ROOT)/generators/odi-nhs-ae/generate.py && \
-	$(PYTHON) $(QUIPP_ROOT)/generators/odi-nhs-ae/deidentify.py && \
-	cd ../household_poverty/ && \
-	$(PYTHON) $(QUIPP_ROOT)/generators/household_poverty/clean.py
+	$(PYTHON) $(QUIPP_ROOT)/generators/odi-nhs-ae/deidentify.py
 
 # pre-process the Household Poverty dataset
-$(HP_DATA_CLEAN):
+$(HP_DATA_CLEAN): $(HH_DATA)
 	mkdir -p generator-outputs/household_poverty/ && \
 	cd generator-outputs/household_poverty/ && \
 	$(PYTHON) $(QUIPP_ROOT)/generators/household_poverty/clean.py
