@@ -65,9 +65,6 @@ $(LONDON_POSTCODES):
 
 # download the Household poverty dataset from Kaggle using API
 $(HH_DATA):
-	touch ~/.kaggle/kaggle.json
-	dest=~/.kaggle/kaggle.json
-	echo "{\"username\":\"${secrets.KAGGLE_USERNAME}\", \"keys\":\"${secrets.KAGGLE_KEY}\"}" > "$dest"
 	cd generators/household_poverty/data/ && \
 	kaggle competitions download -c costa-rican-household-poverty-prediction && \
 	unzip costa-rican-household-poverty-prediction.zip -d unzipped && \
