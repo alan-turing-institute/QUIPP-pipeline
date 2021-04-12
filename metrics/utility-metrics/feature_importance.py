@@ -427,9 +427,13 @@ def feature_importance_metrics(
             else:
                 utility_collector_shapley = {}
 
+            utility_collector_corr = {"matrix": correlation_matrix.to_numpy().tolist(),
+                                      "variables": correlation_matrix.columns.tolist()}
+
             utility_collector = {"builtin": utility_collector_builtin,
                                  "permutation": utility_collector_permutation,
-                                 "shapley": utility_collector_shapley}
+                                 "shapley": utility_collector_shapley,
+                                 "correlations": utility_collector_corr}
 
         else:
             print("Computing feature importance for original dataset with different seeds in RF")

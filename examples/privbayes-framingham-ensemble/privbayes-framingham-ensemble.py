@@ -32,7 +32,7 @@ def input_json(random_state, epsilon, k):
                 "LogisticRegression": {"mode": "main", "params_main": {"max_iter": 1000}}
             }
         },
-        "utility_parameters_correlations": {"enabled": True},
+        "utility_parameters_correlations": {"enabled": False},
         "utility_parameters_feature_importance": {
             "enabled": True,
             "label_column": "TenYearCHD",

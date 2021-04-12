@@ -9,7 +9,7 @@ from pathlib import Path
 def input_json(random_state, sample_frac):
     return {
         "enabled": True,
-        "dataset": "datasets/adult_dataset/adult",
+        "dataset": "datasets/adult_dataset_small/adult_small",
         "synth-method": "subsample",
         "parameters": {
             "enabled": True,
@@ -62,7 +62,7 @@ def input_json(random_state, sample_frac):
 
 
 def filename_stem(i):
-    return f"adult-subsample-ensemble-{i:04}"
+    return f"adult_small-subsample-ensemble-{i:04}"
 
 
 def input_path(i):

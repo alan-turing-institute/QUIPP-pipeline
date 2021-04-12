@@ -9,7 +9,7 @@ from pathlib import Path
 def input_json(random_state):
     return {
         "enabled": True,
-        "dataset": "datasets/framingham/framingham_cleaned",
+        "dataset": "generator-outputs/household_poverty/train_cleaned_large",
         "synth-method": "synthpop",
         "parameters": {
             "enabled": True,
@@ -17,8 +17,11 @@ def input_json(random_state):
             "num_samples_to_synthesize": -1,
             "num_datasets_to_synthesize": 1,
             "random_state": int(random_state),
-            "vars_sequence": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+            "vars_sequence": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+                              17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+                              30, 31, 32, 33, 34, 35, 36, 37, 38, 39],
             "synthesis_methods": [
+                "",
                 "sample",
                 "sample",
                 "sample",
@@ -35,6 +38,28 @@ def input_json(random_state):
                 "sample",
                 "sample",
                 "sample",
+                "sample",
+                "sample",
+                "sample",
+                "sample",
+                "sample",
+                "sample",
+                "sample",
+                "sample",
+                "sample",
+                "sample",
+                "sample",
+                "sample",
+                "sample",
+                "sample",
+                "sample",
+                "sample",
+                "sample",
+                "sample",
+                "sample",
+                "sample",
+                "sample",
+                "sample"
             ],
             "proper": False,
             "tree_minbucket": 1,
@@ -53,51 +78,37 @@ def input_json(random_state):
         "utility_parameters_correlations": {"enabled": False},
         "utility_parameters_feature_importance": {
             "enabled": True,
-            "label_column": "TenYearCHD",
-            "aggPrimitives": [
-                "mean", "max", "min"
-            ],
-            "tranPrimitives": [],
-            "max_depth": 2,
-            "features_to_exclude": [],
-            "drop_na": True,
+            "entity_index": "Id",
+            "label_column": "Target",
             "normalized_entities": [
-                {"new_entity_id": "edu",
-                 "index": "education",
-                 "make_time_index": False
-                },
-                {"new_entity_id": "smoking",
-                 "index": "cigsPerDay",
-                 "additional_variables": ["currentSmoker"],
-                 "make_time_index": False
-                },
-                {"new_entity_id": "sex",
-                 "index": "male",
-                 "make_time_index": False
-                },
-                {"new_entity_id": "lifeyears",
-                 "index": "age",
-                 "make_time_index": False
-                },
-                {"new_entity_id": "hypertension",
-                 "index": "prevalentHyp",
-                 "make_time_index": False
-                },
-                {"new_entity_id": "diabetic",
-                 "index": "diabetes",
-                 "make_time_index": False
-                }
-                ],
-            "categorical_enconding": "labels",
+                {"new_entity_id": "household",
+                 "index": "idhogar",
+                 "additional_variables": ["pared", "piso", "energcocinar", "cielorazo",
+                                          "epared", "etecho", "eviv",
+                                          "rooms", "r4m1", "r4m2",
+                                          "r4m3", "r4t1", "r4t2", "r4t3",
+                                          "hogar_nin", "bedrooms", "qmobilephone",
+                                          "dependency", "edjefe", "meaneduc",
+                                          "overcrowding", "hhsize",
+                                          "television", "SQBdependency", "Target"]
+                 }
+            ],
+            "max_depth": 2,
+            "aggPrimitives": ["min", "max", "count", "mode", "num_unique", "std", "sum"],
+            "target_entity": "household",
+            "drop_na": True,
+            "drop_full_na_columns": True,
+            "na_thresh": 0.30,
             "compute_shapley": True,
-            "skip_feature_engineering": False
+            "skip_feature_engineering": False,
+            "features_to_exclude": ["idhogar"],
+            "filter_hh": True
         }
     }
 
-    
 
 def filename_stem(i):
-    return f"framingham-resampling-ensemble-{i:04}"
+    return f"household_large-resampling-ensemble-{i:04}"
 
 
 def input_path(i):
