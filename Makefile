@@ -80,8 +80,6 @@ $(AE_DEIDENTIFIED_DATA) &: $(LONDON_POSTCODES)
 	cd generator-outputs/odi-nhs-ae/ && \
 	$(PYTHON) $(QUIPP_ROOT)/generators/odi-nhs-ae/generate.py && \
 	$(PYTHON) $(QUIPP_ROOT)/generators/odi-nhs-ae/deidentify.py && \
-	cd ../household_poverty/ && \
-	$(PYTHON) $(QUIPP_ROOT)/generators/household_poverty/clean.py
 
 # pre-process the Household Poverty dataset
 $(HP_DATA_CLEAN): $(HH_DATA)
