@@ -65,6 +65,7 @@ $(LONDON_POSTCODES):
 
 # download the Household poverty dataset from Kaggle using API
 $(HH_DATA):
+	mkdir ~/.kaggle
 	touch ~/.kaggle/kaggle.json
 	dest=~/.kaggle/kaggle.json
 	echo "{\"username\":\"${secrets.KAGGLE_USERNAME}\", \"keys\":\"${secrets.KAGGLE_KEY}\"}" > "$dest"
