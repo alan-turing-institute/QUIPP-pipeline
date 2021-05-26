@@ -32,10 +32,6 @@ generation, using a variety of methods as implemented by several
 libraries.  In addition, the pipeline emits measures of privacy and
 utility of the resulting data.
 
-The current draft QUiPP report can be found in [`doc`](doc/), with a pdf
-available
-[here](https://github.com/alan-turing-institute/QUIPP-pipeline/releases).
-
 ## Installation
 - Clone the repository `git clone
   git@github.com:alan-turing-institute/QUIPP-pipeline.git`
