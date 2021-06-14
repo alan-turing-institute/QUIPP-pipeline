@@ -47,7 +47,7 @@ More detail on setting this up can be found
 - Various parts of this code and its dependencies are written in
   Python, R, C++ and Bash.
 - It has been tested with
-  - python 3.6
+  - python 3.8
   - R 3.6
   - gcc 9.3
   - bash 3.2
@@ -60,7 +60,8 @@ More detail on setting this up can be found
 
 #### R and Python dependencies
 
-To install all of the python and R dependencies, run the following
+To install all of the dependencies, ensure you're using the relevant versions
+of python (>=3.8) and R (>=3.6), then run the following
 commands in a terminal from the root of this repository:
 
 ```bash
@@ -77,7 +78,7 @@ R
 
 Another external dependency is the SGF implementation of plausible
 deniability:
-  
+
  - Download SGF [here](https://vbinds.ch/node/69)
  - See the library's README file for how to compile the code.  You will
 need a recent version of cmake (tested with version 3.17), either
@@ -92,7 +93,7 @@ environmental variable `SGFROOT` to point to this location.  That is, in bash,
 
 #### Forked DataSynthesizer
 
-We use the PrivBayes implementation within the DataSynthesizer fork found [here](https://github.com/gmingas/DataSynthesizer). 
+We use the PrivBayes implementation within the DataSynthesizer fork found [here](https://github.com/gmingas/DataSynthesizer).
 In order to install it, clone the above repository locally, go to its root directory and run `pip install .`
 
 ## Top-level directory contents
@@ -107,10 +108,10 @@ The top-level directory structure mirrors the data pipeline.
 
  - [`binder`](binder): Configuration files to set up the pipeline using
    [Binder](https://mybinder.org)
- 
+
  - [`env-configuration`](env-configuration): Set-up of the computational environment needed
    by the pipeline and its dependencies
- 
+
  - [`generators`](generators): Quickly generating input data for the pipeline from a
    few tunable and well-understood models
 
@@ -126,7 +127,7 @@ The top-level directory structure mirrors the data pipeline.
 
  - [`utility-metrics`](utility-metrics): Scripts relating to computing the utility
    metrics
- 
+
  - [`privacy-metrics`](privacy-metrics): Scripts relating to computing the privacy
    metrics
 
@@ -136,7 +137,7 @@ When the pipeline is run, additional directories are created:
 
  - `generator-outputs`: Sample generated input data (using
    [`generators`](generators/))
-   
+
  - `synth-output`: Contains the result of each run (as specified in
    [`run-inputs`](run-inputs/)), which will typically consist of the synthetic data
    itself and a selection of utility and privacy scores
@@ -208,8 +209,8 @@ For example, see [the Polish Social Diagnosis dataset](datasets/polish_data_2011
 This contains the files
 
  - `datasets/polish_data_2011/polish_data_2011.csv`
- - `datasets/polish_data_2011/polish_data_2011.json` 
- 
+ - `datasets/polish_data_2011/polish_data_2011.json`
+
 and so has the prefix `datasets/polish_data_2011/polish_data_2011`
 relative to the root of this repository.
 
@@ -238,7 +239,7 @@ The following example is in [`run-inputs/synthpop-example-2.json`](run-inputs/sy
     "enabled" : true,
     "dataset" : "generator-outputs/odi-nhs-ae/hospital_ae_data_deidentify",
     "synth-method" : "synthpop",
-    "parameters": 
+    "parameters":
     {
         "enabled" : true,
         "num_samples_to_fit": -1,
@@ -287,7 +288,7 @@ The parameter JSON file must include the following names:
   separately for each.  The following names are common across each method:
   - `enabled` (_boolean_): Perform the synthesis step?
   - `num_samples_to_fit` (_integer_): How many samples from the input dataset should be
-    used as input to the synthesis procedure?  To use all of the input records, pass a 
+    used as input to the synthesis procedure?  To use all of the input records, pass a
     value of `-1`.
   - `num_samples_to_synthesize` (_integer_): How many synthetic samples should be
     produced as output?  To produce the same number of output records as input records,
