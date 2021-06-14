@@ -7,6 +7,9 @@ We use the same tool here to produce a Docker image that is easily compatible wi
 
 The resulting Docker images are available from Docker Hub: [`turinginst/quipp-env`](https://hub.docker.com/r/turinginst/quipp-env).
 
+## Running the QUIPP pipeline using a container
+
+**TODO**: *Similar to Running the pipeline header on main README*
 
 ## Configuration files
 
