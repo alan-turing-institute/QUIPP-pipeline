@@ -32,17 +32,19 @@ generation, using a variety of methods as implemented by several
 libraries.  In addition, the pipeline emits measures of privacy and
 utility of the resulting data.
 
-## Installation
-- Clone the repository `git clone
-  git@github.com:alan-turing-institute/QUIPP-pipeline.git`
-
-## Dependencies
+## Docker
 
 _Note that a Docker image is provided with the dependencies
 pre-installed, as
 [turinginst/quipp-env](https://hub.docker.com/repository/docker/turinginst/quipp-env).
 More detail on setting this up can be found
 [here](env-configuration/README.md)._
+
+## Local Installation
+- Clone the repository `git clone
+  git@github.com:alan-turing-institute/QUIPP-pipeline.git`
+
+### Dependencies
 
 - Various parts of this code and its dependencies are written in
   Python, R, C++ and Bash.
