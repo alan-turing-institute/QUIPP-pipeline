@@ -72,6 +72,7 @@ python -m pip install -r env-configuration/requirements.txt
 R
 > source("env-configuration/install.R")
 > q()
+> Save workspace image? [y/n/c]: y
 ```
 
 #### SGF
