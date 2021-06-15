@@ -36,7 +36,7 @@ def input_json(random_state, sample_frac):
             "aggPrimitives": [],
             "tranPrimitives": ["multiply_numeric", "subtract_numeric",
                                "add_numeric", "divide_numeric",
-                               "absolute", "percentile", "less_than"],
+                               "percentile"],
             "drop_na": True,
             "drop_full_na_columns": False,
             "compute_shapley": True,
