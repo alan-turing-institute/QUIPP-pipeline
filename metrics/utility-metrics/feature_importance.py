@@ -248,8 +248,14 @@ def featuretools_importances(df, data_meta, utility_params_ft, rs):
         # explainer = shap.TreeExplainer(model=clf, data=fm_train, feature_perturbation='interventional')
         # shap_values = explainer.shap_values(fm_test, check_additivity=False)
         vals = np.abs(shap_values).mean(0)
-        feature_imps_shapley = pd.DataFrame(list(zip(fm_test.columns, sum(vals))),
-                                            columns=['col_name', 'feature_importance_vals'])
+        try:
+            feature_imps_shapley = pd.DataFrame(list(zip(fm_test.columns, sum(vals))),
+                                                columns=['col_name', 'feature_importance_vals'])
+        except TypeError:
+            # Numpy type error happens when all shapley values are zeros. Artificially creating an all zeros
+            # feature importance data frame
+            feature_imps_shapley = pd.DataFrame(list(zip(fm_test.columns, np.zeros(fm_test.columns.shape))),
+                                                columns=['col_name', 'feature_importance_vals'])
         feature_imps_shapley.sort_values(by=['feature_importance_vals'], ascending=False, inplace=True)
         feature_imps_shapley = [(row['feature_importance_vals'], row['col_name'])
                                 for index, row in feature_imps_shapley.iterrows()]
