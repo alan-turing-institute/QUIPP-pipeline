@@ -53,7 +53,10 @@ ADD_PROVENANCE = $(PROVENANCE_DEF) && provenance
 AE_DEIDENTIFIED_DATA = generator-outputs/odi-nhs-ae/hospital_ae_data_deidentify.csv generator-outputs/odi-nhs-ae/hospital_ae_data_deidentify.json
 LONDON_POSTCODES = generators/odi-nhs-ae/data/London\ postcodes.csv
 HP_DATA_CLEAN = generator-outputs/household_poverty/train_cleaned.csv generator-outputs/household_poverty/train_cleaned.json
-generated-data: $(AE_DEIDENTIFIED_DATA) $(HP_DATA_CLEAN)
+ARTIFICIAL_DATA_1 = generator-outputs/artificial/artificial_1.csv generator-outputs/artificial/artificial_1.json
+ARTIFICIAL_DATA_2 = generator-outputs/artificial/artificial_2.csv generator-outputs/artificial/artificial_2.json
+ARTIFICIAL_DATA_3 = generator-outputs/artificial/artificial_3.csv generator-outputs/artificial/artificial_3.json
+generated-data: $(AE_DEIDENTIFIED_DATA) $(HP_DATA_CLEAN) $(ARTIFICIAL_DATA_1) $(ARTIFICIAL_DATA_2) $(ARTIFICIAL_DATA_3)
 
 # download the London Postcodes dataset used by the A&E generated
 # dataset (this is about 133 MB)
@@ -80,6 +83,12 @@ $(HP_DATA_CLEAN):
 	cd generator-outputs/household_poverty/ && \
 	$(PYTHON) $(QUIPP_ROOT)/generators/household_poverty/clean.py
 
+# generate the three artifical datasets
+$(ARTIFICIAL_DATA_1) $(ARTIFICIAL_DATA_2) $(ARTIFICIAL_DATA_3):
+	mkdir -p generator-outputs/artificial/ && \
+	cd generator-outputs/artificial/ && \
+	$(PYTHON) $(QUIPP_ROOT)/generators/artificial/generate.py
+
 
 ##-------------------------------------
 ## Generate synthetic data
@@ -87,7 +96,7 @@ $(HP_DATA_CLEAN):
 
 ## synthesize data - this rule also builds "synth-output/%/data_description.json"
 $(SYNTH_OUTPUTS_CSV) : \
-synth-output/%/synthetic_data_1.csv : run-inputs/%.json $(AE_DEIDENTIFIED_DATA) $(HP_DATA_CLEAN)
+synth-output/%/synthetic_data_1.csv : run-inputs/%.json $(AE_DEIDENTIFIED_DATA) $(HP_DATA_CLEAN) $(ARTIFICIAL_DATA_1) $(ARTIFICIAL_DATA_2) $(ARTIFICIAL_DATA_3)
 	outdir=$$(dirname $@) && \
 	mkdir -p $$outdir && \
 	cp $< $${outdir}/input.json && \
