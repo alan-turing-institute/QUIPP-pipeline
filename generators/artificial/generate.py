@@ -153,6 +153,48 @@ def main(output_dir: str):
         json.dump(meta, mf, indent=4, sort_keys=True)
     print('metadata file written out to: ' + metadata_file)
 
+    # Generate dataset with one informative and four random features
+    n_informative = 1
+    n_redundant = 0
+    flip_y = 0.1
+    class_sep = 1.0
+
+    X, y, categories = \
+        tabular_artificial.make_table(n_samples=n_samples,
+                                      n_classes=n_classes,
+                                      class_weights=class_weights,
+                                      n_clusters_per_class=n_clusters_per_class,
+                                      n_features=n_features,
+                                      n_informative=n_informative,
+                                      n_redundant=n_redundant,
+                                      n_repeated=n_repeated,
+                                      n_categorical=n_categorical,
+                                      n_categorical_bins=n_categorical_bins,
+                                      flip_y=flip_y,
+                                      class_sep=class_sep)
+
+    # combine into one dataframe
+    X['Label'] = y
+
+    # write data file
+    data_file = os.path.join(output_dir, "artificial_4") + ".csv"
+    X.to_csv(data_file, index=False)
+    print('dataset written out to: ' + data_file)
+
+    # construct metadata .json file
+    meta = {"columns": [], "provenance": []}
+    meta["columns"].append({"name": "X0", "type": "Categorical"})
+    meta["columns"].append({"name": "X1", "type": "Categorical"})
+    meta["columns"].append({"name": "X2", "type": "Categorical"})
+    meta["columns"].append({"name": "X3", "type": "Categorical"})
+    meta["columns"].append({"name": "X4", "type": "Categorical"})
+    meta["columns"].append({"name": "Label", "type": "Categorical"})
+
+    metadata_file = os.path.join(output_dir, "artificial_4") + ".json"
+    with open(metadata_file, "w") as mf:
+        json.dump(meta, mf, indent=4, sort_keys=True)
+    print('metadata file written out to: ' + metadata_file)
+
     print('preparing metadata...')
     parameters = {}
     meta["provenance"] = generate_provenance_json(__file__, parameters)
