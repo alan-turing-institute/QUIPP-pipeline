@@ -21,8 +21,8 @@ RUN Rscript env-configuration/install.R
 RUN bash /env-configuration/postBuild && rm -R /env-configuration/
 
 # Create a user
-RUN groupadd -r jovyan && useradd --no-log-init -r --create-home -g jovyan -u 1000 jovyan
-RUN chown -R 1000 /home/jovyan/
-WORKDIR /home/jovyan
-RUN usermod -aG sudo jovyan
-USER jovyan
+# RUN groupadd -r jovyan && useradd --no-log-init -r --create-home -g jovyan -u 1000 jovyan
+# RUN chown -R 1000 /home/jovyan/
+# WORKDIR /home/jovyan
+# RUN usermod -aG sudo jovyan
+# USER jovyan
