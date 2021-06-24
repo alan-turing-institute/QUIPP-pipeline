@@ -5,8 +5,8 @@ COPY . /quipp-pipeline
 
 WORKDIR /quipp-pipeline
 
-USER root
+# USER root
 
-RUN chown -R 1000 /quipp-pipeline
+# RUN chown -R 1000 /quipp-pipeline
 
-USER jovyan
+# USER jovyan
