@@ -269,7 +269,7 @@ The following example is in [`run-inputs/synthpop-example-2.json`](run-inputs/sy
 
 ### Schema
 
-The JSON schema for the parameter json file is [here](doc/schema/parameters.schema.json).
+The JSON schema for the parameter json file is [here](doc/schema/parameter.schema.json).
 
 #### Description
 
