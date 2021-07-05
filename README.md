@@ -123,10 +123,10 @@ The top-level directory structure mirrors the data pipeline.
  - [`synth-methods`](synth-methods): One directory per library/tool, each of them
    implementing a complete synthesis method
 
- - [`utility-metrics`](utility-metrics): Scripts relating to computing the utility
+ - [`utility-metrics`](metrics/utility-metrics): Scripts relating to computing the utility
    metrics
 
- - [`privacy-metrics`](privacy-metrics): Scripts relating to computing the privacy
+ - [`privacy-metrics`](metrics/privacy-metrics): Scripts relating to computing the privacy
    metrics
 
  - [`run-inputs`](run-inputs): Parameter json files (see below), one for each run
