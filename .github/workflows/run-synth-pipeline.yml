@@ -18,4 +18,5 @@ jobs:
         password: ${{ secrets.DOCKER_PAC }}
     -
       name: Run pipeline with privbayes-adult
-      run: docker run -it -v $(pwd):/quipp-pipeline --workdir /quipp-pipeline turinginst/quipp-env:base make run-privbayes-adult
+  
+      run: docker run -it -v $GITHUB_WORKSPACE:/quipp-pipeline --workdir /quipp-pipeline turinginst/quipp-env:base make run-privbayes-adult
