@@ -19,4 +19,4 @@ jobs:
     -
       name: Run pipeline with privbayes-adult
   
-      run: docker run -v $GITHUB_WORKSPACE:/quipp-pipeline --workdir /quipp-pipeline turinginst/quipp-env:base ls
+      run: docker run -v $GITHUB_WORKSPACE:/quipp-pipeline --workdir /quipp-pipeline turinginst/quipp-env:base make run-privbayes-adult
