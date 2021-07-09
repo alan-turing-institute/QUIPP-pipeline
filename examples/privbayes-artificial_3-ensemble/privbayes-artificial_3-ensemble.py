@@ -15,9 +15,9 @@ def input_json(random_state, epsilon, k):
         "synth-method": "PrivBayes",
         "parameters": {
             "enabled": True,
-            "num_samples_to_synthesize": 4897,
+            "num_samples_to_synthesize": 10000,
             "random_state": int(random_state),
-            "category_threshold": 10,
+            "category_threshold": 16,
             "epsilon": epsilon,
             "k": int(k),
             "keys": [],

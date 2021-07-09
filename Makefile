@@ -57,7 +57,10 @@ ARTIFICIAL_DATA_1 = generator-outputs/artificial/artificial_1.csv generator-outp
 ARTIFICIAL_DATA_2 = generator-outputs/artificial/artificial_2.csv generator-outputs/artificial/artificial_2.json
 ARTIFICIAL_DATA_3 = generator-outputs/artificial/artificial_3.csv generator-outputs/artificial/artificial_3.json
 ARTIFICIAL_DATA_4 = generator-outputs/artificial/artificial_4.csv generator-outputs/artificial/artificial_4.json
-generated-data: $(AE_DEIDENTIFIED_DATA) $(HP_DATA_CLEAN) $(ARTIFICIAL_DATA_1) $(ARTIFICIAL_DATA_2) $(ARTIFICIAL_DATA_3) $(ARTIFICIAL_DATA_4)
+ARTIFICIAL_DATA_5 = generator-outputs/artificial/artificial_5.csv generator-outputs/artificial/artificial_5.json
+ARTIFICIAL_DATA_6 = generator-outputs/artificial/artificial_6.csv generator-outputs/artificial/artificial_6.json
+ARTIFICIAL_DATA_7 = generator-outputs/artificial/artificial_7.csv generator-outputs/artificial/artificial_7.json
+generated-data: $(AE_DEIDENTIFIED_DATA) $(HP_DATA_CLEAN) $(ARTIFICIAL_DATA_1) $(ARTIFICIAL_DATA_2) $(ARTIFICIAL_DATA_3) $(ARTIFICIAL_DATA_4) $(ARTIFICIAL_DATA_5) $(ARTIFICIAL_DATA_6) $(ARTIFICIAL_DATA_7)
 
 # download the London Postcodes dataset used by the A&E generated
 # dataset (this is about 133 MB)
@@ -85,7 +88,7 @@ $(HP_DATA_CLEAN):
 	$(PYTHON) $(QUIPP_ROOT)/generators/household_poverty/clean.py
 
 # generate the three artificial datasets
-$(ARTIFICIAL_DATA_1) $(ARTIFICIAL_DATA_2) $(ARTIFICIAL_DATA_3)  $(ARTIFICIAL_DATA_4):
+$(ARTIFICIAL_DATA_1) $(ARTIFICIAL_DATA_2) $(ARTIFICIAL_DATA_3)  $(ARTIFICIAL_DATA_4)  $(ARTIFICIAL_DATA_5)  $(ARTIFICIAL_DATA_6)  $(ARTIFICIAL_DATA_7):
 	mkdir -p generator-outputs/artificial/ && \
 	cd generator-outputs/artificial/ && \
 	$(PYTHON) $(QUIPP_ROOT)/generators/artificial/generate.py
@@ -97,7 +100,7 @@ $(ARTIFICIAL_DATA_1) $(ARTIFICIAL_DATA_2) $(ARTIFICIAL_DATA_3)  $(ARTIFICIAL_DAT
 
 ## synthesize data - this rule also builds "synth-output/%/data_description.json"
 $(SYNTH_OUTPUTS_CSV) : \
-synth-output/%/synthetic_data_1.csv : run-inputs/%.json $(AE_DEIDENTIFIED_DATA) $(HP_DATA_CLEAN) $(ARTIFICIAL_DATA_1) $(ARTIFICIAL_DATA_2) $(ARTIFICIAL_DATA_3) $(ARTIFICIAL_DATA_4)
+synth-output/%/synthetic_data_1.csv : run-inputs/%.json $(AE_DEIDENTIFIED_DATA) $(HP_DATA_CLEAN) $(ARTIFICIAL_DATA_1) $(ARTIFICIAL_DATA_2) $(ARTIFICIAL_DATA_3) $(ARTIFICIAL_DATA_4) $(ARTIFICIAL_DATA_5) $(ARTIFICIAL_DATA_6) $(ARTIFICIAL_DATA_7)
 	outdir=$$(dirname $@) && \
 	mkdir -p $$outdir && \
 	cp $< $${outdir}/input.json && \

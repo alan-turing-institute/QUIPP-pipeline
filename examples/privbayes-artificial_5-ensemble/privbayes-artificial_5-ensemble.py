@@ -11,7 +11,7 @@ from pathlib import Path
 def input_json(random_state, epsilon, k):
     return {
         "enabled": True,
-        "dataset": "generator-outputs/artificial/artificial_4",
+        "dataset": "generator-outputs/artificial/artificial_5",
         "synth-method": "PrivBayes",
         "parameters": {
             "enabled": True,
@@ -50,7 +50,7 @@ def input_json(random_state, epsilon, k):
 
 
 def filename_stem(i):
-    return f"privbayes-artificial_4-ensemble-{i:04}"
+    return f"privbayes-artificial_5-ensemble-{i:04}"
 
 
 def input_path(i):
