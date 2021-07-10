@@ -124,8 +124,12 @@ class SynthesizerPrivBayes(SynthesizerBase):
                                        if col['type'] in ['Categorical', 'Ordinal']}
 
         # Add all keys in a dict
-        self.candidate_keys = {col['name']: True for col in self.metadata['columns']
-                               if col['name'] in self.keys}
+        self.candidate_keys = {}
+        for col in self.metadata['columns']:
+            if col['name'] in self.keys:
+                self.candidate_keys[col['name']] = True
+            else:
+                self.candidate_keys[col['name']] = False
 
         # Instantiate describer object, describe the dataset and get probabilities
         if verbose:
@@ -134,6 +138,7 @@ class SynthesizerPrivBayes(SynthesizerBase):
                                        histogram_bins=self.histogram_bins)
 
         # Train the Bayesian network
+        import ipdb; ipdb.set_trace()
         self.describer.describe_dataset_in_correlated_attribute_mode(dataset_file=csv_path,
                                                                      epsilon=self.epsilon,
                                                                      k=self.k,

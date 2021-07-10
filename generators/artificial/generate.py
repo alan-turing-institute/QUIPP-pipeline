@@ -292,7 +292,7 @@ def main(output_dir: str):
     meta["columns"].append({"name": "X12", "type": "ContinuousNumerical"})
     meta["columns"].append({"name": "X13", "type": "ContinuousNumerical"})
     meta["columns"].append({"name": "X14", "type": "ContinuousNumerical"})
-    meta["columns"].append({"name": "Label", "type": "ContinuousNumerical"})
+    meta["columns"].append({"name": "Label", "type": "Categorical"})
 
     metadata_file = os.path.join(output_dir, "artificial_6") + ".json"
     with open(metadata_file, "w") as mf:
