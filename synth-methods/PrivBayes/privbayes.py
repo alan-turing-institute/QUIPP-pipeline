@@ -138,7 +138,6 @@ class SynthesizerPrivBayes(SynthesizerBase):
                                        histogram_bins=self.histogram_bins)
 
         # Train the Bayesian network
-        import ipdb; ipdb.set_trace()
         self.describer.describe_dataset_in_correlated_attribute_mode(dataset_file=csv_path,
                                                                      epsilon=self.epsilon,
                                                                      k=self.k,
