@@ -1,0 +1,37 @@
+{
+    "enabled" : true,
+    "dataset" : "datasets/2011-census-microdata/2011-census-microdata",
+    "synth-method" : "sgf",
+    "parameters":
+    {
+        "enabled" : true,
+        "num_samples_to_fit": 1000,
+        "random_state": 1234,
+        "gamma": 20,
+        "omega": 7,
+        "ncomp": "adv",
+        "ndist": "geom",
+        "k": 2,
+        "epsilon0": 0,
+        "tinc": 0
+
+    },
+    "privacy_parameters_disclosure_risk":
+    {
+        "enabled": false,
+        "num_samples_intruder": 100,
+        "vars_intruder": []
+    },
+    "utility_parameters_classifiers":
+    {
+        "enabled": true,
+        "input_columns": ["Country of Birth"],
+        "label_column": "Age",
+        "test_train_ratio": 0.3,
+        "num_leaked_rows": 0
+    },
+    "utility_parameters_correlations":
+    {
+        "enabled": true
+    }
+}
