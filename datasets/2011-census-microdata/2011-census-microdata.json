@@ -1,0 +1,80 @@
+{
+    "columns": [
+        {
+            "name": "Person ID",
+            "type": "DiscreteNumerical"
+        },
+        {
+            "name": "Region",
+            "type": "Categorical"
+        },
+        {
+            "name": "Residence Type",
+            "type": "Categorical"
+        },
+        {
+            "name": "Family Composition",
+            "type": "DiscreteNumerical"
+        },
+        {
+            "name": "Population",
+            "type": "DiscreteNumerical"
+        },
+        {
+            "name": "Base",
+            "type": "DiscreteNumerical"
+        },
+        {
+            "name": "Sex",
+            "type": "DiscreteNumerical"
+        },
+        {
+            "name": "Age",
+            "type": "DiscreteNumerical"
+        },
+        {
+            "name": "Marital Status",
+            "type": "DiscreteNumerical"
+        },
+        {
+            "name": "Student",
+            "type": "DiscreteNumerical"
+        },
+        {
+            "name": "Country of Birth",
+            "type": "DiscreteNumerical"
+        },
+        {
+            "name": "Health",
+            "type": "DiscreteNumerical"
+        },
+        {
+            "name": "Ethnic Group",
+            "type": "DiscreteNumerical"
+        },
+        {
+            "name": "Religion",
+            "type": "DiscreteNumerical"
+        },
+        {
+            "name": "Economic Activity",
+            "type": "DiscreteNumerical"
+        },
+        {
+            "name": "Occupation",
+            "type": "DiscreteNumerical"
+        },
+        {
+            "name": "Industry",
+            "type": "DiscreteNumerical"
+        },
+        {
+            "name": "Hours worked per week",
+            "type": "DiscreteNumerical"
+        },
+        {
+            "name": "Approximated Social Grade",
+            "type": "DiscreteNumerical"
+        },
+    ]
+}
