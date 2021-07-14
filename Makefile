@@ -87,7 +87,7 @@ $(HP_DATA_CLEAN):
 
 ## synthesize data - this rule also builds "synth-output/%/data_description.json"
 $(SYNTH_OUTPUTS_CSV) : \
-synth-output/%/synthetic_data_1.csv : run-inputs/%.json $(AE_DEIDENTIFIED_DATA) $(HP_DATA_CLEAN)
+synth-output/%/synthetic_data_1.csv : run-inputs/%.json
 	outdir=$$(dirname $@) && \
 	mkdir -p $$outdir && \
 	cp $< $${outdir}/input.json && \
