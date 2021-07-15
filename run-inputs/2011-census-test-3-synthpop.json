@@ -10,7 +10,7 @@
         "num_datasets_to_synthesize": 5,
         "random_state": 12345,
         "vars_sequence": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],
-        "synthesis_methods": ["sample", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+        "synthesis_methods": ["sample", "", "", "cart", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
         "proper": false,
         "tree_minbucket": 5,
         "smoothing": {}
@@ -27,7 +27,12 @@
         "input_columns": ["Sex", "Marital Status", "Hours worked per week"],
         "label_column": "Industry",
         "test_train_ratio": 0.3,
-        "num_leaked_rows": 0
+        "num_leaked_rows": 0,
+        "classifier": {
+            "LogisticRegression":  {"mode": "main",
+                                    "params_main": {"max_iter": 1000}
+                                   }
+        }
     },
     "utility_parameters_correlations":
     {
