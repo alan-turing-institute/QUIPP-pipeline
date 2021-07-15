@@ -75,6 +75,6 @@
         {
             "name": "Approximated Social Grade",
             "type": "DiscreteNumerical"
-        },
+        }
     ]
 }
