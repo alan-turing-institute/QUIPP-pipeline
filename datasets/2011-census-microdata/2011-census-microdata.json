@@ -17,11 +17,7 @@
             "type": "DiscreteNumerical"
         },
         {
-            "name": "Population",
-            "type": "DiscreteNumerical"
-        },
-        {
-            "name": "Base",
+            "name": "Population Base",
             "type": "DiscreteNumerical"
         },
         {
