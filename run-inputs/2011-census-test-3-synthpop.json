@@ -1,5 +1,5 @@
 {
-    "enabled" : false,
+    "enabled" : true,
     "dataset" : "datasets/2011-census-microdata/2011-census-microdata",
     "synth-method" : "synthpop",
     "parameters":
@@ -9,8 +9,8 @@
         "num_samples_to_synthesize": -1,
         "num_datasets_to_synthesize": 5,
         "random_state": 12345,
-        "vars_sequence": [12,9,13,1,2,11,4],
-        "synthesis_methods": ["cart", "cart", "", "cart", "", "", "", "", "cart", "", "cart", "sample", "cart"],
+        "vars_sequence": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],
+        "synthesis_methods": ["sample", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
         "proper": false,
         "tree_minbucket": 5,
         "smoothing": {}
@@ -24,8 +24,8 @@
     "utility_parameters_classifiers":
     {
         "enabled": true,
-        "input_columns": ["Sex", "Marital Status"],
-        "label_column": "edu",
+        "input_columns": ["Sex", "Marital Status", "Hours worked per week"],
+        "label_column": "Industry",
         "test_train_ratio": 0.3,
         "num_leaked_rows": 0
     },
