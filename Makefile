@@ -100,7 +100,7 @@ $(ARTIFICIAL_DATA_1) $(ARTIFICIAL_DATA_2) $(ARTIFICIAL_DATA_3)  $(ARTIFICIAL_DAT
 
 ## synthesize data - this rule also builds "synth-output/%/data_description.json"
 $(SYNTH_OUTPUTS_CSV) : \
-synth-output/%/synthetic_data_1.csv : run-inputs/%.json $(AE_DEIDENTIFIED_DATA) $(HP_DATA_CLEAN) $(ARTIFICIAL_DATA_1) $(ARTIFICIAL_DATA_2) $(ARTIFICIAL_DATA_3) $(ARTIFICIAL_DATA_4) $(ARTIFICIAL_DATA_5) $(ARTIFICIAL_DATA_6) $(ARTIFICIAL_DATA_7)
+synth-output/%/synthetic_data_1.csv : run-inputs/%.json  $(ARTIFICIAL_DATA_1) $(ARTIFICIAL_DATA_2) $(ARTIFICIAL_DATA_3) $(ARTIFICIAL_DATA_4) $(ARTIFICIAL_DATA_5) $(ARTIFICIAL_DATA_6) $(ARTIFICIAL_DATA_7)
 	outdir=$$(dirname $@) && \
 	mkdir -p $$outdir && \
 	cp $< $${outdir}/input.json && \
