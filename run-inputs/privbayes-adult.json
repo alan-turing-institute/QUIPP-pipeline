@@ -9,7 +9,7 @@
         "random_state": 1456,
         "category_threshold": 20,
         "epsilon": 1.0,
-        "k": 3,
+        "k": 1,
         "keys": ["appointment_id"],
         "histogram_bins": 10,
         "preconfigured_bn": {}
@@ -39,6 +39,7 @@
         "enabled": true,
         "label_column": "label",
         "max_depth": 3,
-        "normalized_entities": [ ]
+        "normalized_entities": [ ],
+        "categorical_enconding": "labels"
     }
 }
