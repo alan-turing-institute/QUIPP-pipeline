@@ -36,7 +36,26 @@ The current draft QUiPP report can be found in [`doc`](doc/), with a pdf
 available
 [here](https://github.com/alan-turing-institute/QUIPP-pipeline/releases).
 
-## Installation
+## Install
+
+### Docker
+The easiest way to use the pipeline is with [Docker](https://www.docker.com/). Get the official image with
+
+```bash
+docker pull turinginst/quipp-env:base
+```
+
+To run the pipeline use
+```bash
+docker run -v $(pwd):/quipp-pipeline --workdir /quipp-pipeline turinginst/quipp-env:base make
+```
+
+### Local
+
+Clone and checkout 
+
+
+
 - Clone the repository `git clone
   git@github.com:alan-turing-institute/QUIPP-pipeline.git`
 
@@ -51,7 +70,7 @@ More detail on setting this up can be found
 - Various parts of this code and its dependencies are written in
   Python, R, C++ and Bash.
 - It has been tested with
-  - python 3.6
+  - python 3.8
   - R 3.6
   - gcc 9.3
   - bash 3.2
@@ -61,6 +80,16 @@ More detail on setting this up can be found
   - [SGF](https://vbinds.ch/node/69) (Synthetic Data Generation Framework)
 
 ### Installing the dependencies
+
+We recommend using [Anaconda](https://docs.anaconda.com/anaconda/install/index.html) with Python 3.8.
+
+```bash
+conda create -n quipp python=3.8
+```
+
+```bash
+conda activate quipp
+```
 
 #### R and Python dependencies
 
@@ -94,29 +123,7 @@ environmental variable `SGFROOT` to point to this location.  That is, in bash,
    - either ```export PATH=$PATH:/path/to/sgf/bin```,
    - or ```export SGFROOT=/path/to/sgf/bin```
 
-#### Forked DataSynthesizer
 
-We use the PrivBayes implementation within the DataSynthesizer fork found [here](https://github.com/gmingas/DataSynthesizer). 
-In order to install it, clone the above repository locally, go to its root directory and run `pip install .`
-
-#### Forked synthetic_data_release
-
-We use the PATE-GAN implementation within the `synthetic_data_release` fork found [here](https://github.com/kasra-hosseini/synthetic_data_release). 
-In order to use PATE-GAN in QUIPP:
-1. create a new directory:
-
-```bash
-cd /path/to/QUIPP-pipeline
-mkdir libs
-```
-
-2. Clone the above repository inside `libs` directory created in the previous step:
-
-```bash
-# from /path/to/QUIPP-pipeline 
-cd libs
-git clone https://github.com/kasra-hosseini/synthetic_data_release.git
-```
 
 ## Top-level directory contents
 
