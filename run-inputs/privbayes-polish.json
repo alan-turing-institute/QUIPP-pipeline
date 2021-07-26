@@ -1,0 +1,58 @@
+{
+    "enabled" : true,
+    "dataset" : "datasets/polish_data_2011/polish_data_2011",
+    "synth-method" : "PrivBayes",
+    "parameters":
+    {
+        "enabled" : true,
+        "num_samples_to_synthesize": 4897,
+        "random_state": 12345,
+        "category_threshold": 12,
+        "epsilon": 1.0,
+        "k": 1,
+        "keys": [],
+        "histogram_bins": 8,
+        "preconfigured_bn": {},
+        "save_description": false
+    },
+    "privacy_parameters_disclosure_risk":
+    {
+        "enabled": false,
+        "num_samples_intruder": 100,
+        "vars_intruder": ["age", "male"]
+    },
+    "utility_parameters_classifiers":
+    {
+        "enabled": false,
+        "input_columns": ["sex", "age", "edu", "marital"],
+        "label_column": "wkabint",
+        "test_train_ratio": 0.2,
+        "num_leaked_rows": 0,
+        "classifier": {
+		"LogisticRegression":  {"mode": "main",
+                                 	"params_main": {"max_iter": 1000}
+                                       }
+        }
+    },
+    "utility_parameters_correlations":
+    {
+        "enabled": false
+    },
+    "utility_parameters_feature_importance":
+    {
+        "enabled": true,
+        "label_column": "wkabint",
+        "normalized_entities": [
+        ],
+        "max_depth": 2,
+        "aggPrimitives": [],
+        "tranPrimitives": ["multiply_numeric", "subtract_numeric",
+                               "add_numeric", "divide_numeric",
+                               "percentile"],
+        "drop_na": true,
+        "drop_full_na_columns": false,
+        "compute_shapley": false,
+        "skip_feature_engineering": false,
+        "categorical_enconding": "labels"
+    }
+}

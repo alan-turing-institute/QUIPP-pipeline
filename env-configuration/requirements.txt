@@ -4,7 +4,7 @@ pytest
 sdv
 uuid
 dython
-git+git://github.com/gmingas/DataSynthesizer.git
+git+https://github.com/gmingas/DataSynthesizer.git
 featuretools
 #tensorboard
 #tensorflow
@@ -12,3 +12,5 @@ featuretools
 shap
 ipython
 numpy>=1.20
+pulp
+git+https://github.com/kasra-hosseini/privgem.git@develop

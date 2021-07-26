@@ -2,67 +2,55 @@ import argparse
 import json
 import matplotlib.pyplot as plt
 import subprocess
+import seaborn as sns
 import pandas as pd
 from itertools import product
 from pathlib import Path
 
-def input_json(random_state, sample_frac):
+
+def input_json(random_state, epsilon, k):
     return {
         "enabled": True,
-        "dataset": "datasets/adult_dataset/adult",
-        "synth-method": "subsample",
+        "dataset": "generator-outputs/artificial/artificial_6",
+        "synth-method": "PrivBayes",
         "parameters": {
             "enabled": True,
-            "frac_samples_to_synthesize": sample_frac,
+            "num_samples_to_synthesize": 10000,
             "random_state": int(random_state),
+            "category_threshold": 16,
+            "epsilon": epsilon,
+            "k": int(k),
+            "keys": [],
+            "histogram_bins": 10,
+            "preconfigured_bn": {},
+            "save_description": False
         },
-        "privacy_parameters_disclosure_risk": {
-            "enabled": False,
-            "num_samples_intruder": 5000,
-            "vars_intruder": ["gender", "age", "neighborhood"],
-        },
+        "privacy_parameters_disclosure_risk": {"enabled": False},
         "utility_parameters_classifiers": {
             "enabled": False,
             "classifier": {
                 "LogisticRegression": {"mode": "main", "params_main": {"max_iter": 1000}}
-            },
+            }
         },
         "utility_parameters_correlations": {"enabled": False},
         "utility_parameters_feature_importance": {
             "enabled": True,
-            "label_column": "label",
-            "normalized_entities": [
-                {
-                    "new_entity_id": "education",
-                    "index": "education-num",
-                    "additional_variables": ["education"],
-                    "make_time_index": False,
-                },
-                {
-                    "new_entity_id": "Workclass",
-                    "index": "workclass",
-                    "additional_variables": [],
-                    "make_time_index": False,
-                },
-                {
-                    "new_entity_id": "Occupation",
-                    "index": "occupation",
-                    "additional_variables": [],
-                    "make_time_index": False,
-                },
-            ],
+            "label_column": "Label",
+            "normalized_entities": [],
             "max_depth": 2,
-            "features_to_exclude": ["education-num"],
+            "aggPrimitives": [],
+            "tranPrimitives": [],
             "drop_na": True,
-            "categorical_enconding": "labels",
+            "drop_full_na_columns": False,
             "compute_shapley": True,
-            "skip_feature_engineering": False
-        },
+            "skip_feature_engineering": True,
+            "categorical_enconding": "labels"
+        }
     }
 
 
 def filename_stem(i):
-    return f"adult-subsample-ensemble-{i:04}"
+    return f"privbayes-artificial_6-ensemble-{i:04}"
 
 
 def input_path(i):
@@ -115,11 +103,20 @@ def handle_cmdline_args():
     )
 
     parser.add_argument(
-        "-s",
-        "--sample-fractions",
-        dest="sample_fracs",
+        "-e",
+        "--epsilons",
+        dest="epsilons",
         required=True,
-        help="The list of fraction of samples used",
+        help="Define list of epsilons for the requested run",
+    )
+
+    parser.add_argument(
+        "-k",
+        "--parents",
+        dest="k",
+        required=True,
+        type=int,
+        help="Define k (number of parents) for the requested run",
     )
 
     args = parser.parse_args()
@@ -132,7 +129,7 @@ if __name__ == "__main__":
     random_states = range(args.nreplicas)
 
     all_params = pd.DataFrame(
-        data=product(random_states, map(float, args.sample_fracs.strip('[]').split(','))), columns=["random_state", "sample_frac"]
+        data=product(random_states, map(float, args.epsilons.strip('[]').split(',')), [args.k]), columns=["random_state", "epsilon", "k"]
     )
 
     for i, params in all_params.iterrows():
@@ -141,4 +138,4 @@ if __name__ == "__main__":
 
     if args.run:
         all_targets = [f"run-{filename_stem(i)}" for i, _ in all_params.iterrows()]
-        subprocess.run(["make", "-j72", "-C../.."] + all_targets)
+        subprocess.run(["make", "-k", "-j72", "-C../.."] + all_targets)

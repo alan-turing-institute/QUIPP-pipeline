@@ -6,15 +6,28 @@ import pandas as pd
 from itertools import product
 from pathlib import Path
 
-def input_json(random_state, sample_frac):
+def input_json(random_state):
     return {
         "enabled": True,
-        "dataset": "datasets/adult_dataset/adult",
-        "synth-method": "subsample",
+        "dataset": "generator-outputs/artificial/artificial_1",
+        "synth-method": "synthpop",
         "parameters": {
             "enabled": True,
-            "frac_samples_to_synthesize": sample_frac,
+            "num_samples_to_fit": -1,
+            "num_samples_to_synthesize": -1,
+            "num_datasets_to_synthesize": 1,
             "random_state": int(random_state),
+            "vars_sequence": [1, 2, 3, 4, 5, 6],
+            "synthesis_methods": [
+                "sample",
+                "sample",
+                "sample",
+                "sample",
+                "sample",
+                "sample"
+            ],
+            "proper": False,
+            "tree_minbucket": 1,
         },
         "privacy_parameters_disclosure_risk": {
             "enabled": False,
@@ -30,43 +43,33 @@ def input_json(random_state, sample_frac):
         "utility_parameters_correlations": {"enabled": False},
         "utility_parameters_feature_importance": {
             "enabled": True,
-            "label_column": "label",
-            "normalized_entities": [
-                {
-                    "new_entity_id": "education",
-                    "index": "education-num",
-                    "additional_variables": ["education"],
-                    "make_time_index": False,
-                },
-                {
-                    "new_entity_id": "Workclass",
-                    "index": "workclass",
-                    "additional_variables": [],
-                    "make_time_index": False,
-                },
-                {
-                    "new_entity_id": "Occupation",
-                    "index": "occupation",
-                    "additional_variables": [],
-                    "make_time_index": False,
-                },
-            ],
+            "label_column": "Label",
+            "normalized_entities": [],
             "max_depth": 2,
-            "features_to_exclude": ["education-num"],
+            "aggPrimitives": [],
+            "tranPrimitives": [],
             "drop_na": True,
-            "categorical_enconding": "labels",
+            "drop_full_na_columns": False,
             "compute_shapley": True,
-            "skip_feature_engineering": False
+            "skip_feature_engineering": True,
+            "categorical_enconding": "labels"
         },
     }
 
+    
 
 def filename_stem(i):
-    return f"adult-subsample-ensemble-{i:04}"
+    return f"artificial_1-resampling-ensemble-{i:04}"
 
 
 def input_path(i):
     return Path(f"../../run-inputs/{filename_stem(i)}.json")
+
+
+def feature_importance_path(i):
+    return Path(
+        f"../../synth-output/{filename_stem(i)}/utility_feature_importance.json"
+    )
 
 
 def write_input_file(i, params, force=False):
@@ -114,14 +117,6 @@ def handle_cmdline_args():
         help="Write out input files, even if they exist",
     )
 
-    parser.add_argument(
-        "-s",
-        "--sample-fractions",
-        dest="sample_fracs",
-        required=True,
-        help="The list of fraction of samples used",
-    )
-
     args = parser.parse_args()
     return args
 
@@ -132,7 +127,7 @@ if __name__ == "__main__":
     random_states = range(args.nreplicas)
 
     all_params = pd.DataFrame(
-        data=product(random_states, map(float, args.sample_fracs.strip('[]').split(','))), columns=["random_state", "sample_frac"]
+        data=random_states, columns=["random_state"]
     )
 
     for i, params in all_params.iterrows():
@@ -141,4 +136,4 @@ if __name__ == "__main__":
 
     if args.run:
         all_targets = [f"run-{filename_stem(i)}" for i, _ in all_params.iterrows()]
-        subprocess.run(["make", "-j72", "-C../.."] + all_targets)
+        subprocess.run(["make", "-j", "-C../.."] + all_targets)

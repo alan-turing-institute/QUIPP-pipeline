@@ -19,6 +19,10 @@ from sklearn.inspection import permutation_importance
 from sklearn.preprocessing import LabelEncoder, normalize
 from sklearn.metrics.pairwise import cosine_similarity
 from typing import Union
+from dython.nominal import associations
+from pulp import LpMaximize, LpProblem, LpStatus, lpSum, LpVariable, constants, value
+import pulp
+pulp.LpSolverDefault.msg = 1
 
 sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir, "utilities"))
 from utils import handle_cmdline_args, extract_parameters, find_column_types
@@ -142,6 +146,21 @@ def featuretools_importances(df, data_meta, utility_params_ft, rs):
     if utility_params_ft.get("drop_na"):
         fm = fm.dropna()
 
+    # replace +,-,*,/,< with words to avoid errors later on when using pulp for optimisation
+    fm.columns = [col.replace("<", "LESSTHAN") for col in
+                  [col.replace("/", "DIV") for col in
+                  [col.replace("*", "MULT") for col in
+                   [col.replace("-", "SUB") for col in
+                    [col.replace("+", "ADD") for col in
+                     fm.columns]]]]]
+
+    for col in fm:
+        if col == utility_params_ft["label_column"]:
+            pass
+        else:
+            if utility_params_ft["label_column"] in col:
+                derived_cols.append(col)
+
     # This should only run for the household poverty dataset to filter
     # out invalid households
     if utility_params_ft.get("filter_hh"):
@@ -229,8 +248,14 @@ def featuretools_importances(df, data_meta, utility_params_ft, rs):
         # explainer = shap.TreeExplainer(model=clf, data=fm_train, feature_perturbation='interventional')
         # shap_values = explainer.shap_values(fm_test, check_additivity=False)
         vals = np.abs(shap_values).mean(0)
-        feature_imps_shapley = pd.DataFrame(list(zip(fm_test.columns, sum(vals))),
-                                            columns=['col_name', 'feature_importance_vals'])
+        try:
+            feature_imps_shapley = pd.DataFrame(list(zip(fm_test.columns, sum(vals))),
+                                                columns=['col_name', 'feature_importance_vals'])
+        except TypeError:
+            # Numpy type error happens when all shapley values are zeros. Artificially creating an all zeros
+            # feature importance data frame
+            feature_imps_shapley = pd.DataFrame(list(zip(fm_test.columns, np.zeros(fm_test.columns.shape))),
+                                                columns=['col_name', 'feature_importance_vals'])
         feature_imps_shapley.sort_values(by=['feature_importance_vals'], ascending=False, inplace=True)
         feature_imps_shapley = [(row['feature_importance_vals'], row['col_name'])
                                 for index, row in feature_imps_shapley.iterrows()]
@@ -238,8 +263,7 @@ def featuretools_importances(df, data_meta, utility_params_ft, rs):
         feature_imps_shapley = []
         
     return auc, f1, feature_imps_builtin, feature_imps_permutation, \
-           feature_imps_shapley, clf, fm_test, y_test, dropped_columns, multiclass
-
+           feature_imps_shapley, clf, fm_test, y_test, dropped_columns, multiclass, fm_train
 
 def feature_importance_metrics(
         path_original_ds,
@@ -253,8 +277,8 @@ def feature_importance_metrics(
 ):
     """
     Calculates feature importance ranking differences between the original
-    and released datasets, using a random forest classification model
-    and the RBO ranking comparison metric.
+    and released datasets, using a random forest classification model, various
+    feature importance measures and various feature rank/score comparison measures.
     Saves the results into a .json file. These can be compared to
     estimate the utility of the released dataset.
 
@@ -311,8 +335,8 @@ def feature_importance_metrics(
     with warnings.catch_warnings(record=True) as warns:
         print("Computing feature importance for original dataset")
         auc_orig, f1_orig, orig_feature_importances_builtin, orig_feature_importances_permutation, \
-        orig_feature_importances_shapley, _, X_test_orig, y_test_orig, dropped_cols_orig, multiclass_orig = \
-            featuretools_importances(orig_df, orig_metadata, utility_params, random_seed)
+        orig_feature_importances_shapley, _, X_test_orig, y_test_orig, dropped_cols_orig, multiclass_orig, \
+        X_train_orig = featuretools_importances(orig_df, orig_metadata, utility_params, random_seed)
         rank_orig_features_builtin = [i[1] for i in orig_feature_importances_builtin]
         score_orig_features_builtin = [i[0] for i in orig_feature_importances_builtin]
         rank_orig_features_permutation = [i[1] for i in orig_feature_importances_permutation]
@@ -323,18 +347,8 @@ def feature_importance_metrics(
         if path_released_ds is not None:
             print("Computing feature importance for synthetic dataset")
             auc_rlsd, f1_rlsd, rlsd_feature_importances_builtin, rlsd_feature_importances_permutation, \
-            rlsd_feature_importances_shapley, clf_rlsd, _, _, dropped_cols_rlsd, multiclass_rlsd = \
+            rlsd_feature_importances_shapley, clf_rlsd, _, _, dropped_cols_rlsd, multiclass_rlsd, _ = \
                 featuretools_importances(rlsd_df, orig_metadata, utility_params, random_seed)
-            rank_rlsd_features_builtin = [i[1] for i in rlsd_feature_importances_builtin]
-            score_rlsd_features_builtin = [i[0] for i in rlsd_feature_importances_builtin]
-            rank_rlsd_features_permutation = [i[1] for i in rlsd_feature_importances_permutation]
-            score_rlsd_features_permutation = [i[0] for i in rlsd_feature_importances_permutation]
-            rank_rlsd_features_shapley = [i[1] for i in rlsd_feature_importances_shapley]
-            score_rlsd_features_shapley = [i[0] for i in rlsd_feature_importances_shapley]
-
-            utility_collector_builtin = compare_features(rank_orig_features_builtin, rank_rlsd_features_builtin,
-                                                         score_orig_features_builtin, score_rlsd_features_builtin,
-                                                         utility_collector_builtin, percentage_threshold)
 
             # predict test labels and calculate cross AUC - trained on rlsd, test on original
             # first step is to drop from the orig test set the columns that were dropped in the rlsd (if any)
@@ -369,6 +383,29 @@ def feature_importance_metrics(
 
             print('Cross-AUC score of {:.3f} and weighted Cross-F1 of {:.3f}'.format(auc_cross, f1_cross))
 
+            # Correlation matrix needed for correlated rank similarity
+            categorical_columns = [c["name"] for c in orig_metadata["columns"]
+                                   if (c["type"] in ["Categorical", "Ordinal"]
+                                   and c["name"] in X_train_orig.columns)]
+            categorical_columns.extend([c for c in X_train_orig.columns if "MODE" in c])
+            correlation_matrix = associations(X_train_orig, nominal_columns=categorical_columns,
+                                              plot=False)["corr"].abs()
+
+            rank_rlsd_features_builtin = [i[1] for i in rlsd_feature_importances_builtin]
+            score_rlsd_features_builtin = [i[0] for i in rlsd_feature_importances_builtin]
+            rank_rlsd_features_permutation = [i[1] for i in rlsd_feature_importances_permutation]
+            score_rlsd_features_permutation = [i[0] for i in rlsd_feature_importances_permutation]
+            rank_rlsd_features_shapley = [i[1] for i in rlsd_feature_importances_shapley]
+            score_rlsd_features_shapley = [i[0] for i in rlsd_feature_importances_shapley]
+
+            utility_collector_builtin = compare_features(rank_orig_features_builtin,
+                                                         rank_rlsd_features_builtin,
+                                                         correlation_matrix,
+                                                         score_orig_features_builtin,
+                                                         score_rlsd_features_builtin,
+                                                         utility_collector_builtin,
+                                                         percentage_threshold)
+
             utility_collector_builtin["orig_feature_importances"] = orig_feature_importances_builtin
             utility_collector_builtin["rlsd_feature_importances"] = rlsd_feature_importances_builtin
             utility_collector_builtin["auc_orig"] = auc_orig
@@ -380,6 +417,7 @@ def feature_importance_metrics(
 
             utility_collector_permutation = compare_features(rank_orig_features_permutation,
                                                              rank_rlsd_features_permutation,
+                                                             correlation_matrix,
                                                              score_orig_features_permutation,
                                                              score_rlsd_features_permutation,
                                                              utility_collector_permutation, percentage_threshold)
@@ -395,6 +433,7 @@ def feature_importance_metrics(
             if utility_params.get("compute_shapley"):
                 utility_collector_shapley = compare_features(rank_orig_features_shapley,
                                                              rank_rlsd_features_shapley,
+                                                             correlation_matrix,
                                                              score_orig_features_shapley,
                                                              score_rlsd_features_shapley,
                                                              utility_collector_shapley, percentage_threshold)
@@ -409,9 +448,13 @@ def feature_importance_metrics(
             else:
                 utility_collector_shapley = {}
 
+            utility_collector_corr = {"matrix": correlation_matrix.to_numpy().tolist(),
+                                      "variables": correlation_matrix.columns.tolist()}
+
             utility_collector = {"builtin": utility_collector_builtin,
                                  "permutation": utility_collector_permutation,
-                                 "shapley": utility_collector_shapley}
+                                 "shapley": utility_collector_shapley,
+                                 "correlations": utility_collector_corr}
 
         else:
             print("Computing feature importance for original dataset with different seeds in RF")
@@ -492,13 +535,14 @@ def feature_importance_metrics(
 
 
 def compare_features(rank_orig_features: list, rank_rlsd_features: list,
+                     correlation_matrix: pd.DataFrame,
                      score_orig_features: Union[None, list] = None,
                      score_rlsd_features: Union[None, list] = None,
                      utility_collector: dict = {},
                      percentage_threshold: Union[float, None] = None):
     """Compare ranked features using different methods including
-        Ranked-biased Overlap (RBO), extrapolated version of RBO, 
-        L2 norm and KL divergence
+        Ranked-biased Overlap (RBO), extrapolated version of RBO,
+        correlated rank similarity metrics, L2 norm and KL divergence
 
     Parameters
     ----------
@@ -506,6 +550,8 @@ def compare_features(rank_orig_features: list, rank_rlsd_features: list,
         ranked features from the original dataset
     rank_rlsd_features : list
         ranked features from the synthetic/released dataset
+    correlation_matrix : pd.DataFrame
+        Correlations/correlation-like measures between variables.
     score_orig_features : Union[None, list], optional
         scores of the ranked features from the original dataset, by default None
     score_rlsd_features : Union[None, list], optional
@@ -520,37 +566,78 @@ def compare_features(rank_orig_features: list, rank_rlsd_features: list,
             3. compute RBO for the selected features
     """
 
-    if percentage_threshold != None and (0 < percentage_threshold < 1) and score_orig_features != None:
+    if percentage_threshold is not None and (0 < percentage_threshold < 1) \
+            and score_orig_features is not None:
         target_index = np.argmax(np.cumsum(score_orig_features) > percentage_threshold)
     else:
         target_index = len(rank_orig_features)
 
-    # Rank-Biased Overlap (RBO)
-
+    # RBO - orig vs. rlsd
     orig_rlsd_sim = RankingSimilarity(rank_orig_features[:target_index],
                                       rank_rlsd_features[:target_index])
-
     utility_collector["rbo_0.6"] = orig_rlsd_sim.rbo(p=0.6)
     utility_collector["rbo_0.8"] = orig_rlsd_sim.rbo(p=0.8)
 
-    # extrapolated version
+    # RBO - orig vs. rlsd - extrapolated version 1 (uneven + ties)
     utility_collector["rbo_ext_0.6"] = orig_rlsd_sim.rbo_ext(p=0.6)
     utility_collector["rbo_ext_0.8"] = orig_rlsd_sim.rbo_ext(p=0.8)
 
-    # original against one random permutation
+    # RBO - orig vs. rlsd - extrapolated version 2 (even lists)
+    utility_collector["rbo_ext2_0.6"] = orig_rlsd_sim.rbo(p=0.6, ext=True)
+    utility_collector["rbo_ext2_0.8"] = orig_rlsd_sim.rbo(p=0.8, ext=True)
+
+    # Correlated rank - orig vs. rlsd - all variations
+    utility_collector["corr_rank_0.6"] = orig_rlsd_sim.correlated_rank_similarity(correlation_matrix, p=0.6)
+    utility_collector["corr_rank_0.8"] = orig_rlsd_sim.correlated_rank_similarity(correlation_matrix, p=0.8)
+    utility_collector["corr_rank_ext2_0.6"] = orig_rlsd_sim.correlated_rank_similarity(correlation_matrix,
+                                                                                       p=0.6, ext=True)
+    utility_collector["corr_rank_ext2_0.8"] = orig_rlsd_sim.correlated_rank_similarity(correlation_matrix,
+                                                                                       p=0.8, ext=True)
+
+    # RBO - orig against one random permutation
     rank_rand_features = np.random.permutation(rank_orig_features[:target_index])
     orig_rand_sim = RankingSimilarity(rank_orig_features[:target_index],
                                       rank_rand_features)
-
     utility_collector["rbo_rand_0.6"] = orig_rand_sim.rbo(p=0.6)
     utility_collector["rbo_rand_0.8"] = orig_rand_sim.rbo(p=0.8)
 
-    # original lower bound
+    # RBO - orig against one random permutation - extrapolated version 1 (uneven + ties)
+    utility_collector["rbo_rand_ext_0.6"] = orig_rand_sim.rbo_ext(p=0.6)
+    utility_collector["rbo_rand_ext_0.8"] = orig_rand_sim.rbo_ext(p=0.8)
+
+    # RBO - orig against one random permutation - extrapolated version 2 (even lists)
+    utility_collector["rbo_rand_ext2_0.6"] = orig_rand_sim.rbo(p=0.6, ext=True)
+    utility_collector["rbo_rand_ext2_0.8"] = orig_rand_sim.rbo(p=0.8, ext=True)
+
+    # Correlated rank - orig against one random permutation - all variations
+    utility_collector["corr_rank_rand_0.6"] = orig_rand_sim.correlated_rank_similarity(correlation_matrix, p=0.6)
+    utility_collector["corr_rank_rand_0.8"] = orig_rand_sim.correlated_rank_similarity(correlation_matrix, p=0.8)
+    utility_collector["corr_rank_rand_ext2_0.6"] = orig_rand_sim.correlated_rank_similarity(correlation_matrix,
+                                                                                            p=0.6, ext=True)
+    utility_collector["corr_rank_rand_ext2_0.8"] = orig_rand_sim.correlated_rank_similarity(correlation_matrix,
+                                                                                            p=0.8, ext=True)
+
+    # RBO - original vs. lower bound
     orig_lower_sim = RankingSimilarity(rank_orig_features[:target_index],
                                        list(reversed(rank_orig_features[:target_index])))
-
     utility_collector["rbo_lower_0.6"] = orig_lower_sim.rbo(p=0.6)
     utility_collector["rbo_lower_0.8"] = orig_lower_sim.rbo(p=0.8)
+
+    # RBO - original vs. lower bound - extrapolated version 1 (uneven + ties)
+    utility_collector["rbo_lower_ext_0.6"] = orig_lower_sim.rbo_ext(p=0.6)
+    utility_collector["rbo_lower_ext_0.8"] = orig_lower_sim.rbo_ext(p=0.8)
+
+    # RBO - original vs. lower bound - extrapolated version 2 (even lists)
+    utility_collector["rbo_lower_ext2_0.6"] = orig_lower_sim.rbo(p=0.6, ext=True)
+    utility_collector["rbo_lower_ext2_0.8"] = orig_lower_sim.rbo(p=0.8, ext=True)
+
+    # Correlated rank - original vs. lower bound - all variations
+    utility_collector["corr_rank_lower_0.6"] = orig_lower_sim.correlated_rank_similarity(correlation_matrix, p=0.6)
+    utility_collector["corr_rank_lower_0.8"] = orig_lower_sim.correlated_rank_similarity(correlation_matrix, p=0.8)
+    utility_collector["corr_rank_lower_ext2_0.6"] = orig_lower_sim.correlated_rank_similarity(correlation_matrix,
+                                                                                              p=0.6, ext=True)
+    utility_collector["corr_rank_lower_ext2_0.8"] = orig_lower_sim.correlated_rank_similarity(correlation_matrix,
+                                                                                              p=0.8, ext=True)
 
     if score_orig_features != None and score_rlsd_features != None:
         # L2 norm
@@ -576,7 +663,6 @@ def compare_features(rank_orig_features: list, rank_rlsd_features: list,
             normalize(orig_rlsd_rand_df["score_rlsd_features"].to_numpy().reshape(-1, 1), axis=0)
         score_rand_features_array = \
             normalize(orig_rlsd_rand_df["score_rand_features"].to_numpy().reshape(-1, 1), axis=0)
-
 
         utility_collector["l2_norm"] = np.sqrt(np.sum((score_orig_features_array - score_rlsd_features_array) ** 2))
         utility_collector["l2_norm_rand"] = np.sqrt(np.sum((score_orig_features_array - score_rand_features_array) ** 2))

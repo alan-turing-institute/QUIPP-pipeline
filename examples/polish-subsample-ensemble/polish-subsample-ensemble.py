@@ -9,7 +9,7 @@ from pathlib import Path
 def input_json(random_state, sample_frac):
     return {
         "enabled": True,
-        "dataset": "datasets/adult_dataset/adult",
+        "dataset": "datasets/polish_data_2011/polish_data_2011",
         "synth-method": "subsample",
         "parameters": {
             "enabled": True,
@@ -19,7 +19,7 @@ def input_json(random_state, sample_frac):
         "privacy_parameters_disclosure_risk": {
             "enabled": False,
             "num_samples_intruder": 5000,
-            "vars_intruder": ["gender", "age", "neighborhood"],
+            "vars_intruder": ["sex", "age"],
         },
         "utility_parameters_classifiers": {
             "enabled": False,
@@ -30,39 +30,24 @@ def input_json(random_state, sample_frac):
         "utility_parameters_correlations": {"enabled": False},
         "utility_parameters_feature_importance": {
             "enabled": True,
-            "label_column": "label",
-            "normalized_entities": [
-                {
-                    "new_entity_id": "education",
-                    "index": "education-num",
-                    "additional_variables": ["education"],
-                    "make_time_index": False,
-                },
-                {
-                    "new_entity_id": "Workclass",
-                    "index": "workclass",
-                    "additional_variables": [],
-                    "make_time_index": False,
-                },
-                {
-                    "new_entity_id": "Occupation",
-                    "index": "occupation",
-                    "additional_variables": [],
-                    "make_time_index": False,
-                },
-            ],
+            "label_column": "wkabint",
+            "normalized_entities": [],
             "max_depth": 2,
-            "features_to_exclude": ["education-num"],
+            "aggPrimitives": [],
+            "tranPrimitives": ["multiply_numeric", "subtract_numeric",
+                               "add_numeric", "divide_numeric",
+                               "percentile"],
             "drop_na": True,
-            "categorical_enconding": "labels",
+            "drop_full_na_columns": False,
             "compute_shapley": True,
-            "skip_feature_engineering": False
-        },
+            "skip_feature_engineering": False,
+            "categorical_enconding": "labels"
+        }
     }
 
 
 def filename_stem(i):
-    return f"adult-subsample-ensemble-{i:04}"
+    return f"polish-subsample-ensemble-{i:04}"
 
 
 def input_path(i):
@@ -119,7 +104,7 @@ def handle_cmdline_args():
         "--sample-fractions",
         dest="sample_fracs",
         required=True,
-        help="The list of fraction of samples used",
+        help="The list of fractions of samples used",
     )
 
     args = parser.parse_args()
