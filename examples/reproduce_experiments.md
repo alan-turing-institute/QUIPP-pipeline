@@ -1,16 +1,23 @@
-## Docker
-The easiest way to use the pipeline is with [Docker](https://www.docker.com/). Get the official image with
+# Reproduce experiments
+
+This document explains how to reproduce all experimental runs and plots.
+
+## Requirements
+The easiest way to use the pipeline is with [Docker](https://www.docker.com/). Get the official image
 
 ```bash
 docker pull turinginst/quipp-env:base
 ```
 
-To run the pipeline use
+# Experiments
+
+Check out the [QUIPP-pipeline](https://github.com/alan-turing-institute/QUIPP-pipeline) repository and set as the current directory
+
 ```bash
-docker run -v $(pwd):/quipp-pipeline --workdir /quipp-pipeline turinginst/quipp-env:base make
+git clone https://github.com/alan-turing-institute/QUIPP-pipeline.git && cd QUIPP-pipeline
 ```
 
-# Experiments
+All experiments can then be run with the docker image and all results will be saved to `/synth-output`, which is mounted to the docker container.
 
 
 ## Artificial 1
