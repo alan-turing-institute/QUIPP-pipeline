@@ -147,11 +147,11 @@ def featuretools_importances(df, data_meta, utility_params_ft, rs):
         fm = fm.dropna()
 
     # replace +,-,*,/,< with words to avoid errors later on when using pulp for optimisation
-    fm.columns = [col.replace("<", "LESSTHAN") for col in
-                  [col.replace("/", "DIV") for col in
-                  [col.replace("*", "MULT") for col in
-                   [col.replace("-", "SUB") for col in
-                    [col.replace("+", "ADD") for col in
+    fm.columns = [col.replace(" < ", "LESSTHAN") for col in
+                  [col.replace(" / ", "DIV") for col in
+                  [col.replace(" * ", "MULT") for col in
+                   [col.replace(" - ", "SUB") for col in
+                    [col.replace(" + ", "ADD") for col in
                      fm.columns]]]]]
 
     for col in fm:
