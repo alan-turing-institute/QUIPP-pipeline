@@ -22,26 +22,53 @@ All experiments can then be run with the docker image and all results will be sa
 
 ## Artificial 1
 
+**PrivBayes**
 ```bash
 docker run -v $(pwd):/quipp-pipeline --workdir /quipp-pipeline turinginst/quipp-env:base python examples/privbayes-artificial_1-ensemble/privbayes-artificial_1-ensemble.py -n 25 -f -k 3 -e 0.0001,0.001,0.01,0.1,0.4,1.0,4.0,10.0 -r 
 ```
 
+**Resampling**
+
+```bash
+docker run -v $(pwd):/quipp-pipeline --workdir /quipp-pipeline turinginst/quipp-env:base python examples/artificial_1-resampling-ensemble/artificial_1-resampling-ensemble.py -n 25 -f -r 
+```
+
 ### Artificial 2
 
+**PrivBayes**
 ```bash
 docker run -v $(pwd):/quipp-pipeline --workdir /quipp-pipeline turinginst/quipp-env:base python examples/privbayes-artificial_2-ensemble/privbayes-artificial_2-ensemble.py -n 25 -f -k 3 -e 0.0001,0.001,0.01,0.1,0.4,1.0,4.0,10.0 -r 
 ```
 
+**Resampling**
+
+```bash
+docker run -v $(pwd):/quipp-pipeline --workdir /quipp-pipeline turinginst/quipp-env:base python examples/artificial_2-resampling-ensemble/artificial_2-resampling-ensemble.py -n 25 -f -r 
+```
+
 ### Artificial 3
 
+**PrivBayes**
 ```bash
 docker run -v $(pwd):/quipp-pipeline --workdir /quipp-pipeline turinginst/quipp-env:base python examples/privbayes-artificial_3-ensemble/privbayes-artificial_3-ensemble.py -n 25 -f -k 3 -e 0.0001,0.001,0.01,0.1,0.4,1.0,4.0,10.0 -r 
 ```
 
-### Artificial 4
+**Resampling**
 
 ```bash
+docker run -v $(pwd):/quipp-pipeline --workdir /quipp-pipeline turinginst/quipp-env:base python examples/artificial_3-resampling-ensemble/artificial_3-resampling-ensemble.py -n 25 -f -r 
+```
+### Artificial 4
+
+**PrivBayes**
+```bash
 docker run -v $(pwd):/quipp-pipeline --workdir /quipp-pipeline turinginst/quipp-env:base python examples/privbayes-artificial_4-ensemble/privbayes-artificial_4-ensemble.py -n 25 -f -k 3 -e 0.0001,0.001,0.01,0.1,0.4,1.0,4.0,10.0 -r 
+```
+
+**Resampling**
+
+```bash
+docker run -v $(pwd):/quipp-pipeline --workdir /quipp-pipeline turinginst/quipp-env:base python examples/artificial_4-resampling-ensemble/artificial_4-resampling-ensemble.py -n 25 -f -r 
 ```
 
 ### Adult
