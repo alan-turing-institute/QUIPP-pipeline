@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
-from utils import run
+from utils import run, SynthMethod
 
 FILESTEM = 'artificial_2-resampling-ensemble'
 
@@ -58,4 +58,4 @@ def input_json(random_state):
     
 if __name__ == "__main__":
 
-    run(input_json, FILESTEM)
+    run(input_json, FILESTEM, SynthMethod.RESAMPLING)
