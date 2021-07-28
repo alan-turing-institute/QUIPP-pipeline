@@ -9,7 +9,7 @@ The easiest way to use the pipeline is with [Docker](https://www.docker.com/). G
 docker pull turinginst/quipp-env:base
 ```
 
-# Experiments
+## Experiments
 
 Check out the [QUIPP-pipeline](https://github.com/alan-turing-institute/QUIPP-pipeline) repository and set as the current directory
 
@@ -71,6 +71,45 @@ docker run -v $(pwd):/quipp-pipeline --workdir /quipp-pipeline turinginst/quipp-
 docker run -v $(pwd):/quipp-pipeline --workdir /quipp-pipeline turinginst/quipp-env:base python examples/artificial_4-resampling-ensemble/artificial_4-resampling-ensemble.py -n 25 -f -r 
 ```
 
+### Artificial 5
+
+**PrivBayes**
+```bash
+docker run -v $(pwd):/quipp-pipeline --workdir /quipp-pipeline turinginst/quipp-env:base python examples/privbayes-artificial_5-ensemble/privbayes-artificial_5-ensemble.py -n 25 -f -k 3 -e 0.0001,0.001,0.01,0.1,0.4,1.0,4.0,10.0 -r 
+```
+
+**Resampling**
+
+```bash
+docker run -v $(pwd):/quipp-pipeline --workdir /quipp-pipeline turinginst/quipp-env:base python examples/artificial_-resampling-ensemble/artificial_5-resampling-ensemble.py -n 25 -f -r 
+```
+
+### Artificial 6
+
+**PrivBayes**
+```bash
+docker run -v $(pwd):/quipp-pipeline --workdir /quipp-pipeline turinginst/quipp-env:base python examples/privbayes-artificial_6-ensemble/privbayes-artificial_6-ensemble.py -n 25 -f -k 3 -e 0.0001,0.001,0.01,0.1,0.4,1.0,4.0,10.0 -r 
+```
+
+**Resampling**
+
+```bash
+docker run -v $(pwd):/quipp-pipeline --workdir /quipp-pipeline turinginst/quipp-env:base python examples/artificial_6-resampling-ensemble/artificial_6-resampling-ensemble.py -n 25 -f -r 
+```
+
+### Artificial 7
+
+**PrivBayes**
+```bash
+docker run -v $(pwd):/quipp-pipeline --workdir /quipp-pipeline turinginst/quipp-env:base python examples/privbayes-artificial_7-ensemble/privbayes-artificial_7-ensemble.py -n 25 -f -k 3 -e 0.0001,0.001,0.01,0.1,0.4,1.0,4.0,10.0 -r 
+```
+
+**Resampling**
+
+```bash
+docker run -v $(pwd):/quipp-pipeline --workdir /quipp-pipeline turinginst/quipp-env:base python examples/artificial_7-resampling-ensemble/artificial_7-resampling-ensemble.py -n 25 -f -r 
+```
+
 ### Adult
 
 **PrivBayes**
@@ -130,3 +169,15 @@ docker run -v $(pwd):/quipp-pipeline --workdir /quipp-pipeline turinginst/quipp-
 ```bash
 docker run -v $(pwd):/quipp-pipeline --workdir /quipp-pipeline turinginst/quipp-env:base python examples/polish-subsample-ensemble/polish-subsample-ensemble.py -n 25 -f -r 
 ```
+
+## Plotting
+
+All experimental outputs will now be in `./synth-outputs`. To recreate the paper's figures you must checkout the [QUIPP-feature-importance-plots](https://github.com/alan-turing-institute/QUIPP-feature-importance-plots) repo and install following instructions in the README. 
+
+You can then create the plots with 
+
+```bash
+poetry run python panel_plots.py <path-to-data-dir>
+```
+
+where `<path-to-data-dir>` is the absolute path of `./synth-outputs`.
