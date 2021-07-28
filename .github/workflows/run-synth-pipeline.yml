@@ -18,5 +18,7 @@ jobs:
         password: ${{ secrets.DOCKER_PAC }}
     -
       name: Run pipeline with privbayes-adult
-  
       run: docker run -v $GITHUB_WORKSPACE:/quipp-pipeline --workdir /quipp-pipeline turinginst/quipp-env:base make run-privbayes-adult
+    - 
+      name: Run pipeline with Synthpop
+      run: docker run -v $GITHUB_WORKSPACE:/quipp-pipeline --workdir /quipp-pipeline turinginst/quipp-env:base python examples/artificial_1-resampling-ensemble/artificial_1-resampling-ensemble.py -n 1 -f -r 
