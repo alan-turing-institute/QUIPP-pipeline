@@ -177,7 +177,7 @@ All experimental outputs will now be in `./synth-outputs`. To recreate the paper
 You can then create the plots with 
 
 ```bash
-poetry run python panel_plots.py <path-to-data-dir>
+poetry run python panel_plots.py --base-path <path-to-data-dir>
 ```
 
 where `<path-to-data-dir>` is the absolute path of `./synth-outputs`.
