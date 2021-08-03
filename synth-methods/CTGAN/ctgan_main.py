@@ -7,7 +7,7 @@ import pandas as pd
 import sys
 
 try:
-    from ctgan.synthesizer import CTGANSynthesizer
+    from ctgan import CTGANSynthesizer
 except ImportError as err:
     sys.exit("[ERROR] CTGAN library needs to be installed.\nError message: %s" % err)
 
