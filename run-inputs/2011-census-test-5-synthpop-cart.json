@@ -1,6 +1,6 @@
 {
-    "enabled" : true,
-    "dataset" : "datasets/2011-census-microdata/2011-census-microdata-small",
+    "enabled" : false,
+    "dataset" : "datasets/2011-census-microdata/2011-census-microdata",
     "synth-method" : "synthpop",
     "parameters":
     {

@@ -17,15 +17,15 @@
     "privacy_parameters_disclosure_risk":
     {
         "enabled": true,
-        "num_samples_intruder": 2000,
-        "vars_intruder": ["Residence Type", "Sex", "Age"]
+        "num_samples_intruder": 20,
+        "vars_intruder": ["Sex", "Age", "Marital Status"]
     },
     "utility_parameters_classifiers":
     {
         "enabled": true,
-        "input_columns": ["Country of Birth"],
-        "label_column": "Age",
-        "test_train_ratio": 0.2,
+        "input_columns": ["Sex", "Marital Status", "Hours worked per week"],
+        "label_column": "Industry",
+        "test_train_ratio": 0.3,
         "num_leaked_rows": 0,
         "classifier": {
             "LogisticRegression":  {"mode": "main",
