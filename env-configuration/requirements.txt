@@ -6,4 +6,4 @@ uuid
 dython
 # Use Gregs fork
 # DataSynthesizer
-git+git://github.com/gmingas/DataSynthesizer.git
+git+https://github.com/gmingas/DataSynthesizer.git
