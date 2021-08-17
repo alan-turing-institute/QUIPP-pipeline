@@ -22,7 +22,7 @@
         },
         {
             "name": "Sex",
-            "type": "DiscreteNumerical"
+            "type": "Categorical"
         },
         {
             "name": "Age",
@@ -30,39 +30,39 @@
         },
         {
             "name": "Marital Status",
-            "type": "DiscreteNumerical"
+            "type": "Categorical"
         },
         {
             "name": "Student",
-            "type": "DiscreteNumerical"
+            "type": "Categorical"
         },
         {
             "name": "Country of Birth",
-            "type": "DiscreteNumerical"
+            "type": "Categorical"
         },
         {
             "name": "Health",
-            "type": "DiscreteNumerical"
+            "type": "Categorical"
         },
         {
             "name": "Ethnic Group",
-            "type": "DiscreteNumerical"
+            "type": "Categorical"
         },
         {
             "name": "Religion",
-            "type": "DiscreteNumerical"
+            "type": "Categorical"
         },
         {
             "name": "Economic Activity",
-            "type": "DiscreteNumerical"
+            "type": "Categorical"
         },
         {
             "name": "Occupation",
-            "type": "DiscreteNumerical"
+            "type": "Categorical"
         },
         {
             "name": "Industry",
-            "type": "DiscreteNumerical"
+            "type": "Categorical"
         },
         {
             "name": "Hours worked per week",
@@ -70,7 +70,7 @@
         },
         {
             "name": "Approximated Social Grade",
-            "type": "DiscreteNumerical"
+            "type": "Categorical"
         }
     ]
 }
