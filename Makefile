@@ -103,9 +103,8 @@ run-inputs/%.json synth-output/%/synthetic_data_1.csv
 run-% :\
 synth-output/%/synthetic_data_1.csv\
 synth-output/%/utility_correlations.json\
-synth-output/%/disclosure_risk.json\
-synth-output/%/utility_diff.json\
-synth-output/%/utility_feature_importance.json\
+synth-output/%/utility_classifiers.json\
+synth-output/%/privacy_disclosure_risk.json\
 ;
 
 
