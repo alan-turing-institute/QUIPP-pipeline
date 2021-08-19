@@ -20,8 +20,8 @@
     "utility_parameters_classifiers":
     {
         "enabled": true,
-        "input_columns": ["Sex", "Marital Status", "Hours worked per week"],
-        "label_column": "Industry",
+        "input_columns": ["Age"],
+        "label_column": "Marital Status",
         "test_train_ratio": 0.3,
         "num_leaked_rows": 0,
         "classifier": {

@@ -13,7 +13,18 @@
         "synthesis_methods": ["sample", "cart", "sample", "cart", "cart", "cart", "cart", "cart", "cart", "cart", "cart", "cart", "cart", "cart", "cart", "cart", "cart", "cart"],
         "proper": false,
         "tree_minbucket": 5,
-        "smoothing": {}
+        "smoothing": {"Age": "density",
+                      "Region": "density",
+                      "Family Composition": "density",
+                      "Economic Activity": "density",
+                      "Occupation": "density",
+                      "Industry": "density",
+                      "Hours worked per week": "density",
+                      "Approximated Social Grade": "density",
+                      "Health": "density",
+                      "Marital Status": "density",
+                      "Sex": "density"
+                    }
     },
     "privacy_parameters_disclosure_risk":
     {
