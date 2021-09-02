@@ -25,7 +25,7 @@ SYNTH_OUTPUTS_CSV = $(addsuffix /synthetic_data_1.csv,$(SYNTH_OUTPUTS_PREFIX))
 SYNTH_OUTPUTS_PRIV_DISCL_RISK = $(addsuffix /privacy_disclosure_risk.json,$(SYNTH_OUTPUTS_PREFIX))
 SYNTH_OUTPUTS_UTIL_CLASS = $(addsuffix /utility_classifiers.json,$(SYNTH_OUTPUTS_PREFIX))
 SYNTH_OUTPUTS_UTIL_CORR = $(addsuffix /utility_correlations.json,$(SYNTH_OUTPUTS_PREFIX))
-SYNTH_OUTPUTS_LEAKY = $(addsuffix /synthetic_data_leaked_1.csv,$(SYNTH_OUTPUTS_PREFIX))
+SYNTH_OUTPUTS_LEAKY = $(addsuffix /synth_data_leaked_1.csv,$(SYNTH_OUTPUTS_PREFIX))
 
 
 .PHONY: all all-synthetic generated-data clean
@@ -84,7 +84,7 @@ run-inputs/%.json synth-output/%/synthetic_data_1.csv
 	python metrics/privacy-metrics/disclosure_risk.py -i $< -o $$(dirname $@)
 
 $(SYNTH_OUTPUTS_LEAKY) : \
-synth-output/%/synthetic_data_leaked_1.csv : \
+synth-output/%/synth_data_leaked_1.csv : \
 run-inputs/%.json synth-output/%/synthetic_data_1.csv
 	python metrics/privacy-metrics/leaky_output.py -i $< -o $$(dirname $@)
 
@@ -112,7 +112,7 @@ synth-output/%/synthetic_data_1.csv\
 synth-output/%/utility_correlations.json\
 synth-output/%/utility_classifiers.json\
 synth-output/%/privacy_disclosure_risk.json\
-synth-output/%/synthetic_data_leaked_1.csv\
+synth-output/%/synth_data_leaked_1.csv\
 ;
 
 
