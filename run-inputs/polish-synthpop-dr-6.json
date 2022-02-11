@@ -1,5 +1,5 @@
 {
-    "enabled" : false,
+    "enabled" : true,
     "dataset" : "datasets/polish_data_2011/polish_data_2011",
     "synth-method" : "synthpop",
     "parameters":
@@ -23,7 +23,7 @@
     },
     "utility_parameters_classifiers":
     {
-        "enabled": true,
+        "enabled": false,
         "input_columns": ["sex", "wkabint", "marital", "sport", "ls", "smoke"],
         "label_column": "edu",
         "test_train_ratio": 0.3,

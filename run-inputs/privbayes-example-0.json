@@ -1,5 +1,5 @@
 {
-    "enabled" : true,
+    "enabled" : false,
     "dataset" : "generator-outputs/odi-nhs-ae/hospital_ae_data_deidentify",
     "synth-method" : "PrivBayes",
     "parameters":

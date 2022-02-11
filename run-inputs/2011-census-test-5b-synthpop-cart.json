@@ -1,0 +1,41 @@
+{
+    "enabled" : false,
+    "dataset" : "datasets/2011-census-microdata/2011-census-microdata-small",
+    "synth-method" : "synthpop",
+    "parameters":
+    {
+        "enabled" : true,
+        "num_samples_to_fit": -1,
+        "num_samples_to_synthesize": -1,
+        "num_datasets_to_synthesize": 5,
+        "random_state": 12345,
+        "vars_sequence": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18],
+        "synthesis_methods": ["sample", "cart", "sample", "cart", "cart", "cart", "cart", "cart", "cart", "cart", "cart", "cart", "cart", "cart", "cart", "cart", "cart", "cart"],
+        "proper": false,
+        "tree_minbucket": 5,
+        "smoothing": {}
+    },
+    "privacy_parameters_disclosure_risk":
+    {
+        "enabled": true,
+        "num_samples_intruder": 20,
+        "vars_intruder": ["Sex", "Age", "Marital Status"]
+    },
+    "utility_parameters_classifiers":
+    {
+        "enabled": true,
+        "input_columns": ["Age", "Ethnic Group", "Religion", "Student", "Sex"],
+        "label_column": "Marital Status",
+        "test_train_ratio": 0.3,
+        "num_leaked_rows": 0,
+        "classifier": {
+            "LogisticRegression":  {"mode": "main",
+                                    "params_main": {"max_iter": 1000}
+                                   }
+        }
+    },
+    "utility_parameters_correlations":
+    {
+        "enabled": true
+    }
+}

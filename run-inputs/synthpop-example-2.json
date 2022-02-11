@@ -1,8 +1,8 @@
 {
-    "enabled" : true,
+    "enabled" : false,
     "dataset" : "generator-outputs/odi-nhs-ae/hospital_ae_data_deidentify",
     "synth-method" : "synthpop",
-    "parameters": 
+    "parameters":
     {
         "enabled" : true,
         "num_samples_to_fit": -1,

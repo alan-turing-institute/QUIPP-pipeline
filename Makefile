@@ -25,10 +25,12 @@ SYNTH_OUTPUTS_CSV = $(addsuffix /synthetic_data_1.csv,$(SYNTH_OUTPUTS_PREFIX))
 SYNTH_OUTPUTS_PRIV_DISCL_RISK = $(addsuffix /privacy_disclosure_risk.json,$(SYNTH_OUTPUTS_PREFIX))
 SYNTH_OUTPUTS_UTIL_CLASS = $(addsuffix /utility_classifiers.json,$(SYNTH_OUTPUTS_PREFIX))
 SYNTH_OUTPUTS_UTIL_CORR = $(addsuffix /utility_correlations.json,$(SYNTH_OUTPUTS_PREFIX))
+SYNTH_OUTPUTS_LEAKY = $(addsuffix /synth_data_leaked_1.csv,$(SYNTH_OUTPUTS_PREFIX))
+
 
 .PHONY: all all-synthetic generated-data clean
 
-all: $(SYNTH_OUTPUTS_PRIV_DISCL_RISK) $(SYNTH_OUTPUTS_UTIL_CLASS) $(SYNTH_OUTPUTS_UTIL_CORR)
+all: $(SYNTH_OUTPUTS_PRIV_DISCL_RISK) $(SYNTH_OUTPUTS_UTIL_CLASS) $(SYNTH_OUTPUTS_UTIL_CORR) $(SYNTH_OUTPUTS_LEAKY)
 
 all-synthetic: $(SYNTH_OUTPUTS_CSV)
 
@@ -81,6 +83,11 @@ synth-output/%/privacy_disclosure_risk.json : \
 run-inputs/%.json synth-output/%/synthetic_data_1.csv
 	python metrics/privacy-metrics/disclosure_risk.py -i $< -o $$(dirname $@)
 
+$(SYNTH_OUTPUTS_LEAKY) : \
+synth-output/%/synth_data_leaked_1.csv : \
+run-inputs/%.json synth-output/%/synthetic_data_1.csv
+	python metrics/privacy-metrics/leaky_output.py -i $< -o $$(dirname $@)
+
 $(SYNTH_OUTPUTS_UTIL_CLASS) : \
 synth-output/%/utility_classifiers.json : \
 run-inputs/%.json synth-output/%/synthetic_data_1.csv
@@ -90,6 +97,23 @@ $(SYNTH_OUTPUTS_UTIL_CORR) : \
 synth-output/%/utility_correlations.json : \
 run-inputs/%.json synth-output/%/synthetic_data_1.csv
 	python metrics/utility-metrics/correlations.py -i $< -o $$(dirname $@)
+
+
+##-------------------------------------
+## Helper targets for individual inputs
+##-------------------------------------
+
+##   make run-example
+##
+## produces synthetic data and metrics from run-inputs/example.json with output in synth-output/example/
+
+run-% :\
+synth-output/%/synthetic_data_1.csv\
+synth-output/%/utility_correlations.json\
+synth-output/%/utility_classifiers.json\
+synth-output/%/privacy_disclosure_risk.json\
+synth-output/%/synth_data_leaked_1.csv\
+;
 
 
 ##-------------------------------------
